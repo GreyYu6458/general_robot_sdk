@@ -1,17 +1,17 @@
 #ifndef _WAYPOINT_MISSION_HPP_
 #define _WAYPOINT_MISSION_HPP_
-
-#include "../RobotMission.hpp"
+#include "../FlyMission.hpp"
+#include "WaypointMissionItem.hpp"
 
 namespace rsdk::mission
 {
-    class WaypointMission : public RobotMission
+    class WaypointMission : public FlyMission
     {
     public:
-        virtual void setUpMissionItems();
+        void setItem(MissionItem item);
     
     private:
-
+        
     };
 }
 

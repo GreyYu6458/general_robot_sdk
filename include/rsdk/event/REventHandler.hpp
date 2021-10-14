@@ -3,7 +3,10 @@
 
 namespace rsdk::event
 {
-    
+    class REventHandler
+    {
+        
+    };
 }
 
 #endif

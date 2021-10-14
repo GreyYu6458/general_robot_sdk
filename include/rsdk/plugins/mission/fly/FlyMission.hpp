@@ -6,7 +6,8 @@ namespace rsdk::mission
 {
     class FlyMission : public RobotMission
     {
-
+    public:
+        
     };
 }
 

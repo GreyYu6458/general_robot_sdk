@@ -20,9 +20,9 @@ namespace rsdk
         static void registPlugin()
         {
             static_assert( std::is_base_of<PluginBase, T>::value, 
-                "the template parameter is not plugin");
+                "the template parameter is not base of rsdk::PluginBase");
             
-            _add_plguin_to_global_map( typeid(T).hash_code() );    
+            _add_plguin_to_global_map( typeid(T).hash_code() );
         }
 
         static PluginMapType pluginEmptyMap();

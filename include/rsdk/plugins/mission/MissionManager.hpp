@@ -10,13 +10,13 @@
 
 namespace rsdk::mission
 {                         
-    class MissionManagerProxy
+    class MissionManager
     {
     public:
         // 开始由任务管理来调度任务
-        PIFInvokeRst launch(std::unique_ptr<BaseMission>&);
-        
-        // 
+        // 这个函数会调用Mission
+        void launch(std::unique_ptr<BaseMission>&);
+
     private:
         class Impl;
         Impl* _impl;

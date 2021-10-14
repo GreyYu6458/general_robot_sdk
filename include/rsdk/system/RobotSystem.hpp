@@ -4,6 +4,7 @@
 #include <memory>
 #include "RobotSystemConfig.hpp"
 #include "SystemInfoPublisher.hpp"
+#include "rsdk/description/RobotDescription.hpp"
 
 namespace rsdk
 {

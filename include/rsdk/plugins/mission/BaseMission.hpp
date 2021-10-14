@@ -22,7 +22,10 @@ namespace rsdk::mission
     public:
         virtual void start() = 0;
 
-        virtual void statusChanged() = 0;
+        /**
+         * @ brief 通知任务管理器
+        */
+        virtual void notify() = 0;
 
         virtual ~BaseMission() = 0;
     };
