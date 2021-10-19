@@ -1,39 +1,30 @@
 #ifndef _SENSOR_HPP_
 #define _SENSOR_HPP_
 
-#include "rsdk/plugins/PluginBase.hpp"
 #include <functional>
+#include <mutex>
 #include <vector>
-
-namespace rsdk
-{
-    class RobotSystem;
-}
+#include "rsdk/plugins/PluginInterface.hpp"
 
 namespace rsdk::sensor
 {
     template<class MessageType>
-    class SensorInterface : public ::rsdk::PluginBase
+    class SensorAbstract : public PluginInterface
     {
     public:
         using msg_type = MessageType;
-        using cb_type = std::function<void (const msg_type&)>;
+        using cb_type = std::function<void (const MessageType&)>;
 
-        virtual void subscribe(const cb_type& cb) = 0;
-    };
-
-    template<class MessageType>
-    class SensorAbstract : public SensorInterface<MessageType>
-    {
-    public:
-        void subscribe(const typename SensorAbstract::cb_type& cb) override
+        void subscribe(const cb_type& cb)
         {
+            std::lock_guard<std::mutex> l(_sub_mutex);
             _callbacks.push_back(cb);
         }
 
     protected:
-        void onUpdate(typename SensorAbstract::msg_type& message)
+        void onUpdate(MessageType& message)
         {
+            std::lock_guard<std::mutex> l(_sub_mutex);
             for(const auto& func : _callbacks)
             {
                 func(message);
@@ -41,7 +32,8 @@ namespace rsdk::sensor
         }
 
     private:
-        std::vector<typename SensorAbstract::cb_type>    _callbacks;
+        std::mutex             _sub_mutex;
+        std::vector<cb_type>   _callbacks;
     };
 }
 

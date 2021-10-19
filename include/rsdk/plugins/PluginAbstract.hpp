@@ -8,15 +8,18 @@ namespace rsdk
     enum class PIFInvokeRst
     {
         SUCCESS,
-        PROXY_IS_NULLPTR
+        PROXY_IS_NULLPTR,
+        NOT_STARTED,
     };
 
-    class PluginBase
+    class RobotSystem;
+
+    class PluginAbstract
     {
     public:
         virtual PIFInvokeRst start() = 0;
 
-        virtual ~PluginBase(){};
+        virtual PIFInvokeRst isStarted() = 0;
     };
 }
 

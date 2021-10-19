@@ -129,6 +129,8 @@ public:
         _telem_package.onMessageUnpack(
             &self_type::messageUnpackCallback, this
         );
+
+        _is_started = true;
     }
 
     static void messageUnpackCallback(const pkg_msg_type& elem, void* user_data)
@@ -142,16 +144,18 @@ public:
     {
         static_cast<Child&>(*this).convert(data);
     }
-
-    uint16_t      _freq{1};
-    MsgType       _sensor_msg{MsgType()};
-    pkg_type      _telem_package;
+                
+    bool            _is_started{false};
+    uint16_t        _freq{1};
+    MsgType         _sensor_msg{MsgType()};
+    pkg_type        _telem_package;
 };
 
-#define ATTITUDE_STATUS_PKG_INDEX   0
-#define AVOID_PKG_INDEX             1
-#define GNSS_PKG_INDEX              2
-#define GNSS_UNCERTAIN_PKG_INDEX    3
-#define FLIGHT_STATUS_PKG_INDEX     4
+#define GPS_TIME_PJG_INDEX          0
+#define ATTITUDE_STATUS_PKG_INDEX   1
+#define AVOID_PKG_INDEX             2
+#define GNSS_PKG_INDEX              3
+#define GNSS_UNCERTAIN_PKG_INDEX    4
+#define FLIGHT_STATUS_PKG_INDEX     5
 
 #endif

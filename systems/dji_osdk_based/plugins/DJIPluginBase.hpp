@@ -23,7 +23,7 @@ protected:
         return _dji_system->vehicle();
     }
 
-    const DJIVehicleSystem* const system()
+    DJIVehicleSystem* const system()
     {
         return _dji_system;
     }

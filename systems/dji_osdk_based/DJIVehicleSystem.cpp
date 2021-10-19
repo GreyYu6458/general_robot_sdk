@@ -3,8 +3,9 @@
 
 #include <dji_vehicle.hpp>
 #include <dji_linker.hpp>
-
 #include <rsdk/system/SystemLinkMethods.hpp>
+
+#include <boost/format.hpp>
 
 #include "plugins/sensors/DJIBattery.hpp"
 #include "plugins/sensors/DJIAvoid.hpp"
@@ -12,6 +13,8 @@
 #include "plugins/sensors/DJIAttitude.hpp"
 #include "plugins/sensors/DJIGNSS.hpp"
 #include "plugins/sensors/DJIGNSSUncertain.hpp"
+#include "plugins/sensors/DJIGPSTime.hpp"
+#include "plugins/mission/DJIMissionExecutor.hpp"
 
 using DJILinker = DJI::OSDK::Linker;
 
@@ -40,51 +43,42 @@ private:
 
         _owner->dji_regist_plugin<rsdk::sensor::GNSSUncertainInfoInterface>
         ( std::make_shared<DJIGNSSUncertain>    (_owner) );
+
+        _owner->dji_regist_plugin<rsdk::sensor::FlyingRobotStatusListenerInterface>
+        ( std::make_shared<DJIFlightStatus>     (_owner) );
+
+        _owner->dji_regist_plugin<rsdk::mission::flight::waypoint::WPMExecutorInterface>
+        ( std::make_shared<DJIWPExecutor>       (_owner) );
     }
 
     SystemImpl(DJIVehicleSystem* owner)
-    : _owner(owner){}
+    : _owner(owner)
+    {
+        _gps_time_sysc_plugin = std::make_unique<DJIGPSTime>(owner);
+    }
 
     DJIVehicleSystem* _owner;
 
 public:
 
-    inline void info(const std::string& msg)
-    {
-        _owner->publish<rsdk::SystemInfoLevel::INFO>(msg);
-    }
-    
-    inline void error(const std::string& msg)
-    {
-        _owner->publish<rsdk::SystemInfoLevel::ERROR>(msg);
-    }
-
-    inline void warn(const std::string& msg)
-    {
-        _owner->publish<rsdk::SystemInfoLevel::WARNING>(msg);
-    }
-
     // impl of link method
-    rsdk::RobotSystem::SystemLinkResult link(const rsdk::SystemConfig &config)
+    bool link(const rsdk::SystemConfig &config)
     {
-        rsdk::RobotSystem::SystemLinkResult rst;
-
+        static boost::format formater("file:%s,line:%d,content:%s");
         _owner->_regist_osdk_info(); // get DJI Low layer message
-
         auto linker = new (std::nothrow) Linker();
 
         if (!linker)
         {
-            rst.is_success = false;
-            rst.detail = "Malloc For DJI Linker Failed!";
-            return rst;
+            error( (formater % __FILE__ % __LINE__ % "Malloc For DJI Linker Failed!").str());
+            return false;
         }
         
         if (!linker->init())
         {
-            rst.is_success = false;
-            rst.detail = "DJI Linker Init Failed!";
-            return rst;
+            error( (formater % __FILE__ % __LINE__ % "DJI Linker Init Failed!").str());
+            error("DJI Linker Init Failed!");
+            return false;
         }
 
         _dji_linker = std::unique_ptr<DJILinker>(linker);
@@ -93,17 +87,15 @@ public:
         auto acm_port_opt = config.getPameter<rsdk::SerialMethod>("acm");
 
         if (!usb_port_opt.has_value())
-        {
-            rst.is_success = false;
-            rst.detail = "config value is empty, system config has no correct key : \"usb\"";
-            return rst;
+        {   
+            error( (formater % __FILE__ % __LINE__ % "config value is empty, system config has no correct key : \"usb\"").str());
+            return false;
         }
 
         if (!acm_port_opt.has_value())
         {
-            rst.is_success = false;
-            rst.detail = "config value is empty, system config has no correct key : \"acm\"";
-            return rst;
+            error( (formater % __FILE__ % __LINE__ % "config value is empty, system config has no correct key : \"acm\"").str());
+            return false;
         }
 
         auto usb_port = *usb_port_opt;
@@ -111,16 +103,14 @@ public:
 
         if (!_dji_linker->addUartChannel(usb_port.dev_path.c_str(), usb_port.baudrate, FC_UART_CHANNEL_ID))
         {
-            rst.is_success = false;
-            rst.detail = "DJI VEHICLE ADD ACM channel Failed!";
-            return rst;
+            error( (formater % __FILE__ % __LINE__ % "DJI VEHICLE ADD ACM channel Failed!").str());
+            return false;
         }
 
         if (!_dji_linker->addUartChannel(acm_port.dev_path.c_str(), acm_port.baudrate, USB_ACM_CHANNEL_ID))
         {
-            rst.is_success = false;
-            rst.detail = "DJI VEHICLE ADD USB channel Failed!";
-            return rst;
+            error( (formater % __FILE__ % __LINE__ % "DJI VEHICLE ADD USB channel Failed!").str());
+            return false;
         }
 
         DJIVehicle::ActivateData activateData;
@@ -134,9 +124,8 @@ public:
 
         if (!_dji_vehicle)
         {
-            rst.is_success = false;
-            rst.detail = "Vehicle create failed";
-            return rst;
+            error( (formater % __FILE__ % __LINE__ % "Vehicle create failed").str());
+            return false;
         }
 
         /*DJI::OSDK::ACK::ErrorCode ack = */
@@ -153,16 +142,17 @@ public:
         subscribe_status = _dji_vehicle->subscribe->verify(1);
         if(DJI::OSDK::ACK::getError(subscribe_status) != DJI::OSDK::ACK::SUCCESS)
         {
-            rst.is_success = false;
-            rst.detail = "DJI VERIFY ERROR";
-            return rst;
+            error( (formater % __FILE__ % __LINE__ % "DJI VERIFY ERROR").str());
+            return false;
         }
 
         _unique_code = _dji_vehicle->getHwSerialNum();
 
-        rst.is_success = true;
-        rst.detail = "Success";
-        return rst;
+        // start time sync
+        _gps_time_sysc_plugin->exec();
+
+        info("DJI Vehicle Link Success");
+        return true;
     }
 
 private:
@@ -184,7 +174,8 @@ private:
     }
 
     std::shared_ptr<DJIVehicle> _dji_vehicle;
-    std::unique_ptr<DJILinker> _dji_linker;
+    std::unique_ptr<DJILinker>  _dji_linker;
+    std::unique_ptr<DJIGPSTime> _gps_time_sysc_plugin;
 
     DJIVehicleModels _model{DJIVehicleModels::UNKNOWN};
 
@@ -192,7 +183,6 @@ private:
 
     std::string _manufacturer;
     std::string _unique_code;
-
 
     bool _is_linked;
 };
@@ -208,20 +198,16 @@ DJIVehicleSystem::~DJIVehicleSystem()
     delete _impl;
 }
 
-rsdk::RobotSystem::SystemLinkResult DJIVehicleSystem::link(const rsdk::SystemConfig &config)
+bool DJIVehicleSystem::link(const rsdk::SystemConfig &config)
 {
     _impl->_config = config;
 
     auto rst = _impl->link(config);
 
-    if(rst.is_success == false)
+    if(rst == false)
         return rst;
 
-    dji_regist_plugin<rsdk::sensor::AttitudeInterface>            ( std::make_shared<DJIAttitude>(this) );
-    dji_regist_plugin<rsdk::sensor::AvoidanceInterface>           ( std::make_shared<DJIAvoid>(this) );
-    dji_regist_plugin<rsdk::sensor::BatteryInterface>             ( std::make_shared<DJIBatteryWrapper>(this) );
-    dji_regist_plugin<rsdk::sensor::GNSSReceiverInterface>        ( std::make_shared<DJIGNSSReceiver>(this) );
-    dji_regist_plugin<rsdk::sensor::GNSSUncertainInfoInterface>   ( std::make_shared<DJIGNSSUncertain>(this) );
+    _impl->registALLPlugin();
 
     return rst;
 }

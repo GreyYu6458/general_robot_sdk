@@ -2,28 +2,20 @@
 #define _SENSOR_GNSS_RECEIVER_HPP_
 
 #include "Sensor.hpp"
+#include "rsdk/plugins/PluginProxy.hpp"
 #include "rsdk/message/sensor_msg/msg_coordinate.h"
 
 namespace rsdk::sensor
 {
-    class GNSSReceiverInterface : public SensorAbstract<sensor_msg::Coordinate>
-    {
-    public:
-        virtual PIFInvokeRst start() = 0;
-    };
+    class GNSSReceiverInterface : public SensorAbstract<sensor_msg::Coordinate>{};
 
     class GNSSReceiverProxy
-        : public SensorInterface<sensor_msg::Coordinate>
+        :   public PluginProxy<GNSSReceiverInterface>
     {
     public:
         GNSSReceiverProxy( rsdk::RobotSystem* system );
 
-        PIFInvokeRst start() override;
-
-        void subscribe(const cb_type& cb) override;
-
-    private:
-        std::shared_ptr<GNSSReceiverInterface> _impl;
+        void subscribe(const GNSSReceiverInterface::cb_type& cb);
     };
 }
 

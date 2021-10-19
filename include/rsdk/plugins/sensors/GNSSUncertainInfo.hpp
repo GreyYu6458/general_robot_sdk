@@ -2,28 +2,20 @@
 #define _SENSOR_GNSS_UNCERTAIN_HPP_
 
 #include "Sensor.hpp"
+#include "rsdk/plugins/PluginProxy.hpp"
 #include "rsdk/message/sensor_msg/msg_gnss_uncertain.h"
 
 namespace rsdk::sensor
 {
-    class GNSSUncertainInfoInterface : public SensorAbstract<sensor_msg::GNSSUncertain>
-    {
-    public:
-        virtual PIFInvokeRst start() = 0;
-    };
+    class GNSSUncertainInfoInterface : public SensorAbstract<sensor_msg::GNSSUncertain>{};
 
     class GNSSUncertainInfoProxy
-        : public SensorInterface<sensor_msg::GNSSUncertain>
+        :    public PluginProxy<GNSSUncertainInfoInterface>
     {
     public:
         GNSSUncertainInfoProxy( rsdk::RobotSystem* system );
 
-        PIFInvokeRst start() override;
-
-        void subscribe(const cb_type& cb) override;
-
-    private:
-        std::shared_ptr<GNSSUncertainInfoInterface> _impl;
+        void subscribe(const GNSSUncertainInfoInterface::cb_type& cb);
     };
 }
 

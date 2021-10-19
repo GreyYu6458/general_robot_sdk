@@ -1,32 +1,32 @@
 #ifndef _REVENT_HPP_
 #define _REVENT_HPP_
+#include <cstdint>
+
+namespace rsdk
+{
+    class RobotSystem;
+}
 
 namespace rsdk::event
 {
-    enum REventType
-    {
-        MissionEvent,
-        SensorEvent,
-    };
-
     class REvent
     {
     public:
-        virtual ~REvent(){}
+        REvent(RobotSystem* system, uint32_t gid, uint32_t sid);
 
-        void accept();
+        virtual ~REvent();
 
-        void ignore();
+        uint32_t groupId();
 
-        bool isAccepted() const;
+        uint32_t subId();
 
-        void setAccepted();
+        uint32_t triggerTime();
 
-        REventType type() const;
-
+        rsdk::RobotSystem* const system();
+    
     private:
-        class REventImpl;
-        REventImpl* _impl;
+        class Impl;
+        Impl* _impl;
     };
 }
 

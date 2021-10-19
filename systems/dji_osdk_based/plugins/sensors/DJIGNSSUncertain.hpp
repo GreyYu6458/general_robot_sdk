@@ -26,7 +26,9 @@ public:
 
     void convert(const DJIGNSSUncertain::pkg_msg_type& data);
 
-    rsdk::PIFInvokeRst start() override;
+    bool start() override;
+
+    bool isStarted() override;
 };
 
 #endif

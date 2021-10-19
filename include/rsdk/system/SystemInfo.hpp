@@ -8,7 +8,6 @@ namespace rsdk
     enum class SystemInfoLevel
     {
         INFO,
-        DEBUG,
         WARNING,
         LOWLAYER,
         ERROR

@@ -9,7 +9,7 @@ void DJIVehicleSystem::_regist_osdk_info()
     DJI::OSDK::Log::instance().onMessage(
         [this](char* msg)
         {
-            this->publish<rsdk::SystemInfoLevel::LOWLAYER>(std::string(msg));
+            this->publishInfo<rsdk::SystemInfoLevel::LOWLAYER>(std::string(msg));
         }
     );
 }

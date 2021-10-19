@@ -31,7 +31,7 @@ public:
 
     ~DJIVehicleSystem();
 
-    SystemLinkResult link(const rsdk::SystemConfig& config) override;
+    bool link(const rsdk::SystemConfig& config) override;
 
     // 飞机是否连接
     bool isLink() override;
@@ -52,11 +52,10 @@ public:
     DJIVehicleModels model();
 
 private:
-
     template<class T, class G>
     bool dji_regist_plugin(const std::shared_ptr<G>& impl)
     {
-        static_assert( 
+        static_assert(
             std::is_base_of<DJIPluginBase, G>::value, 
             "input type is not the base of DJIPlugin" 
         );
@@ -68,13 +67,13 @@ private:
 
         if(!is_support_plugin)
         {
-            publish<rsdk::SystemInfoLevel::WARNING>( 
+            publishInfo<rsdk::SystemInfoLevel::WARNING>( 
                 "not support:\t" + std::string(typeid(G).name()) 
             );   
         }
         else if (registPlugin<T>(impl))
         {
-            publish<rsdk::SystemInfoLevel::INFO>( 
+            publishInfo<rsdk::SystemInfoLevel::INFO>( 
                 "regist    :\t" + std::string(typeid(G).name())
             );
             return true;

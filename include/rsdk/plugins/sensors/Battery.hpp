@@ -2,28 +2,20 @@
 #define _SENSOR_BATTERY_HPP_
 
 #include "Sensor.hpp"
+#include "rsdk/plugins/PluginProxy.hpp"
 #include "rsdk/message/sensor_msg/msg_battery.h"
 
 namespace rsdk::sensor
 {
-    class BatteryInterface : public SensorAbstract<sensor_msg::BatteryInfo>
-    {
-    public:
-        virtual PIFInvokeRst start() = 0;
-    };
+    class BatteryInterface : public SensorAbstract<sensor_msg::BatteryInfo>{};
 
     class BatteryProxy
-        : public SensorInterface<sensor_msg::BatteryInfo>
+        :  public PluginProxy<BatteryInterface>
     {
     public:
         BatteryProxy( rsdk::RobotSystem* system );
 
-        PIFInvokeRst start() override;
-
-        void subscribe(const cb_type& cb) override;
-
-    private:
-        std::shared_ptr<BatteryInterface> _impl;
+        void subscribe(const BatteryInterface::cb_type& cb);
     };
 }
 

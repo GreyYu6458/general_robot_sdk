@@ -24,7 +24,9 @@ public:
 
     void convert(const DJIAttitude::pkg_msg_type& data);
 
-    rsdk::PIFInvokeRst start() override;
+    bool start() override;
+
+    bool isStarted() override;
 };
 
 

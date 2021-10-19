@@ -82,7 +82,14 @@ add_library(
     dji_linux_helper/osdkhal_linux.c
     dji_linux_helper/osdkosal_linux.c
 
+    plugins/mission/DJIWPMission.cpp
+    plugins/mission/DJIMissionContext.cpp
+    plugins/mission/DJIEventWrapper.cpp
+    plugins/mission/DJIMissionExecutor.cpp
+    plugins/mission/DJIWPMission.cpp
+
     plugins/sensors/DJIBattery.cpp
+    plugins/sensors/DJIGPSTime.cpp
     plugins/sensors/DJISensors_Impl.cpp
 )
 

@@ -13,11 +13,15 @@ public:
 
     void setFreqency(uint16_t freq);
 
+    void collect(); // TODO move thread from lambda to this method
+
     DJIVehicleModels supportModel() override;
 
     void exec() override;
 
-    rsdk::PIFInvokeRst start() override;
+    bool start() override;
+
+    bool isStarted() override;
 
 private:
     class Impl;

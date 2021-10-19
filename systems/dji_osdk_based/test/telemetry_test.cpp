@@ -8,12 +8,14 @@
 #include "rsdk/plugins/sensors/Avoid.hpp"
 #include "rsdk/plugins/sensors/Battery.hpp"
 #include "rsdk/plugins/sensors/GNSSReceiver.hpp"
+#include "rsdk/plugins/sensors/GNSSUncertainInfo.hpp"
+#include "rsdk/plugins/sensors/FlyingRbtStListener.hpp"
 
 namespace callbacks{
 
     using namespace rsdk::sensor;
 
-void onAttitudeDataUpdate(const AttitudeProxy::msg_type& msg)
+void onAttitudeDataUpdate(const AttitudeInterface::msg_type& msg)
 {
     std::cout   << "attitude data " 
                 << " q0:"   << msg.q0 
@@ -23,7 +25,15 @@ void onAttitudeDataUpdate(const AttitudeProxy::msg_type& msg)
                 << std::endl;
 }
 
-void onAvoidanceDataUpdata(const AvoidanceProxy::msg_type& msg)
+void onFlightStateDataUpdate(const FlyingRobotStatusListenerInterface::msg_type& msg)
+{
+    std::cout   << "flight state data " 
+                << " state:"   << static_cast<uint32_t>(msg)
+                << std::endl;
+}
+
+
+void onAvoidanceDataUpdata(const AvoidanceInterface::msg_type& msg)
 {
     std::cout   << "avoidance data "
                 << " back:"  << msg.back.lenght
@@ -35,7 +45,15 @@ void onAvoidanceDataUpdata(const AvoidanceProxy::msg_type& msg)
                 << std::endl;
 }
 
-void onBatteryDataUpdata(const BatteryProxy::msg_type& msg)
+void onGNSSUncertainUpdate(const GNSSUncertainInfoInterface::msg_type& msg)
+{
+    std::cout   << "gnss uncertain data "
+                << " gnss sat:"  << static_cast<uint32_t>(msg.sat_num)
+                << " gnss fix type:" << static_cast<uint32_t>(msg.fix_type)
+                << std::endl;
+}
+
+void onBatteryDataUpdata(const BatteryInterface::msg_type& msg)
 {
     std::cout   << "battery data whole:" << msg.whole_voltage;
     size_t i = 0;
@@ -46,12 +64,12 @@ void onBatteryDataUpdata(const BatteryProxy::msg_type& msg)
     std::cout << std::endl;
 }
 
-void onGNSSDataUpdate(const GNSSReceiverProxy::msg_type& msg)
+void onGNSSDataUpdate(const GNSSReceiverInterface::msg_type& msg)
 {
-    std::cout   << "avoidance data "
+    std::cout   << "coordinate data "
                 << " altitude:"  << msg.altitude
                 << " longitude:"  << msg.longitude
-                << " altitude:" << msg.altitude
+                << " latitude:" << msg.latitude
                 << std::endl;
 }
 
@@ -86,20 +104,30 @@ int main()
     
     dji_system->link(config);
 
-    rsdk::sensor::AttitudeProxy             attitude_proxy(dji_system);
-    rsdk::sensor::AvoidanceProxy            avoidance_proxy(dji_system);
-    rsdk::sensor::BatteryProxy              battery_proxy(dji_system);
-    rsdk::sensor::GNSSReceiverProxy         gnss_proxy(dji_system);
+    rsdk::sensor::AttitudeProxy                     attitude_proxy(dji_system);
+    rsdk::sensor::AvoidanceProxy                    avoidance_proxy(dji_system);
+    rsdk::sensor::BatteryProxy                      battery_proxy(dji_system);
+    rsdk::sensor::GNSSReceiverProxy                 gnss_proxy(dji_system);
+    rsdk::sensor::GNSSUncertainInfoProxy            gnssu_proxy(dji_system);
+    rsdk::sensor::FlyingRobotStatusListenerProxy    fs_proxy(dji_system);
     
     attitude_proxy.subscribe(&callbacks::onAttitudeDataUpdate);
     avoidance_proxy.subscribe(&callbacks::onAvoidanceDataUpdata);
     battery_proxy.subscribe(&callbacks::onBatteryDataUpdata);
     gnss_proxy.subscribe(&callbacks::onGNSSDataUpdate);
+    gnssu_proxy.subscribe(&callbacks::onGNSSUncertainUpdate);
+    fs_proxy.subscribe(&callbacks::onFlightStateDataUpdate);
+
+    std::cout << "is uav linked: " << (attitude_proxy.system()->isLink() ? "True" : "False") << std::endl;
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     attitude_proxy.start();
     avoidance_proxy.start();
     battery_proxy.start();
     gnss_proxy.start();
+    gnssu_proxy.start();
+    fs_proxy.start();
 
     char key = 0;
     while(key != 'q')

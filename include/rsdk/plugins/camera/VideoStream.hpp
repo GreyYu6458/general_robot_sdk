@@ -1,6 +1,8 @@
 #ifndef _CAMERA_STREAM_HPP_
 #define _CAMERA_STREAM_HPP_
-#include "rsdk/plugins/PluginBase.hpp"
+#include "../PluginProxy.hpp"
+#include "rsdk/plugins/PluginAbstract.hpp"
+#include "rsdk/plugins/PluginInterface.hpp"
 
 namespace rsdk
 {
@@ -13,21 +15,13 @@ namespace rsdk::camera
     /**
      * @brief 子类的系统中需要在无人机系统中注册该实现该接口的Plugin对象
      */
-    class VideoStreamPluginInterface : ::rsdk::PluginBase
-    {
-    public:
-        virtual PIFInvokeRst start() = 0;
-    };
+    class VideoStreamPluginInterface : public PluginInterface{};
 
-    class VideoStreamProxy: public VideoStreamPluginInterface
+    class VideoStreamProxy
+        : public PluginProxy<VideoStreamPluginInterface>
     {
     public:
         VideoStreamProxy(::rsdk::RobotSystem* system);
-
-        virtual PIFInvokeRst start() override;
-
-    private:
-        std::shared_ptr<VideoStreamPluginInterface> _impl{nullptr};
     };
 }
 

@@ -23,11 +23,38 @@ DJIGNSSUncertain::DJIGNSSUncertain(DJIVehicleSystem *system)
 DJIFlightStatus::DJIFlightStatus(DJIVehicleSystem* system)
     : dji::flight_status::BaseType(system) {}
 
-rsdk::PIFInvokeRst DJIFlightStatus::start()  { this->exec(); return rsdk::PIFInvokeRst::SUCCESS; }
-rsdk::PIFInvokeRst DJIAttitude::start()      { this->exec(); return rsdk::PIFInvokeRst::SUCCESS; }
-rsdk::PIFInvokeRst DJIAvoid::start()         { this->exec(); return rsdk::PIFInvokeRst::SUCCESS; }
-rsdk::PIFInvokeRst DJIGNSSReceiver::start()  { this->exec(); return rsdk::PIFInvokeRst::SUCCESS; }
-rsdk::PIFInvokeRst DJIGNSSUncertain::start() { this->exec(); return rsdk::PIFInvokeRst::SUCCESS; }
+
+bool DJIFlightStatus::start()
+{ this->exec(); return true; }
+
+bool DJIAttitude::start()      
+{ this->exec(); return true; }
+
+bool DJIAvoid::start()         
+{ this->exec(); return true; }
+
+bool DJIGNSSReceiver::start()  
+{ this->exec(); return true; }
+
+bool DJIGNSSUncertain::start() 
+{ this->exec(); return true; }
+
+
+bool DJIFlightStatus::isStarted()
+{ return this->_is_started; }
+
+bool DJIAttitude::isStarted()  
+{ return this->_is_started; }
+
+bool DJIAvoid::isStarted()      
+{ return this->_is_started; }
+
+bool DJIGNSSReceiver::isStarted()
+{ return this->_is_started; }
+
+bool DJIGNSSUncertain::isStarted()
+{ return this->_is_started; }
+
 
 // 
 void DJIAttitude::convert(const DJIAttitude::pkg_msg_type& data)
@@ -86,6 +113,7 @@ void DJIFlightStatus::convert(const DJIFlightStatus::pkg_msg_type& data)
         default:
             _sensor_msg = sensor_msg::FlightEnum::UNKNOWN;
     }
+    onUpdate(_sensor_msg);
 }
 
 void DJIGNSSReceiver::convert(const DJIGNSSReceiver::pkg_msg_type& data)
@@ -95,14 +123,14 @@ void DJIGNSSReceiver::convert(const DJIGNSSReceiver::pkg_msg_type& data)
     auto &raw_rtk_status = std::get<2>(data);
     auto &raw_rtk = std::get<3>(data);
 
-    if (raw_rtk_status.rtkConnected)
+    if (!raw_rtk_status.rtkConnected)
     {
         _sensor_msg.latitude    = raw_rtk.latitude * 180 / M_PI;
         _sensor_msg.longitude   = raw_rtk.longitude * 180 / M_PI;
     }
     else
     {
-        _sensor_msg.latitude    = raw_gps.latitude * 180 / M_PI;
+        _sensor_msg.latitude    = raw_gps.latitude  * 180 / M_PI;
         _sensor_msg.longitude   = raw_gps.longitude * 180 / M_PI;
     }
 

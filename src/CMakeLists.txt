@@ -12,8 +12,22 @@ add_library(
     system/RobotSystem.cpp
     system/RobotSystemConfig.cpp
     system/SystemInfoPublisher.cpp
-    plugins/PluginGlobalRegister.cpp
+
+    event/REvent.cpp
+
+    plugins/PluginProxy.cpp
+    plugins/PluginInterfaceRegister.cpp
+
     plugins/camera/VideoStream.cpp
+
     plugins/sensors/regist_sensors.cpp
+
+    plugins/mission/flight/waypoint/WPMContext.cpp
+    plugins/mission/flight/waypoint/WPMission.cpp
+    plugins/mission/flight/waypoint/WPMExecutor.cpp
+    plugins/mission/MissionDescription.cpp
+    plugins/mission/BaseExecutor.cpp
+    plugins/mission/MissionContext.cpp
+    plugins/mission/MissionEvent.cpp
 )
 

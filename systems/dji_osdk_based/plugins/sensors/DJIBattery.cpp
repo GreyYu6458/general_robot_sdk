@@ -10,10 +10,17 @@
 class DJIBatteryWrapper::Impl
 {
 public:
+    Impl()
+    {
+        _message.each_cell = {{},{}};
+    }
+
+
+    BatteryWholeInfo batteryWholeInfo;
     uint16_t    _freq{1};
     std::thread _bg_thread;
-    sensor_msg::BatteryInfo _message;
-    std::atomic<bool> _c{true};
+    sensor_msg::BatteryInfo _message; // 
+    std::atomic<bool> _c{false};
 };
 
 
@@ -40,10 +47,20 @@ DJIVehicleModels DJIBatteryWrapper::supportModel()
     return DJIVehicleModels::MODEL_M300;
 }
 
-rsdk::PIFInvokeRst DJIBatteryWrapper::start() 
+bool DJIBatteryWrapper::start() 
 { 
     this->exec(); 
-    return rsdk::PIFInvokeRst::SUCCESS;
+    return true;
+}
+
+bool DJIBatteryWrapper::isStarted()
+{
+    return _impl->_c;
+}
+
+void DJIBatteryWrapper::collect()
+{
+    
 }
 
 void DJIBatteryWrapper::exec()
@@ -60,11 +77,10 @@ void DJIBatteryWrapper::exec()
             SmartBatteryDynamicInfo dji_battery_one;
             SmartBatteryDynamicInfo dji_battery_two;
 
-            _impl->_message.each_cell.reserve(2);
+            _impl->_c = true;
 
             while (_impl->_c)
             {
-                BatteryWholeInfo batteryWholeInfo;
                 {
                     vehicle()->djiBattery->getSingleBatteryDynamicInfo(
                         DJIBattery::RequestSmartBatteryIndex::FIRST_SMART_BATTERY, 

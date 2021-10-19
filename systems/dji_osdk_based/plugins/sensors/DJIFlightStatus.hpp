@@ -27,7 +27,9 @@ public:
 
     void convert(const DJIFlightStatus::pkg_msg_type& data);
 
-    rsdk::PIFInvokeRst start() override;
+    bool start() override;
+
+    bool isStarted() override;
 };
 
 

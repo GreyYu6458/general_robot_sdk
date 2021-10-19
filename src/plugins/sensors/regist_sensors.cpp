@@ -3,94 +3,71 @@
 #include "rsdk/plugins/sensors/Battery.hpp"
 #include "rsdk/plugins/sensors/GNSSReceiver.hpp"
 #include "rsdk/plugins/sensors/GNSSUncertainInfo.hpp"
+#include "rsdk/plugins/sensors/FlyingRbtStListener.hpp"
 
-#include "rsdk/plugins/PluginGlobalRegister.hpp"
+#include "rsdk/plugins/PluginInterfaceRegister.hpp"
 #include "rsdk/system/RobotSystem.hpp"
 
 namespace rsdk::sensor
 {
     // Attitude
-    AttitudeProxy::AttitudeProxy( ::rsdk::RobotSystem* system )
-            : _impl(system->getPlugin<AttitudeInterface>()){}
-
     RegistPluginInterface(AttitudeInterface);
+    AttitudeProxy::AttitudeProxy( ::rsdk::RobotSystem* system )
+            :   PluginProxy<AttitudeInterface>(system){}
 
-    PIFInvokeRst AttitudeProxy::start()
+    void AttitudeProxy::subscribe(const AttitudeInterface::cb_type& cb)
     {
-        if(!_impl) return PIFInvokeRst::PROXY_IS_NULLPTR;
-        return _impl->start();
-    }
-
-    void AttitudeProxy::subscribe(const AttitudeProxy::cb_type& cb)
-    {
-        _impl->subscribe(cb);
+        _interface->subscribe(cb);
     }
 
     // Avoidance
-    AvoidanceProxy::AvoidanceProxy( ::rsdk::RobotSystem* system )
-        : _impl(system->getPlugin<AvoidanceInterface>()){}
-    
     RegistPluginInterface(AvoidanceInterface);
+    AvoidanceProxy::AvoidanceProxy( ::rsdk::RobotSystem* system )
+        :   PluginProxy(system){}
 
-    PIFInvokeRst AvoidanceProxy::start()
+    void AvoidanceProxy::subscribe(const AvoidanceInterface::cb_type& cb)
     {
-        if(!_impl) return PIFInvokeRst::PROXY_IS_NULLPTR;
-        return _impl->start();
-    }
-
-    void AvoidanceProxy::subscribe(const AvoidanceProxy::cb_type& cb)
-    {
-        _impl->subscribe(cb);
+        _interface->subscribe(cb);
     }
 
     // Battery
-    BatteryProxy::BatteryProxy( ::rsdk::RobotSystem* system )
-        : _impl(system->getPlugin<BatteryInterface>()){}
-
     RegistPluginInterface(BatteryInterface);
-    
-    PIFInvokeRst BatteryProxy::start()
-    {
-        if(!_impl) return PIFInvokeRst::PROXY_IS_NULLPTR;
-        return _impl->start();
-    }
+    BatteryProxy::BatteryProxy( ::rsdk::RobotSystem* system )
+        :   PluginProxy(system){}
 
-    void BatteryProxy::subscribe(const BatteryProxy::cb_type& cb)
+    void BatteryProxy::subscribe(const BatteryInterface::cb_type& cb)
     {
-        _impl->subscribe(cb);
+        _interface->subscribe(cb);
     }
 
     // GNSSReceiver
-    GNSSReceiverProxy::GNSSReceiverProxy( ::rsdk::RobotSystem* system )
-        : _impl(system->getPlugin<GNSSReceiverInterface>()){}
-
     RegistPluginInterface(GNSSReceiverInterface);
+    GNSSReceiverProxy::GNSSReceiverProxy( ::rsdk::RobotSystem* system )
+        :   PluginProxy(system){}
     
-    PIFInvokeRst GNSSReceiverProxy::start()
+    void GNSSReceiverProxy::subscribe(const GNSSReceiverInterface::cb_type& cb)
     {
-        if(!_impl) return PIFInvokeRst::PROXY_IS_NULLPTR;
-        return _impl->start();
-    }
-
-    void GNSSReceiverProxy::subscribe(const GNSSReceiverProxy::cb_type& cb)
-    {
-        _impl->subscribe(cb);
+        _interface->subscribe(cb);
     }
 
     // GNSSUncertainInfo
-    GNSSUncertainInfoProxy::GNSSUncertainInfoProxy( ::rsdk::RobotSystem* system )
-        : _impl(system->getPlugin<GNSSUncertainInfoInterface>()){}
-
     RegistPluginInterface(GNSSUncertainInfoInterface);
+    GNSSUncertainInfoProxy::GNSSUncertainInfoProxy( ::rsdk::RobotSystem* system )
+        :   PluginProxy(system){}
 
-    PIFInvokeRst GNSSUncertainInfoProxy::start()
+    void GNSSUncertainInfoProxy::subscribe(const GNSSUncertainInfoInterface::cb_type& cb)
     {
-        if(!_impl) return PIFInvokeRst::PROXY_IS_NULLPTR;
-        return _impl->start();
+        _interface->subscribe(cb);
     }
 
-    void GNSSUncertainInfoProxy::subscribe(const GNSSUncertainInfoProxy::cb_type& cb)
+    // FlyingRobotStatusListenerProxy
+    RegistPluginInterface(FlyingRobotStatusListenerInterface);
+
+    FlyingRobotStatusListenerProxy::FlyingRobotStatusListenerProxy( ::rsdk::RobotSystem* system )
+        :   PluginProxy(system){}
+
+    void FlyingRobotStatusListenerProxy::subscribe(const FlyingRobotStatusListenerInterface::cb_type& cb)
     {
-        _impl->subscribe(cb);
+        _interface->subscribe(cb);
     }
 }

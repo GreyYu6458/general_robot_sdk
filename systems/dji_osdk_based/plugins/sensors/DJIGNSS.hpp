@@ -29,7 +29,9 @@ public:
 
     void convert(const DJIGNSSReceiver::pkg_msg_type& data);
 
-    rsdk::PIFInvokeRst start() override;
+    bool start() override;
+
+    bool isStarted() override;
 };
 
 #endif

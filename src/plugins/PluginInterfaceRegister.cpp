@@ -1,4 +1,4 @@
-#include "rsdk/plugins/PluginGlobalRegister.hpp"
+#include "rsdk/plugins/PluginInterfaceRegister.hpp"
 
 namespace rsdk
 {
