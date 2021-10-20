@@ -24,7 +24,8 @@ using DJIVehiclePtr = std::shared_ptr<DJIVehicle>;
 
 class DJIPluginBase;
 
-class DJIVehicleSystem : public rsdk::RobotSystem
+class DJIVehicleSystem : public rsdk::RobotSystem , 
+                         public std::enable_shared_from_this<DJIVehicleSystem>
 {
 public:
     DJIVehicleSystem();
@@ -71,7 +72,7 @@ private:
                 "not support:\t" + std::string(typeid(G).name()) 
             );   
         }
-        else if (registPlugin<T>(impl))
+        else if (registInterfaceImplToMap<T>(impl))
         {
             publishInfo<rsdk::SystemInfoLevel::INFO>( 
                 "regist    :\t" + std::string(typeid(G).name())

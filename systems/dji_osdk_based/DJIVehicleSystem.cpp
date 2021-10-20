@@ -7,13 +7,13 @@
 
 #include <boost/format.hpp>
 
-#include "plugins/sensors/DJIBattery.hpp"
-#include "plugins/sensors/DJIAvoid.hpp"
-#include "plugins/sensors/DJIFlightStatus.hpp"
-#include "plugins/sensors/DJIAttitude.hpp"
-#include "plugins/sensors/DJIGNSS.hpp"
-#include "plugins/sensors/DJIGNSSUncertain.hpp"
-#include "plugins/sensors/DJIGPSTime.hpp"
+#include "plugins/telemetry/DJIBattery.hpp"
+#include "plugins/telemetry/DJIAvoid.hpp"
+#include "plugins/telemetry/DJIFlightStatus.hpp"
+#include "plugins/telemetry/DJIAttitude.hpp"
+#include "plugins/telemetry/DJIGNSS.hpp"
+#include "plugins/telemetry/DJIGNSSUncertain.hpp"
+#include "plugins/telemetry/DJIGPSTime.hpp"
 #include "plugins/mission/DJIMissionExecutor.hpp"
 
 using DJILinker = DJI::OSDK::Linker;
@@ -29,32 +29,32 @@ class DJIVehicleSystem::SystemImpl
 private:
     void registALLPlugin()
     {
-        _owner->dji_regist_plugin<rsdk::sensor::AttitudeInterface>
-        ( std::make_shared<DJIAttitude>         (_owner) );
+        _owner->dji_regist_plugin<rsdk::telemetry::AttitudeInterface>
+        ( std::make_shared<DJIAttitude>         (_owner->shared_from_this()) );
 
-        _owner->dji_regist_plugin<rsdk::sensor::AvoidanceInterface>
-        ( std::make_shared<DJIAvoid>            (_owner) );
+        _owner->dji_regist_plugin<rsdk::telemetry::AvoidanceInterface>
+        ( std::make_shared<DJIAvoid>            (_owner->shared_from_this()) );
 
-        _owner->dji_regist_plugin<rsdk::sensor::BatteryInterface>           
-        ( std::make_shared<DJIBatteryWrapper>   (_owner) );
+        _owner->dji_regist_plugin<rsdk::telemetry::BatteryInterface>           
+        ( std::make_shared<DJIBatteryWrapper>   (_owner->shared_from_this()) );
 
-        _owner->dji_regist_plugin<rsdk::sensor::GNSSReceiverInterface>
-        ( std::make_shared<DJIGNSSReceiver>     (_owner) );
+        _owner->dji_regist_plugin<rsdk::telemetry::GNSSReceiverInterface>
+        ( std::make_shared<DJIGNSSReceiver>     (_owner->shared_from_this()) );
 
-        _owner->dji_regist_plugin<rsdk::sensor::GNSSUncertainInfoInterface>
-        ( std::make_shared<DJIGNSSUncertain>    (_owner) );
+        _owner->dji_regist_plugin<rsdk::telemetry::GNSSUncertainInfoInterface>
+        ( std::make_shared<DJIGNSSUncertain>    (_owner->shared_from_this()) );
 
-        _owner->dji_regist_plugin<rsdk::sensor::FlyingRobotStatusListenerInterface>
-        ( std::make_shared<DJIFlightStatus>     (_owner) );
+        _owner->dji_regist_plugin<rsdk::telemetry::FlyingRobotStatusInterface>
+        ( std::make_shared<DJIFlightStatus>     (_owner->shared_from_this()) );
 
         _owner->dji_regist_plugin<rsdk::mission::flight::waypoint::WPMExecutorInterface>
-        ( std::make_shared<DJIWPExecutor>       (_owner) );
+        ( std::make_shared<DJIWPExecutor>       (_owner->shared_from_this()) );
     }
 
     SystemImpl(DJIVehicleSystem* owner)
     : _owner(owner)
     {
-        _gps_time_sysc_plugin = std::make_unique<DJIGPSTime>(owner);
+
     }
 
     DJIVehicleSystem* _owner;
@@ -148,9 +148,6 @@ public:
 
         _unique_code = _dji_vehicle->getHwSerialNum();
 
-        // start time sync
-        _gps_time_sysc_plugin->exec();
-
         info("DJI Vehicle Link Success");
         return true;
     }
@@ -206,7 +203,10 @@ bool DJIVehicleSystem::link(const rsdk::SystemConfig &config)
 
     if(rst == false)
         return rst;
-
+    // start time sync
+    _impl->_gps_time_sysc_plugin = std::make_unique<DJIGPSTime>(shared_from_this());
+    _impl->_gps_time_sysc_plugin->setFreqency(5);
+    _impl->_gps_time_sysc_plugin->exec();
     _impl->registALLPlugin();
 
     return rst;

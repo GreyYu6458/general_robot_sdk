@@ -1,16 +1,16 @@
 #ifndef _PLUGIN_GLOBAL_REGISTER_HPP_
 #define _PLUGIN_GLOBAL_REGISTER_HPP_
-#include "PluginInterface.hpp"
 #include <memory>
-#include <unordered_map>
+#include <unordered_set>
 
 /**
  * @brief 该模块用于在主函数前注册RobotSDK的接口信息(使用RTTI)
  */
 namespace rsdk
 {
-    using PluginMapType = 
-        std::unordered_map<size_t, std::shared_ptr<PluginInterface>>;
+    class PluginInterface;
+
+    using PluginInterfaceSet = std::unordered_set<size_t>;
 
     class PluginInterfaceRegister
     {
@@ -23,13 +23,13 @@ namespace rsdk
                 "the template parameter is not base of rsdk::PluginAbstract"
             );
             
-            _add_plguin_to_global_map( typeid(T).hash_code() );
+            _regist_plugin_interface_hash( typeid(T).hash_code() );
         }
 
-        static PluginMapType pluginEmptyMap();
+        static const PluginInterfaceSet& pluginHashSet();
 
     private:
-        static void _add_plguin_to_global_map(size_t);
+        static void _regist_plugin_interface_hash(size_t);
     };
 
     template<class T>

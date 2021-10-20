@@ -2,21 +2,21 @@
 
 namespace rsdk
 {
-    static PluginMapType& getMap()
+    static PluginInterfaceSet& getSet()
     {
-        static PluginMapType plugin_map{};
-        return plugin_map;
+        static PluginInterfaceSet plugin_set{};
+        return plugin_set;
     }
 
-    PluginMapType PluginInterfaceRegister::pluginEmptyMap()
+    const PluginInterfaceSet& PluginInterfaceRegister::pluginHashSet()
     {
         // copy a empty map from global map
-        return getMap();
+        return getSet();
     }
 
-    void PluginInterfaceRegister::_add_plguin_to_global_map(size_t hash)
+    void PluginInterfaceRegister::_regist_plugin_interface_hash(size_t hash)
     {
-        if( getMap().count(hash) == 0 )
-            getMap()[hash] = nullptr;
+        if( getSet().count(hash) == 0 )
+            getSet().insert(hash);
     }
 }

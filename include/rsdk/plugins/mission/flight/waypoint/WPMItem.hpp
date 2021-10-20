@@ -21,7 +21,7 @@ namespace rsdk::mission::flight::waypoint
         PARAM_4,
         PARAM_5,
         PARAM_6,
-        PARAM_7,
+        PARAM_7
     };
 
     template<ItemParam> struct ItemTypeMap

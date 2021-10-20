@@ -19,6 +19,28 @@ namespace rsdk
         _impl = new Impl();
     }
 
+    SystemConfig::SystemConfig(const SystemConfig& other)
+    {
+        this->_impl->_method_map = other._impl->_method_map;
+    }
+
+    SystemConfig::SystemConfig(SystemConfig&& other)
+    {
+        this->_impl->_method_map = std::move(other._impl->_method_map);
+    }
+
+    SystemConfig& SystemConfig::operator=(const SystemConfig& other)
+    {
+        this->_impl->_method_map = other._impl->_method_map;
+        return *this;
+    }
+
+    SystemConfig& SystemConfig::operator=(SystemConfig&& other)
+    {
+        this->_impl->_method_map = std::move(other._impl->_method_map);
+        return *this;
+    }
+
     SystemConfig::~SystemConfig()
     {
         delete _impl;

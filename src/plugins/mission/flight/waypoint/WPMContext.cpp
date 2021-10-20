@@ -1,4 +1,4 @@
-#include "rsdk/plugins/mission/flight/waypoint/WPMContext.hpp"
+#include "p_rsdk/interfaces/mission/flight/waypoint/WPMContext.hpp"
 
 namespace rsdk::mission::flight::waypoint
 {

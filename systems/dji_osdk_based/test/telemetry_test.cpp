@@ -4,18 +4,18 @@
 #include "rsdk/system/SystemLinkMethods.hpp"
 #include "DJIVehicleSystem.hpp"
 
-#include "rsdk/plugins/sensors/Attitude.hpp"
-#include "rsdk/plugins/sensors/Avoid.hpp"
-#include "rsdk/plugins/sensors/Battery.hpp"
-#include "rsdk/plugins/sensors/GNSSReceiver.hpp"
-#include "rsdk/plugins/sensors/GNSSUncertainInfo.hpp"
-#include "rsdk/plugins/sensors/FlyingRbtStListener.hpp"
+#include "rsdk/plugins/telemetry/Attitude.hpp"
+#include "rsdk/plugins/telemetry/Avoid.hpp"
+#include "rsdk/plugins/telemetry/Battery.hpp"
+#include "rsdk/plugins/telemetry/GNSSReceiver.hpp"
+#include "rsdk/plugins/telemetry/GNSSUncertainInfo.hpp"
+#include "rsdk/plugins/telemetry/FlyingRbtSt.hpp"
 
 namespace callbacks{
 
-    using namespace rsdk::sensor;
+    using namespace rsdk::telemetry;
 
-void onAttitudeDataUpdate(const AttitudeInterface::msg_type& msg)
+void onAttitudeDataUpdate(const AttitudeProxy::msg_type& msg)
 {
     std::cout   << "attitude data " 
                 << " q0:"   << msg.q0 
@@ -25,7 +25,7 @@ void onAttitudeDataUpdate(const AttitudeInterface::msg_type& msg)
                 << std::endl;
 }
 
-void onFlightStateDataUpdate(const FlyingRobotStatusListenerInterface::msg_type& msg)
+void onFlightStateDataUpdate(const FlyingRobotStatusProxy::msg_type& msg)
 {
     std::cout   << "flight state data " 
                 << " state:"   << static_cast<uint32_t>(msg)
@@ -33,7 +33,7 @@ void onFlightStateDataUpdate(const FlyingRobotStatusListenerInterface::msg_type&
 }
 
 
-void onAvoidanceDataUpdata(const AvoidanceInterface::msg_type& msg)
+void onAvoidanceDataUpdata(const AvoidanceProxy::msg_type& msg)
 {
     std::cout   << "avoidance data "
                 << " back:"  << msg.back.lenght
@@ -45,7 +45,7 @@ void onAvoidanceDataUpdata(const AvoidanceInterface::msg_type& msg)
                 << std::endl;
 }
 
-void onGNSSUncertainUpdate(const GNSSUncertainInfoInterface::msg_type& msg)
+void onGNSSUncertainUpdate(const GNSSUncertainInfoProxy::msg_type& msg)
 {
     std::cout   << "gnss uncertain data "
                 << " gnss sat:"  << static_cast<uint32_t>(msg.sat_num)
@@ -53,7 +53,7 @@ void onGNSSUncertainUpdate(const GNSSUncertainInfoInterface::msg_type& msg)
                 << std::endl;
 }
 
-void onBatteryDataUpdata(const BatteryInterface::msg_type& msg)
+void onBatteryDataUpdata(const BatteryProxy::msg_type& msg)
 {
     std::cout   << "battery data whole:" << msg.whole_voltage;
     size_t i = 0;
@@ -64,7 +64,7 @@ void onBatteryDataUpdata(const BatteryInterface::msg_type& msg)
     std::cout << std::endl;
 }
 
-void onGNSSDataUpdate(const GNSSReceiverInterface::msg_type& msg)
+void onGNSSDataUpdate(const GNSSReceiverProxy::msg_type& msg)
 {
     std::cout   << "coordinate data "
                 << " altitude:"  << msg.altitude
@@ -90,7 +90,7 @@ int main()
     config.addParameter("usb", usb_serial_method);
     config.addParameter("acm", acm_serial_method);
 
-    DJIVehicleSystem* dji_system = new DJIVehicleSystem();
+    auto dji_system = std::make_shared<DJIVehicleSystem>();
 
     dji_system->subscribeSystemInfo(
         [](const rsdk::SystemInfo& msg)
@@ -104,12 +104,12 @@ int main()
     
     dji_system->link(config);
 
-    rsdk::sensor::AttitudeProxy                     attitude_proxy(dji_system);
-    rsdk::sensor::AvoidanceProxy                    avoidance_proxy(dji_system);
-    rsdk::sensor::BatteryProxy                      battery_proxy(dji_system);
-    rsdk::sensor::GNSSReceiverProxy                 gnss_proxy(dji_system);
-    rsdk::sensor::GNSSUncertainInfoProxy            gnssu_proxy(dji_system);
-    rsdk::sensor::FlyingRobotStatusListenerProxy    fs_proxy(dji_system);
+    rsdk::telemetry::AttitudeProxy              attitude_proxy(dji_system);
+    rsdk::telemetry::AvoidanceProxy             avoidance_proxy(dji_system);
+    rsdk::telemetry::BatteryProxy               battery_proxy(dji_system);
+    rsdk::telemetry::GNSSReceiverProxy          gnss_proxy(dji_system);
+    rsdk::telemetry::GNSSUncertainInfoProxy     gnssu_proxy(dji_system);
+    rsdk::telemetry::FlyingRobotStatusProxy     fs_proxy(dji_system);
     
     attitude_proxy.subscribe(&callbacks::onAttitudeDataUpdate);
     avoidance_proxy.subscribe(&callbacks::onAvoidanceDataUpdata);
@@ -134,8 +134,6 @@ int main()
     {
         std::cin >> key;
     }
-
-    delete dji_system;
 
     return 0;
 }

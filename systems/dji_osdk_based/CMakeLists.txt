@@ -88,9 +88,9 @@ add_library(
     plugins/mission/DJIMissionExecutor.cpp
     plugins/mission/DJIWPMission.cpp
 
-    plugins/sensors/DJIBattery.cpp
-    plugins/sensors/DJIGPSTime.cpp
-    plugins/sensors/DJISensors_Impl.cpp
+    plugins/telemetry/DJIBattery.cpp
+    plugins/telemetry/DJIGPSTime.cpp
+    plugins/telemetry/DJISensors_Impl.cpp
 )
 
 add_dependencies(

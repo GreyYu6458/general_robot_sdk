@@ -11,17 +11,22 @@ namespace rsdk
     public:
         SystemConfig();
 
+        // allow copy
+        SystemConfig(const SystemConfig&);
+
+        SystemConfig& operator=(const SystemConfig&);
+
+        // allow move
+        SystemConfig(SystemConfig&&);
+
+        SystemConfig& operator=(SystemConfig&&);
+
         ~SystemConfig();
 
         template<class T>
         bool addParameter(const std::string& key, T&& value)
         {
-            if( isExist(key) == 0 )
-            {
-                setValue(key, value);
-                return true;
-            }
-            return false;
+            return !isExist(key) ? setValue(key, value), true : false;
         }
 
         template<class T>

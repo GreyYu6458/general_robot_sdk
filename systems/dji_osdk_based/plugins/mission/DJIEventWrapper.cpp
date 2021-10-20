@@ -65,44 +65,64 @@ struct DJIMissionEventType<DJIMissionEvent::ActionExecEvent>
 template <DJIMissionEvent I>
 static void process(DJIEventWrapper& event_wrapper, const typename DJIMissionEventType<I>::type &ack);
 
-template <>
-void process<DJIMissionEvent::InterruptReason>(DJIEventWrapper& event_wrapper, const typename DJIMissionEventType<DJIMissionEvent::InterruptReason>::type &ack)
+template <> void process<DJIMissionEvent::InterruptReason>
+(
+    DJIEventWrapper& event_wrapper, 
+    const typename DJIMissionEventType<DJIMissionEvent::InterruptReason>::type &ack
+)
 {
 
 }
 
-template <>
-void process<DJIMissionEvent::RecoverProcess>(DJIEventWrapper& event_wrapper, const typename DJIMissionEventType<DJIMissionEvent::RecoverProcess>::type &ack)
+template <> void process<DJIMissionEvent::RecoverProcess>
+(
+    DJIEventWrapper& event_wrapper, 
+    const typename DJIMissionEventType<DJIMissionEvent::RecoverProcess>::type &ack
+)
 {
 }
 
-template <>
-void process<DJIMissionEvent::MissionFinished>(DJIEventWrapper& event_wrapper, const typename DJIMissionEventType<DJIMissionEvent::MissionFinished>::type &ack)
+template <> void process<DJIMissionEvent::MissionFinished>
+(
+    DJIEventWrapper& event_wrapper, 
+    const typename DJIMissionEventType<DJIMissionEvent::MissionFinished>::type &ack
+)
 {
     DJIVehicleSystem::info("data: finish " + std::to_string(ack));
-    event_wrapper.executor()->onEvent(std::make_unique<::rsdk::mission::FinishedEvent>(event_wrapper.system()));
 }
 
-template <>
-void process<DJIMissionEvent::WaypointIndexUpdate>(DJIEventWrapper& event_wrapper, const typename DJIMissionEventType<DJIMissionEvent::WaypointIndexUpdate>::type &ack)
+template <> void process<DJIMissionEvent::WaypointIndexUpdate>
+(
+    DJIEventWrapper& event_wrapper, 
+    const typename DJIMissionEventType<DJIMissionEvent::WaypointIndexUpdate>::type &ack
+)
 {
     DJIVehicleSystem::info("data: point index" + std::to_string(ack));
 }
 
-template <>
-void process<DJIMissionEvent::AvoidEvent>(DJIEventWrapper& event_wrapper, const typename DJIMissionEventType<DJIMissionEvent::AvoidEvent>::type &ack)
+template <> void process<DJIMissionEvent::AvoidEvent>
+(
+    DJIEventWrapper& event_wrapper, 
+    const typename DJIMissionEventType<DJIMissionEvent::AvoidEvent>::type &ack
+)
 {
 }
 
-template <>
-void process<DJIMissionEvent::MissionExecEvent>(DJIEventWrapper& event_wrapper, const typename DJIMissionEventType<DJIMissionEvent::MissionExecEvent>::type &ack)
+template <> void process<DJIMissionEvent::MissionExecEvent>
+(
+    DJIEventWrapper& event_wrapper, 
+    const typename DJIMissionEventType<DJIMissionEvent::MissionExecEvent>::type &ack
+)
 {
     DJIVehicleSystem::info("data: current mission exec num:" + std::to_string(ack.currentMissionExecNum));
     DJIVehicleSystem::info("data: finish all exec num:" + std::to_string(ack.finishedAllExecNum));
 }
 
-template <>
-void process<DJIMissionEvent::ActionExecEvent>(DJIEventWrapper& event_wrapper, const typename DJIMissionEventType<DJIMissionEvent::ActionExecEvent>::type &ack)
+template <> void process<DJIMissionEvent::ActionExecEvent>
+(
+    DJIEventWrapper& event_wrapper, 
+    const typename DJIMissionEventType<DJIMissionEvent::ActionExecEvent>::type &ack
+)
 {
     DJIVehicleSystem::info("data: action id " + std::to_string(ack.actionId));
 }
@@ -111,8 +131,8 @@ class DJIEventWrapper::Impl
 {
     friend class DJIEventWrapper;
 public:
-    Impl(DJIEventWrapper* owner, DJIVehicleSystem* const sys, DJIWPExecutor *executor)
-        : _owner(owner),_executor(executor), _sys(sys)
+    Impl(DJIEventWrapper* owner, DJIWPExecutor *executor)
+        : _owner(owner),_executor(executor)
     {
     }
 
@@ -168,12 +188,11 @@ public:
         return OSDK_STAT_SYS_ERR;
     }
     DJIEventWrapper* _owner;
-    DJIVehicleSystem *const _sys;
     DJIWPExecutor *_executor;
 };
 
-DJIEventWrapper::DJIEventWrapper(DJIVehicleSystem* const sys, DJIWPExecutor *executor)
-    : _impl(new Impl(this, sys, executor))
+DJIEventWrapper::DJIEventWrapper(DJIWPExecutor *executor)
+    : _impl(new Impl(this, executor))
 {
 }
 
@@ -190,9 +209,4 @@ DJIEventWrapper::~DJIEventWrapper()
 DJIWPExecutor* const DJIEventWrapper::executor()
 {
     return _impl->_executor;
-}
-
-DJIVehicleSystem* const DJIEventWrapper::system()
-{
-    return _impl->_sys;
 }

@@ -1,7 +1,7 @@
 #include "DJIMissionExecutor.hpp"
 #include "DJIWPMission.hpp"
 #include "DJIEventWrapper.hpp"
-#include "rsdk/plugins/sensors/FlyingRbtStListener.hpp"
+#include "rsdk/plugins/telemetry/FlyingRbtSt.hpp"
 #include "rsdk/plugins/mission/MissionEvent.hpp"
 #include "DJIMissionContext.hpp"
 
@@ -49,7 +49,7 @@ public:
 
     void start()
     {
-        _dji_event_wrapper = std::make_unique<DJIEventWrapper>(this->_owner->system(), this->_owner);
+        _dji_event_wrapper = std::make_unique<DJIEventWrapper>(this->_owner);
         _dji_event_wrapper->startListeningDJILowLayerEvent();
     }
 
@@ -129,7 +129,7 @@ public:
         }
         _current_mission_context = std::make_unique<DJIMissionContext>(dji_mission);
 
-        _owner->onEvent( std::make_unique< rsdk::mission::StartedEvent>(_owner->system()) );
+        // _owner->onEvent( std::make_unique< rsdk::mission::StartedEvent>(_owner->system()) );
 
         rst.is_success = true;
         rst.detail = "Success";
@@ -142,7 +142,7 @@ public:
         return std::string("ErrorMsg:") + msg.errorMsg + ";ModuleMsg:" + msg.moduleMsg + ";SolutionMsg:" + msg.solutionMsg;
     }
 
-    static ::rsdk::PIFInvokeRst dji_api_ret_handler(ErrorCode::ErrorCodeType& ret, rmfw::ExecuteRst &rst)
+    static void dji_api_ret_handler(ErrorCode::ErrorCodeType& ret, rmfw::ExecuteRst &rst)
     {
         if (ret != ErrorCode::SysCommonErr::Success)
         {
@@ -155,7 +155,6 @@ public:
             rst.detail = "Success";
         }
         rst.is_success ? DJIVehicleSystem::info(rst.detail) : DJIVehicleSystem::error(rst.detail);
-        return rsdk::PIFInvokeRst::SUCCESS;
     }
 
     inline void installEventCallback(const rmfw::EventCallback &cb)
@@ -167,19 +166,19 @@ private:
     bool                                            _is_started{false};
     bool                                            _flight_state_listener_available{false};
     std::unique_ptr<DJIMissionContext>              _current_mission_context;
-    DJI::OSDK::WaypointV2MissionOperator *          _dji_mission_operator;
+    DJI::OSDK::WaypointV2MissionOperator*           _dji_mission_operator;
     DJIWPExecutor* const                            _owner;
     std::unique_ptr<DJIEventWrapper>                _dji_event_wrapper;
     std::mutex                                      _wait_flight_mutex;
     std::condition_variable                         _wait_flight_cv;
     sensor_msg::FlightEnum                          _last_flight_state;
     sensor_msg::FlightEnum                          _current_flight_state;
-    ::rsdk::sensor::FlyingRobotStatusListenerProxy  _state_listener;
+    ::rsdk::telemetry::FlyingRobotStatusProxy       _state_listener;
     std::mutex                                      _event_mutex;
     std::vector<rmfw::EventCallback>                _event_callbacks;
 };
 
-DJIWPExecutor::DJIWPExecutor(DJIVehicleSystem *system)
+DJIWPExecutor::DJIWPExecutor(const std::shared_ptr<DJIVehicleSystem>& system)
     : DJIPluginBase(system)
     {
         _impl = new Impl(this);
@@ -241,7 +240,6 @@ void DJIWPExecutor::installEventListener(const rmfw::EventCallback &cb)
 {
     std::lock_guard<std::mutex> l(_impl->_event_mutex);
     _impl->installEventCallback(cb);
-    rsdk::PIFInvokeRst::SUCCESS;
 }
 
 void DJIWPExecutor::onEvent(rmfw::EventUniquePtr &event)

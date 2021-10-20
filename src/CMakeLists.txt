@@ -9,6 +9,7 @@ endif()
 add_library(
     robot_sdk
     SHARED
+    system/PluginMap.cpp
     system/RobotSystem.cpp
     system/RobotSystemConfig.cpp
     system/SystemInfoPublisher.cpp
@@ -20,7 +21,7 @@ add_library(
 
     plugins/camera/VideoStream.cpp
 
-    plugins/sensors/regist_sensors.cpp
+    plugins/telemetry/regist_sensors.cpp
 
     plugins/mission/flight/waypoint/WPMContext.cpp
     plugins/mission/flight/waypoint/WPMission.cpp

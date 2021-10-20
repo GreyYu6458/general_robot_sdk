@@ -45,5 +45,5 @@ namespace rsdk::event
     rsdk::RobotSystem* const REvent::system()
     {
         return _impl->system;
-    } 
+    }
 }

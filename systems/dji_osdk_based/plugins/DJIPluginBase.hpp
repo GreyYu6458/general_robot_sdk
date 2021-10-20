@@ -8,7 +8,7 @@
 class DJIPluginBase
 {
 public:
-    DJIPluginBase(DJIVehicleSystem* system)
+    DJIPluginBase(const std::shared_ptr<DJIVehicleSystem>& system)
     : _dji_system(system){}
 
     virtual ~DJIPluginBase() = default;
@@ -23,12 +23,12 @@ protected:
         return _dji_system->vehicle();
     }
 
-    DJIVehicleSystem* const system()
+    std::shared_ptr<DJIVehicleSystem> system()
     {
         return _dji_system;
     }
 
-    DJIVehicleSystem* const _dji_system;
+    std::shared_ptr<DJIVehicleSystem> _dji_system;
 };
 
 #endif

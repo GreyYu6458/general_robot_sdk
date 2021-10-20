@@ -11,15 +11,13 @@ class DJIVehicleSystem;
 class DJIEventWrapper
 {
 public:
-    DJIEventWrapper(DJIVehicleSystem* const, DJIWPExecutor* executor);
+    DJIEventWrapper(DJIWPExecutor* executor);
 
     ~DJIEventWrapper();
 
     void startListeningDJILowLayerEvent();
 
     DJIWPExecutor* const executor();
-
-    DJIVehicleSystem* const system();
 
 private:
     class Impl;

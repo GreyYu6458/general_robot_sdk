@@ -1,6 +1,6 @@
 #ifndef _DJI_MISSION_EXECUTOR_HPP_
 #define _DJI_MISSION_EXECUTOR_HPP_
-#include "rsdk/plugins/mission/flight/waypoint/WPMExecutor.hpp"
+#include "p_rsdk/interfaces/mission/flight/waypoint/WPMExecutorInterface.hpp"
 #include "plugins/DJIPluginBase.hpp"
 
 namespace rmfw = ::rsdk::mission::flight::waypoint;
@@ -14,7 +14,7 @@ class DJIWPExecutor
         public DJIPluginBase
 {
 public:
-    DJIWPExecutor(DJIVehicleSystem* system);
+    DJIWPExecutor(const std::shared_ptr<DJIVehicleSystem>& system);
 
     ~DJIWPExecutor();
 

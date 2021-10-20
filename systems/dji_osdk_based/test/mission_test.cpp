@@ -10,7 +10,7 @@
 #include "rsdk/plugins/mission/MissionEvent.hpp"
 
 #include "DJIVehicleSystem.hpp"
-#include "rsdk/plugins/sensors/GNSSReceiver.hpp"
+#include "rsdk/plugins/telemetry/GNSSReceiver.hpp"
 #include <condition_variable>
 #include <mutex>
 
@@ -20,8 +20,8 @@ static double   altitude;
 
 namespace callbacks{
 
-    using namespace rsdk::sensor;
-    void onGNSSDataUpdate(const GNSSReceiverInterface::msg_type& msg)
+    using namespace rsdk::telemetry;
+    void onGNSSDataUpdate(const GNSSReceiverProxy::msg_type& msg)
     {
         longitude = static_cast<uint32_t>( msg.longitude * 1e7 );
         latitude  = static_cast<uint32_t>( msg.latitude * 1e7 );
@@ -51,7 +51,7 @@ int main()
     config.addParameter("usb", usb_serial_method);
     config.addParameter("acm", acm_serial_method);
 
-    DJIVehicleSystem* dji_system = new DJIVehicleSystem();
+    auto dji_system = std::make_shared<DJIVehicleSystem>();
 
     dji_system->subscribeSystemInfo(
         [](const rsdk::SystemInfo& msg)
@@ -65,7 +65,7 @@ int main()
     
     dji_system->link(config);
 
-    rsdk::sensor::GNSSReceiverProxy gnss_proxy(dji_system);
+    rsdk::telemetry::GNSSReceiverProxy gnss_proxy(dji_system);
     gnss_proxy.subscribe(&callbacks::onGNSSDataUpdate);
     std::cout << "is uav linked: " << (gnss_proxy.system()->isLink() ? "True" : "False") << std::endl;
     gnss_proxy.start();

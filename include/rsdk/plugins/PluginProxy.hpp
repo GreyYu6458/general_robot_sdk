@@ -1,61 +1,47 @@
 #ifndef _PLUGIN_PROXY_HPP_
 #define _PLUGIN_PROXY_HPP_
 #include <memory>
-#include "rsdk/system/RobotSystem.hpp"
+#include <functional>
 #include "rsdk/plugins/Startable.hpp"
-#include "rsdk/plugins/PluginInterface.hpp"
 
 namespace rsdk
 {
-    // class RobotSystem;
+    class RobotSystem;
+    class PluginInterface;
 
     class BasePluginProxy : public Startable
     {
     public:
-        explicit BasePluginProxy(RobotSystem*);
+        explicit BasePluginProxy(
+            const std::shared_ptr<RobotSystem>&, 
+            const std::shared_ptr<PluginInterface>&
+        );
 
         virtual ~BasePluginProxy();
 
-        bool load_success();
+        bool is_loaded();
 
-        RobotSystem* const system();
+        bool start() override;
 
-    private:
-        class Impl;
-        Impl* _impl;
-    };
+        bool isStarted() override;
 
-    template<class Interface>
-    class PluginProxy : public BasePluginProxy
-    {
-        static_assert( 
-            std::is_base_of<PluginInterface, Interface>::value, 
-            "error type of interface"
-        );
-
-    public:
-        PluginProxy(RobotSystem* system)
-        :   BasePluginProxy(system), 
-            _interface(system->getPlugin<Interface>())
-        {}
-
-        bool is_loaded()
-        {
-            return _interface != nullptr ? true : false;
-        }
-
-        bool start() override
-        {
-            return _interface->start();
-        }
-
-        bool isStarted() override
-        {
-            return _interface->isStarted();
-        }
+        std::shared_ptr<RobotSystem>        system();
 
     protected:
-        std::shared_ptr<Interface> _interface;
+        template<class T> 
+        inline typename std::enable_if<
+            std::is_base_of<PluginInterface, T>::value, std::shared_ptr<T>
+        >::type
+        interface()
+        {
+            return std::static_pointer_cast<T>(_interface());
+        }
+
+    private:
+        std::shared_ptr<PluginInterface>    _interface();
+
+        class Impl;
+        Impl* _impl;
     };
 }
 
