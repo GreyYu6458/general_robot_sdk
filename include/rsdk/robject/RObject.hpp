@@ -18,7 +18,7 @@ namespace rsdk
          * @brief Destroy the RObject object
          * 
          */
-        ~RObject();
+        virtual ~RObject();
 
         /**
          * @brief install thqe event filter, the call back function will
@@ -26,7 +26,18 @@ namespace rsdk
          */
         void installEventFilter(const ::std::shared_ptr<RObject>& watcher);
 
+        /**
+         * @brief install thqe event filter, the call back function will
+         *        be called before sending event into event loop.
+         */
+        void installEventFilter(RObject*);
+
+
+        void removeEventFilter();
+
     protected:
+
+        bool notifyied(::rsdk::event::REventParam);
 
         /**
          * @brief almost last process of event
@@ -36,14 +47,15 @@ namespace rsdk
          */
         virtual bool revent( ::rsdk::event::REventParam );
         
-    private:
         /**
          * @brief 
          * 
          * @return true 
          * @return false 
          */
-        virtual bool eventFilter(const ::std::shared_ptr<RObject>&, ::rsdk::event::REventParam);
+        virtual bool eventFilter(RObject*, ::rsdk::event::REventParam);
+
+    private:
 
         class Impl;
         Impl* _impl;

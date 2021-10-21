@@ -18,13 +18,6 @@ namespace rsdk::mission::flight::waypoint
         std::string detail;
     };
 
-    template<class T>
-    struct EventCBFunction
-    {
-
-        using type = const std::function< void (const type T::Ptr) >&;
-    };
-
     class WPMExecutorProxy :  public BasePluginProxy
     {
     public:

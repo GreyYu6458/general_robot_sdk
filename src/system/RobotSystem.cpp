@@ -46,8 +46,23 @@ namespace rsdk
 
     }
 
-    bool RobotSystem::notify(const ::std::shared_ptr<RObject>& robject, ::rsdk::event::REventParam event)
+    bool RobotSystem::sendEvent(RObject* robject, ::rsdk::event::REventParam event)
     {
-        return robject->eventFilter(robject, event);
+        return notify(robject, event);
+    }
+
+    void RobotSystem::postEvent(RObject* robject, ::rsdk::event::REventParam)
+    {
+
+    }
+
+    bool RobotSystem::notify(const ::std::shared_ptr<RObject>& r_obj, ::rsdk::event::REventParam event)
+    {
+        return r_obj->notifyied(event);
+    }
+
+    bool RobotSystem::notify(RObject* r_obj, ::rsdk::event::REventParam event)
+    {
+        return r_obj->notifyied(event);
     }
 }

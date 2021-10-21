@@ -1,5 +1,8 @@
 #include "p_rsdk/interfaces/mission/BaseExecutor.hpp"
 #include "rsdk/plugins/mission/MissionContext.hpp"
+#include "rsdk/event/EventCategory.hpp"
+#include "rsdk/plugins/mission/MissionEvent.hpp"
+#include "rsdk/plugins/mission/EventSubIndex.hpp"
 
 #include <array>
 #include <mutex>
@@ -10,17 +13,16 @@ namespace rsdk::mission
     class BaseExecutor::Impl
     {
     public:
-        std::mutex                                              _set_mutex;
-        std::function<void (std::unique_ptr<MissionContext>)>   _on_finish_function;
         std::unordered_set<std::unique_ptr<MissionContext>>     _bg_context_set;
+        std::function<void ()>                                  _start_cb;
+        std::function<void ()>                                  _finish_cb;
+        std::function<void ()>                                  _bg_cb;
     };
 
     BaseExecutor::BaseExecutor()
-    : _impl(new Impl())
+        : _impl(new Impl())
     {
-        setOnBgWorkFinish(
-            [](std::unique_ptr<MissionContext>){}
-        );
+
     }
 
     BaseExecutor::~BaseExecutor()
@@ -28,22 +30,43 @@ namespace rsdk::mission
         delete _impl;
     }
 
-    void BaseExecutor::setOnBgWorkFinish(
-        const std::function<void (std::unique_ptr<MissionContext>)>& cb
-    )
-    {
-        std::lock_guard<std::mutex> lck(_impl->_set_mutex);
-        _impl->_on_finish_function = cb;
-    }
-
-    void BaseExecutor::onBgWorkFinish()
-    {
-        std::lock_guard<std::mutex> lck(_impl->_set_mutex);
-    }
-
     void BaseExecutor::addToBgContextSet(std::unique_ptr<MissionContext>& context)
     {
         context->setState(MissionState::Background);
         _impl->_bg_context_set.insert(std::move(context));
+    }
+
+    bool BaseExecutor::revent(::rsdk::event::REventParam event)
+    {
+        if(isEqualTo<MissionEventEnum::STARTED>(event))
+        {
+            if(_impl->_start_cb)
+                _impl->_start_cb();
+        }
+        else if(isEqualTo<MissionEventEnum::FINISHED>(event))
+        {
+            if(_impl->_finish_cb)
+                _impl->_finish_cb();
+        }
+        else if(isEqualTo<MissionEventEnum::ENTER_BACK_GROUND>(event))
+        {
+            if(_impl->_bg_cb)
+                _impl->_bg_cb();
+        }
+    }
+
+    void BaseExecutor::subscribeOnStarted(const std::function<void ()>& f)
+    {
+        _impl->_start_cb = f;
+    }
+
+    void BaseExecutor::subscribeOnFinished(const std::function<void ()>& f)
+    {
+        _impl->_finish_cb = f;
+    }
+
+    void BaseExecutor::subscribeOnBg(const std::function<void ()>& f)
+    {
+        _impl->_bg_cb = f;
     }
 } // namespace rsdk::mission

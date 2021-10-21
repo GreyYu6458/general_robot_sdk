@@ -31,6 +31,12 @@ namespace rsdk::event
 
         void setTime(uint32_t time);
 
+        template<uint32_t b_id, uint32_t s_id>
+        inline bool isEqualTo()
+        {
+            return groupId() == b_id && subId() == s_id;
+        }
+
         /**
          * @brief   if true, event will not send to up level handler,
          *          this feature is not enable until `RObject` completed

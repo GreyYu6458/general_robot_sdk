@@ -13,7 +13,7 @@ namespace rsdk
 
     // 飞机访问者接口类,具体的飞机实现时需要继承该接口
     // 注意:飞机尽量具体到某一个机型
-    class RobotSystem : public SystemInfoPublisher, public PluginMap
+    class RobotSystem : public RObject, public SystemInfoPublisher, public PluginMap
     {
     public:
         RobotSystem();
@@ -34,9 +34,13 @@ namespace rsdk
         // 机器人的名字
         virtual const std::string &robotName() = 0;
 
-        bool sendEvent(const ::std::shared_ptr<RObject>&, ::rsdk::event::REventParam);
+        bool sendEvent(const std::shared_ptr<RObject>&, ::rsdk::event::REventParam);
+
+        bool sendEvent(RObject*, ::rsdk::event::REventParam);
 
         void postEvent(const ::std::shared_ptr<RObject>&, ::rsdk::event::REventParam);
+
+        void postEvent(RObject*, ::rsdk::event::REventParam);
 
         // 更新SystemTime
         void updateSystemTime(uint32_t);
@@ -45,7 +49,15 @@ namespace rsdk
         uint32_t systemTime();
 
     protected:
-        virtual bool notify(const ::std::shared_ptr<RObject>&, ::rsdk::event::REventParam);
+        /**
+         * 重写该函数可以获得所有事件的控制权
+        */
+        virtual bool notify(const std::shared_ptr<RObject>&, ::rsdk::event::REventParam);
+
+        /**
+         * 重写该函数可以获得所有事件的控制权
+        */
+        virtual bool notify(RObject*, ::rsdk::event::REventParam);
         
     private:
         class SystemImpl;

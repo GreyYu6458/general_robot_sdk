@@ -2,7 +2,7 @@
 #define _MISSION_EVENT_HPP_
 #include <memory>
 #include "rsdk/event/REvent.hpp"
-#include "rsdk/plugins/PluginsIndex.hpp"
+#include "rsdk/event/EventCategory.hpp"
 #include "rsdk/plugins/mission/EventSubIndex.hpp"
 #include <string>
 
@@ -16,7 +16,7 @@ namespace rsdk::mission
         MissionEvent(uint32_t s_id = 0):
             ::rsdk::event::BaseREvent
             ( 
-                ::rsdk::PluginIndex<::rsdk::PluginEnum::MISSION>::value, 
+                ::rsdk::event::CategoryIDOf<::rsdk::event::EventCategory::MISSION>::value, 
                 s_id
             ){}
     };
