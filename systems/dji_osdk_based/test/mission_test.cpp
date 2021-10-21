@@ -80,16 +80,6 @@ int main()
     std::condition_variable wait_finish_cv;
 
     mission_proxy.start();
-    mission_proxy.installEventListener(
-        [&wait_finish_cv](std::unique_ptr<rsdk::mission::MissionEvent>& event)
-        {
-            if(
-                event->groupId() == rsdk::PluginIndex<rsdk::PluginEnum::MISSION>::value &&
-                event->subId()   == rsdk::mission::SubIndex<rsdk::mission::MissionEventEnum::FINISHED>::value
-            )
-            wait_finish_cv.notify_all();
-        }
-    );
 
     std::shared_ptr<rmfw::WPMission> mission = std::make_shared<rmfw::WPMission>();
 

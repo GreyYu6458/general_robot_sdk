@@ -82,6 +82,8 @@ add_library(
     dji_linux_helper/osdkhal_linux.c
     dji_linux_helper/osdkosal_linux.c
 
+    plugins/camera/DJIVideoStream.cpp
+
     plugins/mission/DJIWPMission.cpp
     plugins/mission/DJIMissionContext.cpp
     plugins/mission/DJIEventWrapper.cpp

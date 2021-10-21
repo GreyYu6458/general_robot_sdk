@@ -1,10 +1,16 @@
 #ifndef _TELEMETRY_HPP_
 #define _TELEMETRY_HPP_
 
+#include <memory>
 #include <functional>
 #include <mutex>
 #include <vector>
 #include "p_rsdk/PluginInterface.hpp"
+
+namespace rsdk
+{
+    class RobotSystem;;
+}
 
 namespace rsdk::telemetry
 {
@@ -14,6 +20,9 @@ namespace rsdk::telemetry
     public:
         using msg_type = MessageType;
         using cb_type = std::function<void (const MessageType&)>;
+
+        TelemetryAbstract(const std::shared_ptr<RobotSystem>& sys)
+            : ::rsdk::PluginInterface(sys){}
 
         void subscribe(const cb_type& cb)
         {

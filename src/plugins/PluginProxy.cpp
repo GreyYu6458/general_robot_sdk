@@ -2,6 +2,10 @@
 #include "p_rsdk/PluginInterface.hpp"
 #include "rsdk/system/RobotSystem.hpp"
 
+#include <mutex>
+#include <vector>
+
+
 namespace rsdk
 {
     class BasePluginProxy::Impl
@@ -14,6 +18,10 @@ namespace rsdk
         ): _sys(system), _interface(interface){}
 
     private:
+        std::mutex _sub_mutex;
+
+        ::rsdk::event::REventCBType         _callbacks;
+
         std::shared_ptr<RobotSystem>        _sys;
         std::shared_ptr<PluginInterface>    _interface;
     };
@@ -21,7 +29,18 @@ namespace rsdk
     BasePluginProxy::BasePluginProxy(
             const std::shared_ptr<RobotSystem>& system, 
             const std::shared_ptr<PluginInterface>& interface
-    ): _impl(new Impl(system, interface)){}
+    ): _impl(new Impl(system, interface))
+    {
+        if( isLoaded() )
+        {
+            interface->installEventFilter(
+                [this](::rsdk::event::REventParam event)
+                {
+
+                }
+            );
+        }
+    }
 
     BasePluginProxy::~BasePluginProxy()
     {
@@ -38,7 +57,7 @@ namespace rsdk
         return _impl->_interface;
     }
 
-    bool BasePluginProxy::is_loaded()
+    bool BasePluginProxy::isLoaded()
     {
         return _impl->_interface ? true : false;
     }
@@ -51,5 +70,11 @@ namespace rsdk
     bool BasePluginProxy::isStarted()
     {
         return _impl->_interface->isStarted();
+    }
+    
+    void BasePluginProxy::subscribeEvent(::rsdk::event::REventCBType& cb)
+    {
+        
+        _impl->_callbacks = cb;
     }
 }

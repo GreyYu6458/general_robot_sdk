@@ -6,14 +6,18 @@ namespace rsdk::mission
 {
     enum class MissionEventEnum
     {
+        // state changed event
         STARTED,
+        ENTER_BACK_GROUND,
+        FINISHED,
         STOPED,
         PAUSED,
         RESUMED,
         TAKE_PHOTOS,
+        SAVE_PHOTO,
         AVOIDANCE_TRIGGERRED,
-        FINISHED,
         PROGRESS_UPDATE,
+        COUNT
     };
 
     template<MissionEventEnum I> struct SubIndex

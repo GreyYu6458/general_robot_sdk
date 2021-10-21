@@ -10,7 +10,7 @@ namespace DJI::OSDK{class WaypointV2MissionOperator;}
 class DJIMissionContext;
 
 class DJIWPExecutor
-    :   public rsdk::mission::flight::waypoint::WPMExecutorInterface,
+    :   public rmfw::WPMExecutorInterface,
         public DJIPluginBase
 {
 public:
@@ -30,21 +30,16 @@ public:
 
     void resume(rmfw::ExecuteRst& rst) override;
 
-    void installEventListener(const rmfw::EventCallback&) override;
-
     DJI::OSDK::WaypointV2MissionOperator* const dji_operator();
 
     const std::unique_ptr<DJIMissionContext>& currentMissionContext();
-
-    void onEvent(rmfw::EventUniquePtr& event);
-
-    void onEvent(rmfw::EventUniquePtr&& event);
 
     DJIVehicleModels supportModel() override;
 
     void exec() override;
 
 private:
+
     class Impl;
     Impl* _impl;
 };

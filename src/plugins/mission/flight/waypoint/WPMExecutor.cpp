@@ -35,8 +35,4 @@ namespace rsdk::mission::flight::waypoint
         INTERFACE->resume(rst);
     }
 
-    void WPMExecutorProxy::installEventListener(const EventCallback& cb)
-    {
-        INTERFACE->installEventListener(cb);
-    }
 }

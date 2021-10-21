@@ -6,54 +6,22 @@
 #include "DJIFlightStatus.hpp"
 #include <cmath>
 
-DJIAttitude::DJIAttitude(const std::shared_ptr<DJIVehicleSystem>& system)
-    : dji::attitude::BaseType(system) {}
+#define DJITelemetryDefine(class_name, interface_name, base_type_name_space) \
+    class_name::class_name(const std::shared_ptr<DJIVehicleSystem>& system) \
+    : dji::base_type_name_space::BaseType(system), ::rsdk::telemetry::interface_name(system) {} \
+    bool class_name::start() { this->exec(); return true; } \
+    bool class_name::isStarted() { return this->_is_started; } 
 
-DJIAvoid::DJIAvoid(const std::shared_ptr<DJIVehicleSystem>& system)
-    : dji::avoid::BaseType(system) {}
+DJITelemetryDefine(DJIAttitude, AttitudeInterface, attitude)
 
-DJIGNSSReceiver::DJIGNSSReceiver(const std::shared_ptr<DJIVehicleSystem>& system)
-    : dji::gnss::BaseType(system) {}
+DJITelemetryDefine(DJIAvoid, AvoidanceInterface, avoid)
 
-DJIGNSSUncertain::DJIGNSSUncertain(const std::shared_ptr<DJIVehicleSystem>& system)
-    : dji::gnss_uncertain::BaseType(system) {}
+DJITelemetryDefine(DJIGNSSReceiver, GNSSReceiverInterface, gnss)
 
-DJIFlightStatus::DJIFlightStatus(const std::shared_ptr<DJIVehicleSystem>& system)
-    : dji::flight_status::BaseType(system) {}
+DJITelemetryDefine(DJIGNSSUncertain, GNSSUncertainInfoInterface, gnss_uncertain)
 
-bool DJIFlightStatus::start()
-{ this->exec(); return true; }
+DJITelemetryDefine(DJIFlightStatus, FlyingRobotStatusInterface, flight_status)
 
-bool DJIAttitude::start()      
-{ this->exec(); return true; }
-
-bool DJIAvoid::start()         
-{ this->exec(); return true; }
-
-bool DJIGNSSReceiver::start()  
-{ this->exec(); return true; }
-
-bool DJIGNSSUncertain::start() 
-{ this->exec(); return true; }
-
-
-bool DJIFlightStatus::isStarted()
-{ return this->_is_started; }
-
-bool DJIAttitude::isStarted()  
-{ return this->_is_started; }
-
-bool DJIAvoid::isStarted()      
-{ return this->_is_started; }
-
-bool DJIGNSSReceiver::isStarted()
-{ return this->_is_started; }
-
-bool DJIGNSSUncertain::isStarted()
-{ return this->_is_started; }
-
-
-// 
 void DJIAttitude::convert(const DJIAttitude::pkg_msg_type& data)
 {
     auto &raw_q = std::get<0>(data);

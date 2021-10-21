@@ -15,14 +15,15 @@ add_library(
     system/SystemInfoPublisher.cpp
 
     event/REvent.cpp
-
+    
+    plugins/PluginInterface.cpp
     plugins/PluginProxy.cpp
     plugins/PluginInterfaceRegister.cpp
 
     plugins/camera/VideoStream.cpp
 
     plugins/telemetry/regist_sensors.cpp
-
+    
     plugins/mission/flight/waypoint/WPMContext.cpp
     plugins/mission/flight/waypoint/WPMission.cpp
     plugins/mission/flight/waypoint/WPMExecutor.cpp

@@ -23,11 +23,6 @@ protected:
         return _dji_system->vehicle();
     }
 
-    std::shared_ptr<DJIVehicleSystem> system()
-    {
-        return _dji_system;
-    }
-
     std::shared_ptr<DJIVehicleSystem> _dji_system;
 };
 

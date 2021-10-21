@@ -20,7 +20,7 @@ public:
     Impl(DJIWPExecutor *owner)
         :   _state_listener(owner->system()),
             _owner(owner),
-            _dji_mission_operator(owner->system()->vehicle()->waypointV2Mission)
+            _dji_mission_operator(owner->vehicle()->waypointV2Mission)
     {
         if (!_state_listener.isStarted())
         {
@@ -128,6 +128,8 @@ public:
             }
         }
         _current_mission_context = std::make_unique<DJIMissionContext>(dji_mission);
+        _current_mission_context->setTotalWaypoint(missionInitSettings.missTotalLen);
+        _current_mission_context->setAllRepeatTimes(missionInitSettings.repeatTimes + 1);
 
         // _owner->onEvent( std::make_unique< rsdk::mission::StartedEvent>(_owner->system()) );
 
@@ -157,7 +159,7 @@ public:
         rst.is_success ? DJIVehicleSystem::info(rst.detail) : DJIVehicleSystem::error(rst.detail);
     }
 
-    inline void installEventCallback(const rmfw::EventCallback &cb)
+    inline void installEventCallback(const ::rsdk::event::REventCBType&cb)
     {
         _event_callbacks.push_back(cb);
     }
@@ -175,14 +177,14 @@ private:
     sensor_msg::FlightEnum                          _current_flight_state;
     ::rsdk::telemetry::FlyingRobotStatusProxy       _state_listener;
     std::mutex                                      _event_mutex;
-    std::vector<rmfw::EventCallback>                _event_callbacks;
+    std::vector<::rsdk::event::REventCBType>        _event_callbacks;
 };
 
 DJIWPExecutor::DJIWPExecutor(const std::shared_ptr<DJIVehicleSystem>& system)
-    : DJIPluginBase(system)
-    {
-        _impl = new Impl(this);
-    }
+    : DJIPluginBase(system), ::rmfw::WPMExecutorInterface(system), _impl(new Impl(this))
+{
+
+}
 
 DJIWPExecutor::~DJIWPExecutor()
 {
@@ -234,30 +236,6 @@ void DJIWPExecutor::resume(rmfw::ExecuteRst &rst)
 {
     ErrorCode::ErrorCodeType ret = _impl->mission_operator()->resume(10);
     _impl->dji_api_ret_handler(ret, rst);
-}
-
-void DJIWPExecutor::installEventListener(const rmfw::EventCallback &cb)
-{
-    std::lock_guard<std::mutex> l(_impl->_event_mutex);
-    _impl->installEventCallback(cb);
-}
-
-void DJIWPExecutor::onEvent(rmfw::EventUniquePtr &event)
-{
-    std::lock_guard<std::mutex> l(_impl->_event_mutex);
-    for (const auto &cb : _impl->_event_callbacks)
-    {
-        cb(event);
-    }
-}
-
-void DJIWPExecutor::onEvent(rmfw::EventUniquePtr&& event)
-{
-    std::lock_guard<std::mutex> l(_impl->_event_mutex);
-    for (const auto &cb : _impl->_event_callbacks)
-    {
-        cb(event);
-    }
 }
 
 const std::unique_ptr<DJIMissionContext>& DJIWPExecutor::currentMissionContext()

@@ -5,11 +5,8 @@
 #include <functional>
 
 #include "WPMission.hpp"
-#include "rsdk/system/RobotSystem.hpp"
-#include "rsdk/event/REventHandler.hpp"
+#include "rsdk/plugins/mission/MissionEvent.hpp"
 #include "rsdk/plugins/PluginProxy.hpp"
-
-namespace rsdk::mission { class MissionEvent; }
 
 namespace rsdk::mission::flight::waypoint
 {
@@ -21,8 +18,12 @@ namespace rsdk::mission::flight::waypoint
         std::string detail;
     };
 
-    using EventUniquePtr = std::unique_ptr<::rsdk::mission::MissionEvent>;
-    using EventCallback  = std::function<void (EventUniquePtr&)>;
+    template<class T>
+    struct EventCBFunction
+    {
+
+        using type = const std::function< void (const type T::Ptr) >&;
+    };
 
     class WPMExecutorProxy :  public BasePluginProxy
     {
@@ -36,8 +37,6 @@ namespace rsdk::mission::flight::waypoint
         void pause(ExecuteRst& rst);
 
         void resume(ExecuteRst& rst);
-
-        void installEventListener(const EventCallback&);
     };
 }
 

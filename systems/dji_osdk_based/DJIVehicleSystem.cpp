@@ -15,6 +15,7 @@
 #include "plugins/telemetry/DJIGNSSUncertain.hpp"
 #include "plugins/telemetry/DJIGPSTime.hpp"
 #include "plugins/mission/DJIMissionExecutor.hpp"
+#include "plugins/camera/DJIVideoStream.hpp"
 
 using DJILinker = DJI::OSDK::Linker;
 
@@ -49,6 +50,9 @@ private:
 
         _owner->dji_regist_plugin<rsdk::mission::flight::waypoint::WPMExecutorInterface>
         ( std::make_shared<DJIWPExecutor>       (_owner->shared_from_this()) );
+
+        _owner->dji_regist_plugin<rsdk::camera::VideoStreamInterface>
+        ( std::make_shared<DJIVideoStream>      (_owner->shared_from_this()) );
     }
 
     SystemImpl(DJIVehicleSystem* owner)

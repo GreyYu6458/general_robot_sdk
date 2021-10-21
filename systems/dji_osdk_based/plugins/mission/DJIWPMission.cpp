@@ -1,5 +1,4 @@
 #include "DJIWPMission.hpp"
-#include "DJIActionEvent.hpp"
 #include "DJIVehicleSystem.hpp"
 
 #include <cmath>
@@ -279,4 +278,14 @@ std::vector< DJI::OSDK::DJIWaypointV2Action>& DJIWPMission::djiActions()
 const std::shared_ptr<RSDKWaypoint::WPMission>& DJIWPMission::rawMission()
 {
     return _impl->_raw_mission;
+}
+
+bool DJIWPMission::eventType(size_t action_id, DJIActionEvent& dji_action_event)
+{
+    if(_impl->_action_map.count(action_id))
+    {
+        dji_action_event = _impl->_action_map[action_id];
+        return true;
+    }
+    return false;
 }

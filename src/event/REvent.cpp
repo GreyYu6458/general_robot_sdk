@@ -4,46 +4,61 @@
 
 namespace rsdk::event
 {
-    class REvent::Impl
+    class BaseREvent::Impl
     {
     public:
-        Impl(RobotSystem* system, uint32_t gid, uint32_t sid)
-        :   timestamp(system->systemTime()),
-            gid(gid),
+        Impl(uint32_t gid, uint32_t sid)
+        :   gid(gid),
             sid(sid)
         {}
 
-        RobotSystem* system;
+        std::atomic<bool> is_ignore{false};
         uint32_t timestamp;   
         uint32_t gid;
         uint32_t sid;
     };
 
-    REvent::REvent(RobotSystem* system,uint32_t gid, uint32_t sid)
-    : _impl(new Impl(system, gid, sid)){}
+    BaseREvent::BaseREvent(uint32_t gid, uint32_t sid)
+    : _impl(new Impl(gid, sid)){}
 
-    REvent::~REvent()
+    void BaseREvent::setTime(uint32_t time)
+    {
+        _impl->timestamp = time;
+    }
+    
+    BaseREvent::~BaseREvent()
     {
         delete _impl;
     }
 
-    uint32_t REvent::groupId()
+    bool BaseREvent::operator==(const BaseREvent& other)
+    {
+        return  this->groupId() == other.groupId() && 
+                this->subId()   == other.subId();
+    }
+
+    uint32_t BaseREvent::groupId() const
     {
         return _impl->gid;
     }
 
-    uint32_t REvent::subId()
+    uint32_t BaseREvent::subId() const
     {
         return _impl->sid;
     }
 
-    uint32_t REvent::triggerTime()
+    uint32_t BaseREvent::triggerTime() const
     {
         return _impl->timestamp;
     }
 
-    rsdk::RobotSystem* const REvent::system()
+    bool BaseREvent::isIgnored()
     {
-        return _impl->system;
+        return _impl->is_ignore;
+    }
+
+    void BaseREvent::setIgnore(bool should)
+    {
+        _impl->is_ignore = should;
     }
 }

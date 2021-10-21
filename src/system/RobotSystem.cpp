@@ -35,4 +35,19 @@ namespace rsdk
     {
         return _impl->system_time;
     }
+
+    bool RobotSystem::sendEvent(const ::std::shared_ptr<RObject>& robject, ::rsdk::event::REventParam event)
+    {
+        return notify(robject, event);
+    }
+
+    void RobotSystem::postEvent(const ::std::shared_ptr<RObject>&, ::rsdk::event::REventParam)
+    {
+
+    }
+
+    bool RobotSystem::notify(const ::std::shared_ptr<RObject>& robject, ::rsdk::event::REventParam event)
+    {
+        return robject->eventFilter(robject, event);
+    }
 }
