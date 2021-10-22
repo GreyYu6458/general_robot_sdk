@@ -2,8 +2,8 @@
 #define _ROBOT_SYSTEM_HPP_
 #include <string>
 #include <memory>
+#include "rsdk/system/PluginMap.hpp"
 #include "rsdk/robject/RObject.hpp"
-#include "PluginMap.hpp"
 #include "RobotSystemConfig.hpp"
 #include "SystemInfoPublisher.hpp"
 
@@ -13,14 +13,17 @@ namespace rsdk
 
     // 飞机访问者接口类,具体的飞机实现时需要继承该接口
     // 注意:飞机尽量具体到某一个机型
-    class RobotSystem : public RObject, public SystemInfoPublisher, public PluginMap
+    class RobotSystem : public RObject, 
+                        public SystemInfoPublisher, 
+                        public PluginMap,
+                        public std::enable_shared_from_this<RobotSystem>
     {
     public:
         RobotSystem();
 
         virtual ~RobotSystem();
 
-        virtual bool link(const SystemConfig& config) = 0;
+        bool link(const SystemConfig& config);
 
         // 是否连接
         virtual bool isLink() = 0;
@@ -49,6 +52,9 @@ namespace rsdk
         uint32_t systemTime();
 
     protected:
+
+        virtual bool tryLink(const SystemConfig& config) = 0;
+
         /**
          * 重写该函数可以获得所有事件的控制权
         */
@@ -60,6 +66,9 @@ namespace rsdk
         virtual bool notify(RObject*, ::rsdk::event::REventParam);
         
     private:
+
+        void onEventLoopPop();
+
         class SystemImpl;
 
         SystemImpl* _impl;

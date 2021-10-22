@@ -1,5 +1,6 @@
 #include "DJIGPSTime.hpp"
 
+/*
 void NMEACallback(Vehicle* vehiclePtr,
                   RecvContainer recvFrame,
                   UserData userData)
@@ -40,14 +41,16 @@ void PPSSourceCallback(Vehicle* vehiclePtr,
   DSTATUS("PPS pulse is coming from %s\n", stringVec[recvFrame.recvData.ppsSourceType].c_str());
 }
 
+*/
+
 DJIGPSTime::DJIGPSTime(const std::shared_ptr<DJIVehicleSystem>& system)
 : dji::gps_time::BaseType(system)
 {
-    // Note that these CBs share the same thread with serial reading
-  vehicle()->hardSync->subscribeNMEAMsgs(NMEACallback, nullptr);
-  vehicle()->hardSync->subscribeUTCTime(UTCTimeCallback, nullptr);
-  vehicle()->hardSync->subscribeFCTimeInUTCRef(FCTimeInUTCCallback, nullptr);
-  vehicle()->hardSync->subscribePPSSource(PPSSourceCallback, nullptr);
+  // Note that these CBs share the same thread with serial reading
+  // vehicle()->hardSync->subscribeNMEAMsgs(NMEACallback, nullptr);
+  // vehicle()->hardSync->subscribeUTCTime(UTCTimeCallback, nullptr);
+  // vehicle()->hardSync->subscribeFCTimeInUTCRef(FCTimeInUTCCallback, nullptr);
+  // vehicle()->hardSync->subscribePPSSource(PPSSourceCallback, nullptr);
 }
 
 void DJIGPSTime::convert(const DJIGPSTime::pkg_msg_type& date)

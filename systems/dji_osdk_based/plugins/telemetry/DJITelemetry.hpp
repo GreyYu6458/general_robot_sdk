@@ -1,7 +1,7 @@
 #ifndef _DJI_TELEMETRY_HPP_
 #define _DJI_TELEMETRY_HPP_
 #include "plugins/DJIPluginBase.hpp"
-#include "p_rsdk/interfaces/telemetry/telemetryInterfaces.hpp"
+#include "p_rsdk/plugins/telemetry/telemetryPlugins.hpp"
 
 #include <dji_vehicle.hpp>
 #include <dji_telemetry.hpp>

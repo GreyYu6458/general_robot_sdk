@@ -8,10 +8,9 @@ namespace rsdk
     public:
         std::mutex _cb_set_mutex;
         std::vector<SystemInfoPublisher::SystemInfoCallback> system_info_cbs;
-    };  
+    };
 
     // 全局存在，系统负责回收
-    SystemInfoPublisher::Impl* SystemInfoPublisher::_impl = new SystemInfoPublisher::Impl();
 
     void SystemInfoPublisher::__publish(const SystemInfo& info)
     {

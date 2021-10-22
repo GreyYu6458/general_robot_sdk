@@ -3,11 +3,11 @@
 
 namespace rsdk::event
 {
-    enum EventCategory
+    enum class EventCategory
     {
         SYSTEM,
         MISSION,
-        SENSORS,
+        TELEMETRY,
         CAMERA
     };
 

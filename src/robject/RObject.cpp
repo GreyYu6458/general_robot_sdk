@@ -37,9 +37,13 @@ namespace rsdk
     bool RObject::notifyied(::rsdk::event::REventParam event)
     {
         if(_impl->_watcher_bare)
+        {
             _impl->_watcher_bare->eventFilter(this, event);
+        }
         else if(!_impl->_watcher.expired())
+        {
             _impl->_watcher.lock()->eventFilter(this, event);
+        }
         return revent(event);
     }
 

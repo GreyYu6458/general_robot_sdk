@@ -1,8 +1,8 @@
 #include "DJIMissionExecutor.hpp"
 #include "DJIWPMission.hpp"
 #include "DJIEventWrapper.hpp"
-#include "rsdk/plugins/telemetry/FlyingRbtSt.hpp"
-#include "rsdk/plugins/mission/MissionEvent.hpp"
+#include "rsdk/proxy/telemetry/FlyingRbtSt.hpp"
+#include "rsdk/proxy/mission/MissionEvent.hpp"
 #include "DJIMissionContext.hpp"
 
 #include <dji_vehicle.hpp>
@@ -17,10 +17,19 @@ class DJIWPExecutor::Impl
     friend class DJIWPExecutor;
 
 public:
-    Impl(DJIWPExecutor *owner)
-        :   _state_listener(owner->system()),
+    Impl(const std::shared_ptr<DJIVehicleSystem>& system, DJIWPExecutor *owner)
+        :   _state_listener(system),
             _owner(owner),
             _dji_mission_operator(owner->vehicle()->waypointV2Mission)
+    {
+    }
+
+    DJI::OSDK::WaypointV2MissionOperator *const mission_operator()
+    {
+        return _dji_mission_operator;
+    }
+
+    void start()
     {
         if (!_state_listener.isStarted())
         {
@@ -40,15 +49,6 @@ public:
                 }
             }
         );
-    }
-
-    DJI::OSDK::WaypointV2MissionOperator *const mission_operator()
-    {
-        return _dji_mission_operator;
-    }
-
-    void start()
-    {
         _dji_event_wrapper = std::make_unique<DJIEventWrapper>(this->_owner);
         _dji_event_wrapper->startListeningDJILowLayerEvent();
     }
@@ -144,7 +144,7 @@ public:
         return std::string("ErrorMsg:") + msg.errorMsg + ";ModuleMsg:" + msg.moduleMsg + ";SolutionMsg:" + msg.solutionMsg;
     }
 
-    static void dji_api_ret_handler(ErrorCode::ErrorCodeType& ret, rmfw::ExecuteRst &rst)
+    void dji_api_ret_handler(ErrorCode::ErrorCodeType& ret, rmfw::ExecuteRst &rst)
     {
         if (ret != ErrorCode::SysCommonErr::Success)
         {
@@ -156,7 +156,7 @@ public:
             rst.is_success = true;
             rst.detail = "Success";
         }
-        rst.is_success ? DJIVehicleSystem::info(rst.detail) : DJIVehicleSystem::error(rst.detail);
+        rst.is_success ? _owner->system()->info(rst.detail) : _owner->system()->error(rst.detail);
     }
 
     inline void installEventCallback(const ::rsdk::event::REventCBType&cb)
@@ -181,7 +181,9 @@ private:
 };
 
 DJIWPExecutor::DJIWPExecutor(const std::shared_ptr<DJIVehicleSystem>& system)
-    : DJIPluginBase(system), ::rmfw::WPMExecutorInterface(system), _impl(new Impl(this))
+    :   DJIPluginBase(system), 
+        ::rmfw::WPMExecutorPlugin(system), 
+        _impl(new Impl(system, this))
 {
 
 }

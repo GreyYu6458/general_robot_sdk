@@ -1,0 +1,36 @@
+#ifndef _MISSION_MANAGER_HPP_
+#define _MISSION_MANAGER_HPP_
+
+#include <memory>
+#include <functional>
+
+#include "WPMission.hpp"
+#include "rsdk/proxy/mission/MissionEvent.hpp"
+#include "rsdk/proxy/BaseProxy.hpp"
+
+namespace rsdk::mission::flight::waypoint
+{
+    class RobotSystem;
+
+    struct ExecuteRst
+    {
+        bool is_success;
+        std::string detail;
+    };
+
+    class WPMExecutorProxy :  public BaseProxy
+    {
+    public:
+        WPMExecutorProxy(const std::shared_ptr<rsdk::RobotSystem>& system );
+        
+        void launch(std::shared_ptr<WPMission>&, ExecuteRst& rst);
+
+        void stop(ExecuteRst& rst);
+
+        void pause(ExecuteRst& rst);
+
+        void resume(ExecuteRst& rst);
+    };
+}
+
+#endif

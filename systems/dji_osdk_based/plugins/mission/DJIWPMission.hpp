@@ -1,7 +1,7 @@
 #ifndef _DJI_WAYPOINT_MISSION_CONVERTER_HPP_
 #define _DJI_WAYPOINT_MISSION_CONVERTER_HPP_
 
-#include "rsdk/plugins/mission/flight/waypoint/WPMission.hpp"
+#include "rsdk/proxy/mission/flight/waypoint/WPMission.hpp"
 #include "DJIActionEvent.hpp"
 #include <dji_waypoint_v2.hpp>
 #include <dji_waypoint_v2_action.hpp>

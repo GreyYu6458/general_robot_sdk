@@ -1,7 +1,7 @@
 #ifndef _DJI_AVOID_HPP_
 #define _DJI_AVOID_HPP_
 #include "DJITelemetry.hpp"
-#include "rsdk/plugins/telemetry/Avoid.hpp"
+#include "rsdk/proxy/telemetry/Avoid.hpp"
 
 class DJIAvoid;
 
@@ -18,7 +18,7 @@ namespace dji::avoid
     >;
 }
 
-class DJIAvoid : public dji::avoid::BaseType, public rsdk::telemetry::AvoidanceInterface
+class DJIAvoid : public dji::avoid::BaseType, public rsdk::telemetry::AvoidancePlugin
 {
 public:
     DJIAvoid(const std::shared_ptr<DJIVehicleSystem>& system);

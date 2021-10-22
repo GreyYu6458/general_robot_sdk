@@ -24,15 +24,12 @@ using DJIVehiclePtr = std::shared_ptr<DJIVehicle>;
 
 class DJIPluginBase;
 
-class DJIVehicleSystem : public rsdk::RobotSystem , 
-                         public std::enable_shared_from_this<DJIVehicleSystem>
+class DJIVehicleSystem : public rsdk::RobotSystem
 {
 public:
     DJIVehicleSystem();
 
     ~DJIVehicleSystem();
-
-    bool link(const rsdk::SystemConfig& config) override;
 
     // 飞机是否连接
     bool isLink() override;
@@ -51,6 +48,16 @@ public:
 
     // 返回大疆类型
     DJIVehicleModels model();
+
+protected:
+    bool tryLink(const rsdk::SystemConfig& config) override;
+
+    /**
+     * @brief overload base class
+     * 
+     * @return std::shared_ptr<DJIVehicleSystem> 
+     */
+    std::shared_ptr<DJIVehicleSystem> shared_from_this();
 
 private:
     template<class T, class G>

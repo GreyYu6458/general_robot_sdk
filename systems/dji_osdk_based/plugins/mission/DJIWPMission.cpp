@@ -96,9 +96,9 @@ template<> bool DJIWPMission::Impl::_convert_item
 
     if(wait_time > 25.5) 
     {
-        DJIVehicleSystem::publishInfo<::rsdk::SystemInfoLevel::ERROR>(
-            "When Converting Waypoint: Wait Time Bigger Than 25.5"
-        );
+        // publishInfo<::rsdk::SystemInfoLevel::ERROR>(
+        //     "When Converting Waypoint: Wait Time Bigger Than 25.5"
+        // );
         return false;
     }
 
@@ -191,9 +191,9 @@ template<> bool DJIWPMission::Impl::_convert_item
     if(total_image != 1)
     {
         mission->_impl->clear();
-        DJIVehicleSystem::publishInfo<::rsdk::SystemInfoLevel::ERROR>(
-            "DJI Not Support Continuous Photo Params"
-        );
+        // DJIVehicleSystem::publishInfo<::rsdk::SystemInfoLevel::ERROR>(
+        //     "DJI Not Support Continuous Photo Params"
+        // );
         return false;
     } 
 

@@ -11,35 +11,35 @@ namespace rsdk
         using SystemInfoCallback = std::function<void (const SystemInfo&)>;
 
         template<SystemInfoLevel Level>
-        static inline void publishInfo(const std::string& msg)
+        inline void publishInfo(const std::string& msg)
         {
             __publish({ .level = Level, .data = msg});
         }
 
-        static inline void warning(const std::string& msg)
+        inline void warning(const std::string& msg)
         {
             publishInfo<SystemInfoLevel::WARNING>(msg);
         }
 
-        static inline void info(const std::string& msg)
+        inline void info(const std::string& msg)
         {
             publishInfo<SystemInfoLevel::INFO>(msg);
         }
 
-        static inline void error(const std::string& msg)
+        inline void error(const std::string& msg)
         {
             publishInfo<SystemInfoLevel::ERROR>(msg);
         }
 
-        static void subscribeSystemInfo(const SystemInfoCallback& cb);
+        void subscribeSystemInfo(const SystemInfoCallback& cb);
 
     protected:
 
-        static void __publish(const SystemInfo&);
+        void __publish(const SystemInfo&);
 
     private:
         class Impl;
-        static Impl* _impl;
+        Impl* _impl;
     };
 }
 

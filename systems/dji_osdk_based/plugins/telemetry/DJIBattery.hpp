@@ -1,10 +1,10 @@
 #ifndef _DJI_BATTERY_HPP_
 #define _DJI_BATTERY_HPP_
-#include "p_rsdk/interfaces/telemetry/telemetryInterfaces.hpp"
+#include "p_rsdk/plugins/telemetry/telemetryPlugins.hpp"
 #include "plugins/DJIPluginBase.hpp"
 
 class DJIBatteryWrapper 
-    : public rsdk::telemetry::BatteryInterface, public DJIPluginBase
+    : public rsdk::telemetry::BatteryPlugin, public DJIPluginBase
 {
 public:
     DJIBatteryWrapper(const std::shared_ptr<DJIVehicleSystem>& system);

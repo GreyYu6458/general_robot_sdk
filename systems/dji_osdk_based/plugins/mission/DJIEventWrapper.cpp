@@ -3,7 +3,7 @@
 #include "DJIVehicleSystem.hpp"
 #include "DJIMissionContext.hpp"
 #include "DJIWPMission.hpp"
-#include "rsdk/plugins/mission/MissionEvent.hpp"
+#include "rsdk/proxy/mission/MissionEvent.hpp"
 
 #include <dji_vehicle.hpp>
 #include <dji_waypoint_v2.hpp>
@@ -31,25 +31,25 @@ enum class DJIMissionEvent
 template <DJIMissionEvent> struct DJIMissionEventType;
 
 template <>struct DJIMissionEventType<DJIMissionEvent::InterruptReason>
-{typedef decltype(DJI::OSDK::Eventdata::interruptReason) type;};
+{typedef decltype(DJI::OSDK::Eventdata::interruptReason)    type;};
 
 template <>struct DJIMissionEventType<DJIMissionEvent::RecoverProcess>
-{typedef decltype(DJI::OSDK::Eventdata::recoverProcess) type;};
+{typedef decltype(DJI::OSDK::Eventdata::recoverProcess)     type;};
 
 template <>struct DJIMissionEventType<DJIMissionEvent::MissionFinished>
-{typedef decltype(DJI::OSDK::Eventdata::finishReason) type;};
+{typedef decltype(DJI::OSDK::Eventdata::finishReason)       type;};
 
 template <>struct DJIMissionEventType<DJIMissionEvent::WaypointIndexUpdate>
-{typedef decltype(DJI::OSDK::Eventdata::waypointIndex) type;};
+{typedef decltype(DJI::OSDK::Eventdata::waypointIndex)      type;};
 
 template <>struct DJIMissionEventType<DJIMissionEvent::AvoidEvent>
-{typedef decltype(DJI::OSDK::Eventdata::avoidState) type;};
+{typedef decltype(DJI::OSDK::Eventdata::avoidState)         type;};
 
 template <>struct DJIMissionEventType<DJIMissionEvent::MissionExecEvent>
-{typedef decltype(DJI::OSDK::Eventdata::MissionExecEvent) type;};
+{typedef decltype(DJI::OSDK::Eventdata::MissionExecEvent)   type;};
 
 template <>struct DJIMissionEventType<DJIMissionEvent::ActionExecEvent>
-{typedef decltype(DJI::OSDK::Eventdata::ActionExecEvent) type;};
+{typedef decltype(DJI::OSDK::Eventdata::ActionExecEvent)    type;};
 
 
 #define _DJIEventParamType(x) const typename DJIMissionEventType<x>::type
@@ -74,7 +74,7 @@ static void process(DJIEventWrapper& event_wrapper, _DJIEventParamType(I) &ack);
 template <> void process<DJIMissionEvent::InterruptReason>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(InterruptReason) &ack)
 {
-    DJIVehicleSystem::info("[mission]: Interrupt Reason:" + std::to_string(ack));
+    event_wrapper.executor()->system()->info("[mission]: Interrupt Reason:" + std::to_string(ack));
 }
 
 /**
@@ -87,7 +87,7 @@ template <> void process<DJIMissionEvent::InterruptReason>
 template <> void process<DJIMissionEvent::RecoverProcess>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(RecoverProcess) &ack)
 {
-    DJIVehicleSystem::info("[mission]: Recover process:" + std::to_string(ack));
+    event_wrapper.executor()->system()->info("[mission]: Recover process:" + std::to_string(ack));
 }
 
 /**
@@ -100,12 +100,11 @@ template <> void process<DJIMissionEvent::RecoverProcess>
 template <> void process<DJIMissionEvent::MissionFinished>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(MissionFinished) &ack)
 {
-    DJIVehicleSystem::info("[mission]: Mission Finished:" + std::to_string(ack));
+    event_wrapper.executor()->system()->info("[mission]: Mission Finished:" + std::to_string(ack));
 
     auto finish_event = std::make_shared<rsdk::mission::FinishedEvent>();
-    // DJIVehicleSystem::info("data: finish " + std::to_string(ack));
+    // event_wrapper.executor()->system()->info("data: finish " + std::to_string(ack));
     finish_event->is_normal_finished = event_wrapper.executor()->currentMissionContext()->hasFinishedAllCount();
-    event_wrapper.executor()->onEvent(finish_event);
 }
 
 /**
@@ -119,15 +118,14 @@ template <> void process<DJIMissionEvent::WaypointIndexUpdate>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(WaypointIndexUpdate) &ack)
 {
     // log date
-    DJIVehicleSystem::info("[mission]: Waypoint update:" + std::to_string(ack));
+    event_wrapper.executor()->system()->info("[mission]: Waypoint update:" + std::to_string(ack));
 
-    auto wp_update_event = std::make_shared<rsdk::mission::ProgressUpdateEvent>();
+    auto wp_update_event        = std::make_shared<rsdk::mission::ProgressUpdateEvent>();
     // update context
     event_wrapper.executor()->currentMissionContext()->setCurrentWaypointNumber(ack);
 
-    wp_update_event->total  = event_wrapper.executor()->currentMissionContext()->totalWaypoint();
-    wp_update_event->current= ack;
-    event_wrapper.executor()->onEvent(wp_update_event);
+    wp_update_event->total      = event_wrapper.executor()->currentMissionContext()->totalWaypoint();
+    wp_update_event->current    = ack;
 }
 
 /**
@@ -140,8 +138,7 @@ template <> void process<DJIMissionEvent::WaypointIndexUpdate>
 template <> void process<DJIMissionEvent::AvoidEvent>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(AvoidEvent) &ack)
 {
-    DJIVehicleSystem::warning("[mission]: Avoidance occurred!");
-    event_wrapper.executor()->onEvent(std::shared_ptr<rsdk::mission::AvoidanceEvent>());
+    event_wrapper.executor()->system()->warning("[mission]: Avoidance occurred!");
 }
 
 /**
@@ -154,8 +151,8 @@ template <> void process<DJIMissionEvent::AvoidEvent>
 template <> void process<DJIMissionEvent::MissionExecEvent>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(MissionExecEvent) &ack)
 {
-    // DJIVehicleSystem::info("[mission]: Current mission exec num:" + std::to_string(ack.currentMissionExecNum));
-    DJIVehicleSystem::info("[mission]: Finish all exec num:" + std::to_string(ack.finishedAllExecNum));
+    // event_wrapper.executor()->system()->info("[mission]: Current mission exec num:" + std::to_string(ack.currentMissionExecNum));
+    event_wrapper.executor()->system()->info("[mission]: Finish all exec num:" + std::to_string(ack.finishedAllExecNum));
     event_wrapper.executor()->currentMissionContext()->setFinishedCount(ack.finishedAllExecNum);
 }
 
@@ -169,7 +166,7 @@ template <> void process<DJIMissionEvent::MissionExecEvent>
 template <> void process<DJIMissionEvent::ActionExecEvent>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(ActionExecEvent) &ack)
 {
-    DJIVehicleSystem::info(
+    event_wrapper.executor()->system()->info(
         "[mission]: Action id " + 
         std::to_string(ack.actionId)
     );
@@ -179,7 +176,7 @@ template <> void process<DJIMissionEvent::ActionExecEvent>
     if(!event_wrapper.executor()->currentMissionContext()->
         djiWPMission()->eventType(ack.actionId, dji_action_event))
     {
-        DJIVehicleSystem::warning(
+        event_wrapper.executor()->system()->warning(
             "[mission]: Action id was not registed, action_id:" + 
             std::to_string(ack.actionId)
         );
@@ -191,19 +188,17 @@ template <> void process<DJIMissionEvent::ActionExecEvent>
         case DJIActionEventEnum::Paused:
             {
                 auto paused_event = std::make_shared<::rsdk::mission::PausedEvent>();
-                event_wrapper.executor()->onEvent(paused_event);
                 break;
             }
         case DJIActionEventEnum::Resumed:
             {
                 auto resume_event = std::make_shared<::rsdk::mission::ResumedEvent>();
-                event_wrapper.executor()->onEvent(resume_event);
                 break;
             }
         case DJIActionEventEnum::StartRecordVideo:
             break;
         default:
-            DJIVehicleSystem::warning(
+            event_wrapper.executor()->system()->warning(
                 "[mission]: Unknown type of action, action_id:" + 
                 std::to_string(ack.actionId)
             );
@@ -248,7 +243,7 @@ public:
             auto* executor               = dji_event_wrapper_impl->_executor;
             auto* missionEventPushAck = (DJI::OSDK::MissionEventPushAck *)cmdData;
 
-            DJIVehicleSystem::info(
+            executor->system()->info(
                 "[mission],Event Triggerred, Event Type:" + std::to_string(missionEventPushAck->event)
             );
             switch (missionEventPushAck->event)

@@ -9,13 +9,13 @@ namespace rsdk
         friend class RobotSystem;
     public:
         /**
-         * @brief Construct a new RObject object
+         * @brief Construct a new RObject
          * 
          */
         RObject();
 
         /**
-         * @brief Destroy the RObject object
+         * @brief Destroy the RObject
          * 
          */
         virtual ~RObject();

@@ -4,17 +4,12 @@
 #include <memory>
 #include <functional>
 
-namespace rsdk
-{
-    class RobotSystem;
-}
-
 namespace rsdk::event
 {
     class BaseREvent
     {
         friend class RobotSystem;
-        friend class PluginInterface;
+        friend class BasePlugin;
 
     public:
         BaseREvent(uint32_t gid, uint32_t sid);
@@ -25,12 +20,18 @@ namespace rsdk::event
 
         uint32_t subId() const;
 
-        uint32_t triggerTime() const;
+        int64_t systemTime() const;
 
-        bool operator==(const BaseREvent&);
+        int64_t hostTime() const;
 
-        void setTime(uint32_t time);
-
+        /**
+         * @brief 
+         * 
+         * @tparam b_id 
+         * @tparam s_id 
+         * @return true 
+         * @return false 
+         */
         template<uint32_t b_id, uint32_t s_id>
         inline bool isEqualTo()
         {
@@ -47,6 +48,13 @@ namespace rsdk::event
         bool isIgnored();
 
     protected:
+
+        /**
+         * @brief Set the System Time object
+         * 
+         * @param time 
+         */
+        void setSystemTime(int64_t time);
 
         /**
          * @brief Set the Ignore object

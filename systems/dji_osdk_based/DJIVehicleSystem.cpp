@@ -19,40 +19,34 @@
 
 using DJILinker = DJI::OSDK::Linker;
 
-static const uint32_t default_dji_app_id = 1100225;
-static const char *default_dji_app_key = "b25a76692794311fae2187a6c369ae012f18f46c1535f4e2d48e3ce26f841346";
-static const uint32_t default_dji_app_version = 1;
+static const uint32_t   default_dji_app_id = 1100225;
+static const char*      default_dji_app_key = "b25a76692794311fae2187a6c369ae012f18f46c1535f4e2d48e3ce26f841346";
+static const uint32_t   default_dji_app_version = 1;
 
 class DJIVehicleSystem::SystemImpl
 {
     friend class DJIVehicleSystem;
 
+#define REGIST_PLUGIN(dji_plugin_name, base_plugin_name) \
+    _owner->dji_regist_plugin<base_plugin_name> \
+        ( \
+            std::make_shared<dji_plugin_name> \
+            ( \
+                _owner->shared_from_this() \
+            ) \
+        )
+
 private:
     void registALLPlugin()
     {
-        _owner->dji_regist_plugin<rsdk::telemetry::AttitudeInterface>
-        ( std::make_shared<DJIAttitude>         (_owner->shared_from_this()) );
-
-        _owner->dji_regist_plugin<rsdk::telemetry::AvoidanceInterface>
-        ( std::make_shared<DJIAvoid>            (_owner->shared_from_this()) );
-
-        _owner->dji_regist_plugin<rsdk::telemetry::BatteryInterface>           
-        ( std::make_shared<DJIBatteryWrapper>   (_owner->shared_from_this()) );
-
-        _owner->dji_regist_plugin<rsdk::telemetry::GNSSReceiverInterface>
-        ( std::make_shared<DJIGNSSReceiver>     (_owner->shared_from_this()) );
-
-        _owner->dji_regist_plugin<rsdk::telemetry::GNSSUncertainInfoInterface>
-        ( std::make_shared<DJIGNSSUncertain>    (_owner->shared_from_this()) );
-
-        _owner->dji_regist_plugin<rsdk::telemetry::FlyingRobotStatusInterface>
-        ( std::make_shared<DJIFlightStatus>     (_owner->shared_from_this()) );
-
-        _owner->dji_regist_plugin<rsdk::mission::flight::waypoint::WPMExecutorInterface>
-        ( std::make_shared<DJIWPExecutor>       (_owner->shared_from_this()) );
-
-        _owner->dji_regist_plugin<rsdk::camera::VideoStreamInterface>
-        ( std::make_shared<DJIVideoStream>      (_owner->shared_from_this()) );
+        REGIST_PLUGIN(DJIAttitude,          rsdk::telemetry::AttitudePlugin);
+        REGIST_PLUGIN(DJIAvoid,             rsdk::telemetry::AvoidancePlugin);
+        REGIST_PLUGIN(DJIBatteryWrapper,    rsdk::telemetry::BatteryPlugin);
+        REGIST_PLUGIN(DJIGNSSReceiver,      rsdk::telemetry::GNSSReceiverPlugin);
+        REGIST_PLUGIN(DJIGNSSUncertain,     rsdk::telemetry::GNSSUncertainInfoPlugin);
+        REGIST_PLUGIN(DJIFlightStatus,      rsdk::telemetry::FlyingRobotStatusPlugin);
+        REGIST_PLUGIN(DJIWPExecutor,        rsdk::mission::flight::waypoint::WPMExecutorPlugin);
+        REGIST_PLUGIN(DJIVideoStream,       rsdk::camera::VideoStreamPlugin);
     }
 
     SystemImpl(DJIVehicleSystem* owner)
@@ -74,14 +68,13 @@ public:
 
         if (!linker)
         {
-            error( (formater % __FILE__ % __LINE__ % "Malloc For DJI Linker Failed!").str());
+            _owner->error( (formater % __FILE__ % __LINE__ % "Malloc For DJI Linker Failed!").str());
             return false;
         }
         
         if (!linker->init())
         {
-            error( (formater % __FILE__ % __LINE__ % "DJI Linker Init Failed!").str());
-            error("DJI Linker Init Failed!");
+            _owner->error( (formater % __FILE__ % __LINE__ % "DJI Linker Init Failed!").str());
             return false;
         }
 
@@ -92,13 +85,13 @@ public:
 
         if (!usb_port_opt.has_value())
         {   
-            error( (formater % __FILE__ % __LINE__ % "config value is empty, system config has no correct key : \"usb\"").str());
+            _owner->error( (formater % __FILE__ % __LINE__ % "config value is empty, system config has no correct key : \"usb\"").str());
             return false;
         }
 
         if (!acm_port_opt.has_value())
         {
-            error( (formater % __FILE__ % __LINE__ % "config value is empty, system config has no correct key : \"acm\"").str());
+            _owner->error( (formater % __FILE__ % __LINE__ % "config value is empty, system config has no correct key : \"acm\"").str());
             return false;
         }
 
@@ -107,13 +100,13 @@ public:
 
         if (!_dji_linker->addUartChannel(usb_port.dev_path.c_str(), usb_port.baudrate, FC_UART_CHANNEL_ID))
         {
-            error( (formater % __FILE__ % __LINE__ % "DJI VEHICLE ADD ACM channel Failed!").str());
+            _owner->error( (formater % __FILE__ % __LINE__ % "DJI VEHICLE ADD ACM channel Failed!").str());
             return false;
         }
 
         if (!_dji_linker->addUartChannel(acm_port.dev_path.c_str(), acm_port.baudrate, USB_ACM_CHANNEL_ID))
         {
-            error( (formater % __FILE__ % __LINE__ % "DJI VEHICLE ADD USB channel Failed!").str());
+            _owner->error( (formater % __FILE__ % __LINE__ % "DJI VEHICLE ADD USB channel Failed!").str());
             return false;
         }
 
@@ -128,7 +121,7 @@ public:
 
         if (!_dji_vehicle)
         {
-            error( (formater % __FILE__ % __LINE__ % "Vehicle create failed").str());
+            _owner->error( (formater % __FILE__ % __LINE__ % "Vehicle create failed").str());
             return false;
         }
 
@@ -146,13 +139,13 @@ public:
         subscribe_status = _dji_vehicle->subscribe->verify(1);
         if(DJI::OSDK::ACK::getError(subscribe_status) != DJI::OSDK::ACK::SUCCESS)
         {
-            error( (formater % __FILE__ % __LINE__ % "DJI VERIFY ERROR").str());
+            _owner->error( (formater % __FILE__ % __LINE__ % "DJI VERIFY ERROR").str());
             return false;
         }
 
         _unique_code = _dji_vehicle->getHwSerialNum();
 
-        info("DJI Vehicle Link Success");
+        _owner->info("DJI Vehicle Link Success");
         return true;
     }
 
@@ -199,7 +192,7 @@ DJIVehicleSystem::~DJIVehicleSystem()
     delete _impl;
 }
 
-bool DJIVehicleSystem::link(const rsdk::SystemConfig &config)
+bool DJIVehicleSystem::tryLink(const rsdk::SystemConfig &config)
 {
     _impl->_config = config;
 
@@ -208,12 +201,20 @@ bool DJIVehicleSystem::link(const rsdk::SystemConfig &config)
     if(rst == false)
         return rst;
     // start time sync
-    _impl->_gps_time_sysc_plugin = std::make_unique<DJIGPSTime>(shared_from_this());
+    _impl->_gps_time_sysc_plugin = 
+        std::make_unique<DJIGPSTime>(
+            shared_from_this()
+        );
     _impl->_gps_time_sysc_plugin->setFreqency(5);
     _impl->_gps_time_sysc_plugin->exec();
     _impl->registALLPlugin();
 
     return rst;
+}
+
+std::shared_ptr<DJIVehicleSystem> DJIVehicleSystem::shared_from_this()
+{
+    return std::static_pointer_cast<DJIVehicleSystem>( this->RobotSystem::shared_from_this() );
 }
 
 // 飞机是否连接

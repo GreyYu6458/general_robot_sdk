@@ -18,7 +18,7 @@ namespace dji::flight_status
 }
 
 class DJIFlightStatus 
-    :   public rsdk::telemetry::FlyingRobotStatusInterface, 
+    :   public rsdk::telemetry::FlyingRobotStatusPlugin, 
         public dji::flight_status::BaseType
 {
 public:

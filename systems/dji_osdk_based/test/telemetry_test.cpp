@@ -4,12 +4,12 @@
 #include "rsdk/system/SystemLinkMethods.hpp"
 #include "DJIVehicleSystem.hpp"
 
-#include "rsdk/plugins/telemetry/Attitude.hpp"
-#include "rsdk/plugins/telemetry/Avoid.hpp"
-#include "rsdk/plugins/telemetry/Battery.hpp"
-#include "rsdk/plugins/telemetry/GNSSReceiver.hpp"
-#include "rsdk/plugins/telemetry/GNSSUncertainInfo.hpp"
-#include "rsdk/plugins/telemetry/FlyingRbtSt.hpp"
+#include "rsdk/proxy/telemetry/Attitude.hpp"
+#include "rsdk/proxy/telemetry/Avoid.hpp"
+#include "rsdk/proxy/telemetry/Battery.hpp"
+#include "rsdk/proxy/telemetry/GNSSReceiver.hpp"
+#include "rsdk/proxy/telemetry/GNSSUncertainInfo.hpp"
+#include "rsdk/proxy/telemetry/FlyingRbtSt.hpp"
 
 namespace callbacks{
 

@@ -26,7 +26,7 @@ public:
 
 DJIBatteryWrapper::DJIBatteryWrapper(const std::shared_ptr<DJIVehicleSystem>& system)
 :   DJIPluginBase(system),
-    rsdk::telemetry::BatteryInterface(system)
+    rsdk::telemetry::BatteryPlugin(system)
 {
     _impl = new Impl();
 }

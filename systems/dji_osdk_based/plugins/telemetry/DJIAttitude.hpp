@@ -1,7 +1,7 @@
 #ifndef _DJI_ATTITUDE_HPP_
 #define _DJI_ATTITUDE_HPP_
 #include "DJITelemetry.hpp"
-#include "rsdk/plugins/telemetry/Attitude.hpp"
+#include "rsdk/proxy/telemetry/Attitude.hpp"
 
 class DJIAttitude;
 
@@ -17,7 +17,7 @@ namespace dji::attitude
 }
 
 class DJIAttitude 
-    : public dji::attitude::BaseType, public rsdk::telemetry::AttitudeInterface
+    : public dji::attitude::BaseType, public rsdk::telemetry::AttitudePlugin
 {
 public:
     DJIAttitude(const std::shared_ptr<DJIVehicleSystem>& system);

@@ -1,7 +1,7 @@
 #ifndef _DJI_GNSS_UNCERTAIN_HPP_
 #define _DJI_GNSS_UNCERTAIN_HPP_
 #include "DJITelemetry.hpp"
-#include "rsdk/plugins/telemetry/GNSSUncertainInfo.hpp"
+#include "rsdk/proxy/telemetry/GNSSUncertainInfo.hpp"
 
 class DJIGNSSUncertain;
 
@@ -19,7 +19,7 @@ namespace dji::gnss_uncertain
 }
 
 class DJIGNSSUncertain 
-    : public dji::gnss_uncertain::BaseType, public rsdk::telemetry::GNSSUncertainInfoInterface
+    : public dji::gnss_uncertain::BaseType, public rsdk::telemetry::GNSSUncertainInfoPlugin
 {
 public:
     DJIGNSSUncertain(const std::shared_ptr<DJIVehicleSystem>& system);

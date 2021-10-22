@@ -2,15 +2,14 @@
 #include <thread>
 #include "rsdk/system/RobotSystem.hpp"
 #include "rsdk/system/SystemLinkMethods.hpp"
-#include "rsdk/plugins/mission/flight/waypoint/WPMExecutor.hpp"
-#include "rsdk/plugins/mission/flight/waypoint/WPMItem.hpp"
+#include "rsdk/proxy/mission/flight/waypoint/WPMExecutor.hpp"
+#include "rsdk/proxy/mission/flight/waypoint/WPMItem.hpp"
 
-#include "rsdk/plugins/PluginsIndex.hpp"
-#include "rsdk/plugins/mission/EventSubIndex.hpp"
-#include "rsdk/plugins/mission/MissionEvent.hpp"
+#include "rsdk/proxy/PluginsIndex.hpp"
+#include "rsdk/proxy/mission/MissionEvent.hpp"
 
 #include "DJIVehicleSystem.hpp"
-#include "rsdk/plugins/telemetry/GNSSReceiver.hpp"
+#include "rsdk/proxy/telemetry/GNSSReceiver.hpp"
 #include <condition_variable>
 #include <mutex>
 

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <thread>
 #include "DJIVehicleSystem.hpp"
-#include "rsdk/plugins/camera/VideoStream.hpp"
+#include "rsdk/proxy/camera/VideoStream.hpp"
 #include "rsdk/system/SystemLinkMethods.hpp"
 
 

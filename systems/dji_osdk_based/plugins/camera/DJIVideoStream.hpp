@@ -1,13 +1,13 @@
 #ifndef _CAMERA_CONTROLLER_HPP_
 #define _CAMERA_CONTROLLER_HPP_
 #include "plugins/DJIPluginBase.hpp"
-#include "p_rsdk/interfaces/camera/VideoStreamInterface.hpp"
+#include "p_rsdk/plugins/camera/VideoStreamPlugin.hpp"
 
 /**
  * @brief 
  * 
  */
-class DJIVideoStream : public rsdk::camera::VideoStreamInterface,
+class DJIVideoStream : public rsdk::camera::VideoStreamPlugin,
                        public DJIPluginBase
 {
 public:

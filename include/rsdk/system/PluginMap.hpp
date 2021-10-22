@@ -4,12 +4,11 @@
 
 namespace rsdk
 {   
-    class PluginInterface;
+    class BasePlugin;
     
     class PluginMap
     {
     public:
-
         /**
          * @brief Construct a new Plugin Map object
          * 
@@ -30,7 +29,7 @@ namespace rsdk
          * @return std::shared_ptr<T> 
          */
         template<class T> 
-        std::shared_ptr<T> pluginInterfaceImpl()
+        std::shared_ptr<T> BasePluginImpl()
         {
             auto ptr = _getPlugin( typeid(T).hash_code() );
             return ptr ? std::dynamic_pointer_cast<T>(ptr) : nullptr;
@@ -49,7 +48,7 @@ namespace rsdk
         template<class T, class G>
         bool registInterfaceImplToMap(const std::shared_ptr<G>& plugin)
         {
-            static_assert(std::is_base_of<rsdk::PluginInterface, T>::value, "error!");
+            static_assert(std::is_base_of<rsdk::BasePlugin, T>::value, "error!");
             static_assert(std::is_base_of<T, G>::value, "error!");
             return _regist_impl( typeid(T).hash_code(), plugin );
         }
@@ -59,9 +58,9 @@ namespace rsdk
          * @brief 
          * 
          * @param plugin_hash 
-         * @return std::shared_ptr<PluginInterface> 
+         * @return std::shared_ptr<BasePlugin> 
          */
-        std::shared_ptr<PluginInterface> _getPlugin(size_t plugin_hash);
+        std::shared_ptr<BasePlugin> _getPlugin(size_t plugin_hash);
 
         /**
          * @brief 
@@ -71,7 +70,7 @@ namespace rsdk
          * @return true 
          * @return false 
          */
-        bool _regist_impl(size_t plugin_hash, const std::shared_ptr<PluginInterface>& impl);
+        bool _regist_impl(size_t plugin_hash, const std::shared_ptr<BasePlugin>& impl);
 
 
         class Impl;

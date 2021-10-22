@@ -1,7 +1,7 @@
 #ifndef _DJI_GNSS_HPP_
 #define _DJI_GNSS_HPP_
 #include "DJITelemetry.hpp"
-#include "rsdk/plugins/telemetry/GNSSReceiver.hpp"
+#include "rsdk/proxy/telemetry/GNSSReceiver.hpp"
 
 class DJIGNSSReceiver;
 
@@ -22,7 +22,7 @@ namespace dji::gnss
 }
 
 class DJIGNSSReceiver 
-    : public dji::gnss::BaseType, public rsdk::telemetry::GNSSReceiverInterface
+    : public dji::gnss::BaseType, public rsdk::telemetry::GNSSReceiverPlugin
 {
 public:
     DJIGNSSReceiver(const std::shared_ptr<DJIVehicleSystem>& system);

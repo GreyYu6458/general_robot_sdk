@@ -286,7 +286,7 @@ private:
 
 // IMPL
 DJIVideoStream::DJIVideoStream(const std::shared_ptr<DJIVehicleSystem>& system)
-    :   ::rsdk::camera::VideoStreamInterface(system), 
+    :   ::rsdk::camera::VideoStreamPlugin(system), 
         DJIPluginBase(system), 
         _impl (new Impl(system))
 {
