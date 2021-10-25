@@ -45,7 +45,7 @@ private:
         REGIST_PLUGIN(DJIGNSSReceiver,      rsdk::telemetry::GNSSReceiverPlugin);
         REGIST_PLUGIN(DJIGNSSUncertain,     rsdk::telemetry::GNSSUncertainInfoPlugin);
         REGIST_PLUGIN(DJIFlightStatus,      rsdk::telemetry::FlyingRobotStatusPlugin);
-        REGIST_PLUGIN(DJIWPExecutor,        rsdk::mission::flight::waypoint::WPMExecutorPlugin);
+        REGIST_PLUGIN(DJIWPExecutor,        rsdk::mission::waypoint::WPMControllerPlugin);
         REGIST_PLUGIN(DJIVideoStream,       rsdk::camera::VideoStreamPlugin);
     }
 

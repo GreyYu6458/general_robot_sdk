@@ -1,9 +1,11 @@
 #include "rsdk/system/RobotSystem.hpp"
-#include "rsdk/event/REvent.hpp"
+#include "p_rsdk/event/REvent.hpp"
 #include "rsdk/system/SystemManager.hpp"
 
 #include "p_rsdk/plugins/PluginRegister.hpp"
 #include "p_rsdk/system/SystemEventLoop.hpp"
+
+#include "p_rsdk/tools/platfrom/timestamp.hpp"
 
 #include <mutex>
 
@@ -69,19 +71,24 @@ namespace rsdk
         _impl->system_time = system_time;
     }
 
-    uint32_t RobotSystem::systemTime()
+    int64_t RobotSystem::systemTime()
     {
+#if defined(_USE_SIM_ENV)
+        return mirco_timestamp();
+#else
         return _impl->system_time;
+#endif
     }
 
-    bool RobotSystem::sendEvent(const ::std::shared_ptr<RObject>& robject, ::rsdk::event::REventParam event)
+    bool RobotSystem::sendEvent(const ::std::shared_ptr<RObject>& robject, ::rsdk::event::REventParam _event)
     {
-        // event->setSystemTime( systemTime() );
-        return notify(robject, event);
+        _event->setSystemTime( systemTime() );
+        return notify(robject, _event);
     }
 
     void RobotSystem::postEvent(const ::std::shared_ptr<RObject>& r_s_obj, ::rsdk::event::REventParam _event)
     {
+        _event->setSystemTime( systemTime() );
         _impl->event_loop.pushEvent(
             {
                 .event  = _event,
@@ -90,13 +97,15 @@ namespace rsdk
         );
     }
 
-    bool RobotSystem::sendEvent(RObject* robject, ::rsdk::event::REventParam event)
+    bool RobotSystem::sendEvent(RObject* robject, ::rsdk::event::REventParam _event)
     {
-        return notify(robject, event);
+        _event->setSystemTime( systemTime() );
+        return notify(robject, _event);
     }
 
     void RobotSystem::postEvent(RObject* r_obj, ::rsdk::event::REventParam _event)
     {
+        _event->setSystemTime( systemTime() );
         _impl->event_loop.pushEvent(
             {
                 .event  = _event,

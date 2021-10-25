@@ -1,7 +1,7 @@
-#include "rsdk/event/REvent.hpp"
+#include "p_rsdk/event/REvent.hpp"
 #include "rsdk/system/RobotSystem.hpp"
+#include "p_rsdk/tools/platfrom/timestamp.hpp"
 #include <atomic>
-#include <chrono>
 
 namespace rsdk::event
 {
@@ -13,12 +13,13 @@ namespace rsdk::event
             sid(sid)
         {
             using namespace ::std::chrono;
-            host_time = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
+            host_time = mirco_timestamp();
         }
 
         std::atomic<bool> is_ignore{false};
         int64_t system_time;
         int64_t host_time;
+        uint64_t  id;
         uint32_t gid;
         uint32_t sid;
     };
@@ -26,6 +27,7 @@ namespace rsdk::event
     BaseREvent::BaseREvent(uint32_t gid, uint32_t sid)
     : _impl(new Impl(gid, sid))
     {
+        _impl->id = ((gid & UINT32_MAX) << 32) | ( sid & UINT32_MAX);
     }
     
     BaseREvent::~BaseREvent()
@@ -41,6 +43,11 @@ namespace rsdk::event
     uint32_t BaseREvent::subId() const
     {
         return _impl->sid;
+    }
+
+    uint64_t BaseREvent::id() const
+    {
+        return _impl->id;
     }
 
     void BaseREvent::setSystemTime(int64_t time)

@@ -1,16 +1,16 @@
 #ifndef _DJI_MISSION_EXECUTOR_HPP_
 #define _DJI_MISSION_EXECUTOR_HPP_
-#include "p_rsdk/plugins/mission/flight/waypoint/WPMExecutorPlugin.hpp"
+#include "p_rsdk/plugins/mission/waypoint/WPMControllerPlugin.hpp"
 #include "plugins/DJIPluginBase.hpp"
 
-namespace rmfw = ::rsdk::mission::flight::waypoint;
+namespace rmfw = ::rsdk::mission::waypoint;
 
 namespace DJI::OSDK{class WaypointV2MissionOperator;}
 
 class DJIMissionContext;
 
 class DJIWPExecutor
-    :   public rmfw::WPMExecutorPlugin,
+    :   public rmfw::WPMControllerPlugin,
         public DJIPluginBase
 {
 public:

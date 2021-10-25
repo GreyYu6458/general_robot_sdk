@@ -20,10 +20,31 @@ namespace rsdk::event
 
         uint32_t subId() const;
 
+        /**
+         * @brief   calculate by groupid and subid
+         *          see EventIdCal
+         * 
+         * @return uint64_t 
+         */
+        uint64_t id() const;
+
         int64_t systemTime() const;
 
         int64_t hostTime() const;
 
+        /**
+         * @brief Set the System Time object
+         * 
+         * @param time 
+         */
+        void setSystemTime(int64_t time);
+
+        template<uint32_t b_id, uint32_t s_id>
+        static inline constexpr uint64_t EventIdCal()
+        {
+            return ((b_id & UINT32_MAX) << 32) | ( s_id & UINT32_MAX);
+        }
+        
         /**
          * @brief 
          * 
@@ -33,9 +54,9 @@ namespace rsdk::event
          * @return false 
          */
         template<uint32_t b_id, uint32_t s_id>
-        inline bool isEqualTo()
+        inline bool isEqualToType()
         {
-            return groupId() == b_id && subId() == s_id;
+            return id() == EventIdCal<b_id, s_id>();
         }
 
         /**
@@ -50,19 +71,13 @@ namespace rsdk::event
     protected:
 
         /**
-         * @brief Set the System Time object
-         * 
-         * @param time 
-         */
-        void setSystemTime(int64_t time);
-
-        /**
          * @brief Set the Ignore object
          * 
          */
         void setIgnore(bool);
     
     private:
+
         class Impl;
         Impl* _impl;
     };

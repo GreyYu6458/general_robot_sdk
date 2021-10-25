@@ -11,8 +11,11 @@ namespace rsdk::event
         CAMERA
     };
 
-    template<EventCategory I> struct CategoryIDOf
-    {static constexpr uint32_t value = static_cast<uint32_t>(I);};
+    template<EventCategory I>
+    static constexpr uint32_t valueOfCategory()
+    {
+        return static_cast<uint32_t>(I);
+    }
 }
 
 #endif

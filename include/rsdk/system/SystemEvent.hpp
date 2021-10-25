@@ -11,7 +11,7 @@ namespace rsdk
         SystemEvent(uint32_t s_id = 0):
             ::rsdk::event::BaseREvent
             ( 
-                ::rsdk::event::CategoryIDOf<::rsdk::event::EventCategory::SYSTEM>::value, 
+                ::rsdk::event::valueOfCategory<::rsdk::event::EventCategory::SYSTEM>(), 
                 s_id
             ){}
     };

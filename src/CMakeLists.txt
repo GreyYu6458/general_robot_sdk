@@ -6,6 +6,8 @@ else()
     message("can not find boost library")
 endif()
 
+option(_USE_SIM_ENV "BUILD FOR SIM ENVIRONMENT" OFF)
+
 add_library(
     robot_sdk
     SHARED
@@ -19,19 +21,22 @@ add_library(
     event/REvent.cpp
     robject/RObject.cpp
 
-    interfaces/BasePlugin.cpp
-    interfaces/PluginRegister.cpp
-
-    proxy/BaseProxy.cpp
+    plugins/BasePlugin.cpp
+    plugins/PluginRegister.cpp
+    plugins/camera/VideoStreamPlugin.cpp
+    plugins/mission/BaseMIssionControllerPlugin.cpp
+    plugins/mission/MissionContext.cpp
+    plugins/mission/MissionEvent.cpp
+    plugins/mission/waypoint/WPMContext.cpp
+    plugins/mission/waypoint/WPMControllerPlugin.cpp
+    plugins/telemetry/telemetry_plugin_regist.cpp
     
+    proxy/BaseProxy.cpp
     proxy/camera/VideoStream.cpp
-    proxy/telemetry/regist_sensors.cpp
-    proxy/mission/flight/waypoint/WPMContext.cpp
-    proxy/mission/flight/waypoint/WPMission.cpp
-    proxy/mission/flight/waypoint/WPMExecutor.cpp
     proxy/mission/MissionDescription.cpp
-    proxy/mission/BaseExecutor.cpp
-    proxy/mission/MissionContext.cpp
-    proxy/mission/MissionEvent.cpp
+    proxy/mission/MissionControllerProxy.cpp
+    proxy/mission/waypoint/WPMControllerProxy.cpp
+    proxy/mission/waypoint/WPMission.cpp
+    proxy/telemetry/telemetry.cpp
 )
 

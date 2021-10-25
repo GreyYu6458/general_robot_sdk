@@ -1,8 +1,8 @@
 #ifndef _DJI_MISSION_CONTEXT_HPP_
 #define _DJI_MISSION_CONTEXT_HPP_
-#include "p_rsdk/plugins/mission/flight/waypoint/WPMContext.hpp"
+#include "p_rsdk/plugins/mission/waypoint/WPMContext.hpp"
 
-namespace rmfw = rsdk::mission::flight::waypoint;
+namespace rmfw = rsdk::mission::waypoint;
 
 class DJIWPMission;
 
@@ -39,7 +39,7 @@ public:
      * 
      */
     void setAllRepeatTimes(size_t count);
-
+    
 private:
     class Impl;
     Impl* _impl;

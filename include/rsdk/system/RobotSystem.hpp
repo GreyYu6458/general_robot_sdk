@@ -48,8 +48,8 @@ namespace rsdk
         // 更新SystemTime
         void updateSystemTime(uint32_t);
 
-        // 如果无效返回0, 如果生效返回unix time
-        uint32_t systemTime();
+        // 如果无效返回0
+        int64_t systemTime();
 
     protected:
 

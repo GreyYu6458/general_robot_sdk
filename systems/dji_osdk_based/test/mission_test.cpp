@@ -2,11 +2,11 @@
 #include <thread>
 #include "rsdk/system/RobotSystem.hpp"
 #include "rsdk/system/SystemLinkMethods.hpp"
-#include "rsdk/proxy/mission/flight/waypoint/WPMExecutor.hpp"
-#include "rsdk/proxy/mission/flight/waypoint/WPMItem.hpp"
+#include "rsdk/proxy/mission/waypoint/WPMControllerProxy.hpp"
+#include "rsdk/proxy/mission/waypoint/WPMItem.hpp"
 
 #include "rsdk/proxy/PluginsIndex.hpp"
-#include "rsdk/proxy/mission/MissionEvent.hpp"
+#include "p_rsdk/plugins/mission/MissionEvent.hpp"
 
 #include "DJIVehicleSystem.hpp"
 #include "rsdk/proxy/telemetry/GNSSReceiver.hpp"
@@ -69,11 +69,11 @@ int main()
     std::cout << "is uav linked: " << (gnss_proxy.system()->isLink() ? "True" : "False") << std::endl;
     gnss_proxy.start();
 
-    namespace rmfw = rsdk::mission::flight::waypoint;
+    namespace rmfw = rsdk::mission::waypoint;
 
     std::this_thread::sleep_for(std::chrono::seconds(3));
 
-    rmfw::WPMExecutorProxy mission_proxy(dji_system);
+    rmfw::WPMControllerProxy mission_proxy(dji_system);
 
     std::mutex              wait_finish_mutex;
     std::condition_variable wait_finish_cv;

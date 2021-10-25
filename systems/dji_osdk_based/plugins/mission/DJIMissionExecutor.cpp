@@ -2,7 +2,7 @@
 #include "DJIWPMission.hpp"
 #include "DJIEventWrapper.hpp"
 #include "rsdk/proxy/telemetry/FlyingRbtSt.hpp"
-#include "rsdk/proxy/mission/MissionEvent.hpp"
+#include "p_rsdk/plugins/mission/MissionEvent.hpp"
 #include "DJIMissionContext.hpp"
 
 #include <dji_vehicle.hpp>
@@ -131,6 +131,8 @@ public:
         _current_mission_context->setTotalWaypoint(missionInitSettings.missTotalLen);
         _current_mission_context->setAllRepeatTimes(missionInitSettings.repeatTimes + 1);
 
+
+        _owner->system()->postEvent(_owner, std::make_shared<rsdk::mission::StartedEvent>());
         // _owner->onEvent( std::make_unique< rsdk::mission::StartedEvent>(_owner->system()) );
 
         rst.is_success = true;
@@ -182,7 +184,7 @@ private:
 
 DJIWPExecutor::DJIWPExecutor(const std::shared_ptr<DJIVehicleSystem>& system)
     :   DJIPluginBase(system), 
-        ::rmfw::WPMExecutorPlugin(system), 
+        ::rmfw::WPMControllerPlugin(system), 
         _impl(new Impl(system, this))
 {
 

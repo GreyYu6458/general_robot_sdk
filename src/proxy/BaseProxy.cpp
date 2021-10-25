@@ -14,8 +14,8 @@ namespace rsdk
     public:
         Impl(
             const std::shared_ptr<RobotSystem>& system,
-            const std::shared_ptr<BasePlugin>& interface
-        ): _sys(system), _interface(interface){}
+            const std::shared_ptr<BasePlugin>& plugin
+        ): _sys(system), _plugin(plugin){}
 
     private:
         std::mutex _sub_mutex;
@@ -23,13 +23,13 @@ namespace rsdk
         ::rsdk::event::REventCBType         _callbacks;
 
         std::shared_ptr<RobotSystem>        _sys;
-        std::shared_ptr<BasePlugin>    _interface;
+        std::shared_ptr<BasePlugin>    _plugin;
     };
 
     BaseProxy::BaseProxy(
             const std::shared_ptr<RobotSystem>& system, 
-            const std::shared_ptr<BasePlugin>& interface
-    ): _impl(new Impl(system, interface))
+            const std::shared_ptr<BasePlugin>& plugin
+    ): _impl(new Impl(system, plugin))
     {
     }
 
@@ -43,29 +43,23 @@ namespace rsdk
         return _impl->_sys;
     }
 
-    std::shared_ptr<BasePlugin>    BaseProxy::_interface()
+    std::shared_ptr<BasePlugin>    BaseProxy::_plugin()
     {
-        return _impl->_interface;
+        return _impl->_plugin;
     }
 
     bool BaseProxy::isLoaded()
     {
-        return _impl->_interface ? true : false;
+        return _impl->_plugin ? true : false;
     }
 
     bool BaseProxy::start()
     {
-        return _impl->_interface->start();
+        return _impl->_plugin->start();
     }
 
     bool BaseProxy::isStarted()
     {
-        return _impl->_interface->isStarted();
-    }
-    
-    void BaseProxy::subscribeEvent(::rsdk::event::REventCBType& cb)
-    {
-        
-        _impl->_callbacks = cb;
+        return _impl->_plugin->isStarted();
     }
 }
