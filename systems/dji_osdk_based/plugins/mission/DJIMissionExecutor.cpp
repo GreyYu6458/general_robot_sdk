@@ -3,7 +3,9 @@
 #include "DJIEventWrapper.hpp"
 #include "rsdk/proxy/telemetry/FlyingRbtSt.hpp"
 #include "p_rsdk/plugins/mission/MissionEvent.hpp"
-#include "DJIMissionContext.hpp"
+#include "p_rsdk/plugins/mission/MissionTask.hpp"
+#include "p_rsdk/plugins/mission/MissionContext.hpp"
+#include "DJIWPMission.hpp"
 
 #include <dji_vehicle.hpp>
 #include <dji_waypoint_v2.hpp>
@@ -61,7 +63,7 @@ public:
             rst.detail = "Vehicle Is Already In Air!";
         }
 
-        auto dji_mission = DJIWPMission::convertFromStandard(mission);
+        dji_mission = DJIWPMission::convertFromStandard(mission);
 
         if (dji_mission == nullptr)
         {
@@ -127,12 +129,10 @@ public:
                 return;
             }
         }
-        _current_mission_context = std::make_unique<DJIMissionContext>(dji_mission);
-        _current_mission_context->setTotalWaypoint(missionInitSettings.missTotalLen);
-        _current_mission_context->setAllRepeatTimes(missionInitSettings.repeatTimes + 1);
+        _total_wp = missionInitSettings.missTotalLen;
+        _total_repeated_times = missionInitSettings.repeatTimes + 1;
 
-
-        _owner->system()->postEvent(_owner, std::make_shared<rsdk::mission::StartedEvent>());
+        // _owner->system()->postEvent(_owner, std::make_shared<rsdk::mission::StartedEvent>());
         // _owner->onEvent( std::make_unique< rsdk::mission::StartedEvent>(_owner->system()) );
 
         rst.is_success = true;
@@ -169,12 +169,23 @@ public:
 private:
     bool                                            _is_started{false};
     bool                                            _flight_state_listener_available{false};
-    std::unique_ptr<DJIMissionContext>              _current_mission_context;
     DJI::OSDK::WaypointV2MissionOperator*           _dji_mission_operator;
     DJIWPExecutor* const                            _owner;
     std::unique_ptr<DJIEventWrapper>                _dji_event_wrapper;
     std::mutex                                      _wait_flight_mutex;
     std::condition_variable                         _wait_flight_cv;
+
+    std::mutex                                      _wait_land_mutex;
+    std::condition_variable                         _wait_land_cv;
+
+    ::rsdk::mission::TaskExectionRst                _main_task_rst;
+
+    uint32_t                                        _total_wp;
+    uint32_t                                        _current_repeated_times;
+    uint32_t                                        _total_repeated_times;
+
+    std::shared_ptr<DJIWPMission>                   dji_mission;
+
     sensor_msg::FlightEnum                          _last_flight_state;
     sensor_msg::FlightEnum                          _current_flight_state;
     ::rsdk::telemetry::FlyingRobotStatusProxy       _state_listener;
@@ -212,15 +223,61 @@ bool DJIWPExecutor::start()
     return true;
 }
 
+uint32_t DJIWPExecutor::total_wp()
+{
+    return _impl->_total_wp;
+}
+
+uint32_t DJIWPExecutor::total_repeated_times()
+{
+    return _impl->_total_repeated_times;
+}
+
+std::shared_ptr<DJIWPMission>& DJIWPExecutor::dji_wp_mission()
+{
+    return _impl->dji_mission;
+}
+
+void DJIWPExecutor::startMainTask()
+{
+    context().addTask(
+        std::make_unique<::rsdk::mission::MainMissionTask>(
+            "waypoint task",
+            [this]() -> ::rsdk::mission::TaskExectionRst
+            {
+                rsdk::mission::waypoint::ExecuteRst rst;
+                this->_impl->launch( this->wp_mission() , rst);
+
+                std::unique_lock<std::mutex> lck(this->_impl->_wait_land_mutex);
+                this->_impl->_wait_land_cv.wait(lck);
+
+                return this->_impl->_main_task_rst;
+            }
+        )
+    );
+}
+
+void DJIWPExecutor::mainTaskFinished(bool success, const std::string& detail)
+{
+    std::unique_lock<std::mutex> lck(this->_impl->_wait_land_mutex);
+    this->_impl->_main_task_rst.is_success = success;
+    this->_impl->_main_task_rst.detail = detail;
+    this->_impl->_wait_land_cv.notify_all();
+}
+
+void DJIWPExecutor::setCurrentRepeatTimes(uint32_t times)
+{
+    _impl->_current_repeated_times = times;
+}
+
+bool DJIWPExecutor::isAllRepeatTimesFinished()
+{
+    return _impl->_current_repeated_times == _impl->_total_repeated_times;
+}
+
 bool DJIWPExecutor::isStarted()
 {
     return _impl->_is_started;
-}
-
-void DJIWPExecutor::launch(std::shared_ptr<RSDKWaypoint::WPMission>&mission, rmfw::ExecuteRst &rst)
-{
-    _impl->launch(mission, rst);
-    rst.is_success ? system()->info(rst.detail) : system()->error(rst.detail);
 }
 
 void DJIWPExecutor::stop(rmfw::ExecuteRst &rst)
@@ -240,11 +297,6 @@ void DJIWPExecutor::resume(rmfw::ExecuteRst &rst)
 {
     ErrorCode::ErrorCodeType ret = _impl->mission_operator()->resume(10);
     _impl->dji_api_ret_handler(ret, rst);
-}
-
-const std::unique_ptr<DJIMissionContext>& DJIWPExecutor::currentMissionContext()
-{
-    return _impl->_current_mission_context;
 }
 
 DJI::OSDK::WaypointV2MissionOperator *const DJIWPExecutor::dji_operator()

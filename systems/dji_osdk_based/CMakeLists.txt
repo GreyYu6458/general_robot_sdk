@@ -19,7 +19,7 @@ ExternalProject_Add(
     "-DCMAKE_INSTALL_PREFIX:PATH=${DJI_OSDK_INSTALL_DIR}"
 )
 
-OPTION(BUILD DJI_TEST ON)
+OPTION(BUILD_DJI_TEST ON)
 
 SET(DJI_OSDK_LIBRARY_DIR ${DJI_OSDK_INSTALL_DIR}/lib)
 SET(DJI_OSDK_INCLUDE_DIR ${DJI_OSDK_INSTALL_DIR}/include)
@@ -85,7 +85,6 @@ add_library(
     plugins/camera/DJIVideoStream.cpp
 
     plugins/mission/DJIWPMission.cpp
-    plugins/mission/DJIMissionContext.cpp
     plugins/mission/DJIEventWrapper.cpp
     plugins/mission/DJIMissionExecutor.cpp
     plugins/mission/DJIWPMission.cpp
@@ -125,6 +124,6 @@ install(
     DESTINATION lib
 )
 
-if(DJI_TEST)
+if(BUILD_DJI_TEST)
   add_subdirectory(test)
 endif()

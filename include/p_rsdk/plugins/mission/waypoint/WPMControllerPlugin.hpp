@@ -19,7 +19,9 @@ namespace rsdk::mission::waypoint
     public:
         explicit WPMControllerPlugin(const std::shared_ptr<::rsdk::RobotSystem>& sys);
 
-        virtual void launch(std::shared_ptr<WPMission>&, ExecuteRst& rst) = 0;
+        ~WPMControllerPlugin();
+
+        void setWPMission(std::shared_ptr<WPMission>& mission);
 
         virtual void stop(ExecuteRst& rst) = 0;
 
@@ -27,6 +29,8 @@ namespace rsdk::mission::waypoint
 
         virtual void resume(ExecuteRst& rst) = 0;
     protected:
+
+        std::shared_ptr<WPMission>& wp_mission();
 
         bool revent(::rsdk::event::REventParam) override;
     private:

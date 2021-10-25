@@ -42,7 +42,7 @@ namespace rsdk::event
         template<uint32_t b_id, uint32_t s_id>
         static inline constexpr uint64_t EventIdCal()
         {
-            return ((b_id & UINT32_MAX) << 32) | ( s_id & UINT32_MAX);
+            return (((uint64_t)(b_id & UINT32_MAX)) << 32) | ( s_id & UINT32_MAX);
         }
         
         /**

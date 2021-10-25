@@ -1,6 +1,6 @@
 #include "p_rsdk/plugins/mission/MissionContext.hpp"
 #include "rsdk/system/RobotSystem.hpp"
-#include "BaseMIssionControllerPlugin.hpp"
+#include "p_rsdk/plugins/mission/BaseMIssionControllerPlugin.hpp"
 
 #include "p_rsdk/plugins/mission/events/TaskFinishedEvent.hpp"
 #include "p_rsdk/plugins/mission/events/TaskStartedEvent.hpp"

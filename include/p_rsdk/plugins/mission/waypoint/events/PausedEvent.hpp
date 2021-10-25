@@ -8,6 +8,7 @@ namespace rsdk::mission::waypoint
     class PausedEvent : 
         public ItemTriggerredEvent<valueOfEvent<WPMissionEvent::PAUSED>()>
     {
+    public:
         PausedEvent(uint32_t wp_index, uint32_t item_index)
             :ItemTriggerredEvent(wp_index, item_index){}
     };

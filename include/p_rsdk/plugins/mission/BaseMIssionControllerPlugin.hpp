@@ -15,9 +15,13 @@ namespace rsdk::mission
     public:
         BaseMIssionControllerPlugin(const std::shared_ptr<RobotSystem>&);
 
+        virtual void startMainTask() = 0;
+
         ~BaseMIssionControllerPlugin();
 
     protected:
+
+        MissionContext& context();
 
         bool revent(::rsdk::event::REventParam) override;
 

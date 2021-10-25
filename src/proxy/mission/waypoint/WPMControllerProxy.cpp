@@ -32,9 +32,14 @@ namespace rsdk::mission::waypoint
         PLUGIN->installEventFilter(this);
     }
 
-    void WPMControllerProxy::launch(std::shared_ptr<WPMission>& mission, ExecuteRst& rst)
+    void WPMControllerProxy::setWPMission(std::shared_ptr<WPMission>& mission)
     {
-        PLUGIN->launch(mission, rst);
+        PLUGIN->setWPMission(mission);
+    }
+
+    void WPMControllerProxy::startMainTask()
+    {
+        PLUGIN->startMainTask();
     }
 
     void WPMControllerProxy::stop(ExecuteRst& rst)
@@ -88,7 +93,7 @@ namespace rsdk::mission::waypoint
             _impl->_progress_updated_cb( event->wp_index(), event->total() );
         }
 
-        MissionControllerProxy::eventFilter(_r_obj, _event);
+        return MissionControllerProxy::eventFilter(_r_obj, _event);
     } 
 
     void WPMControllerProxy::subscribeOnResumed(const ResumedCB& f)

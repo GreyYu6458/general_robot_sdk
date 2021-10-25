@@ -24,19 +24,21 @@ add_library(
     plugins/BasePlugin.cpp
     plugins/PluginRegister.cpp
     plugins/camera/VideoStreamPlugin.cpp
+
     plugins/mission/BaseMIssionControllerPlugin.cpp
     plugins/mission/MissionContext.cpp
     plugins/mission/MissionEvent.cpp
-    plugins/mission/waypoint/WPMContext.cpp
+    plugins/mission/MissionTask.cpp
     plugins/mission/waypoint/WPMControllerPlugin.cpp
+
     plugins/telemetry/telemetry_plugin_regist.cpp
     
     proxy/BaseProxy.cpp
     proxy/camera/VideoStream.cpp
-    proxy/mission/MissionDescription.cpp
     proxy/mission/MissionControllerProxy.cpp
     proxy/mission/waypoint/WPMControllerProxy.cpp
     proxy/mission/waypoint/WPMission.cpp
+    
     proxy/telemetry/telemetry.cpp
 )
 

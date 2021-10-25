@@ -78,7 +78,7 @@ int main()
     std::mutex              wait_finish_mutex;
     std::condition_variable wait_finish_cv;
 
-    mission_proxy.start();
+    mission_proxy.start();  // proxy start work
 
     std::shared_ptr<rmfw::WPMission> mission = std::make_shared<rmfw::WPMission>();
 
@@ -125,7 +125,8 @@ int main()
     mission->addItem(land);
 
     rmfw::ExecuteRst rst;
-    mission_proxy.launch(mission, rst);
+    mission_proxy.setWPMission(mission);
+    mission_proxy.startMainTask();
     
     std::cout << rst.detail << std::endl;
 

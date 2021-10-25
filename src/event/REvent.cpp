@@ -1,4 +1,4 @@
-#include "p_rsdk/event/REvent.hpp"
+#include "rsdk/event/REvent.hpp"
 #include "rsdk/system/RobotSystem.hpp"
 #include "p_rsdk/tools/platfrom/timestamp.hpp"
 #include <atomic>
@@ -27,7 +27,7 @@ namespace rsdk::event
     BaseREvent::BaseREvent(uint32_t gid, uint32_t sid)
     : _impl(new Impl(gid, sid))
     {
-        _impl->id = ((gid & UINT32_MAX) << 32) | ( sid & UINT32_MAX);
+        _impl->id = (((uint64_t)(gid & UINT32_MAX) << 32)) | ( sid & UINT32_MAX);
     }
     
     BaseREvent::~BaseREvent()

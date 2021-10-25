@@ -1,5 +1,5 @@
 #include "rsdk/system/RobotSystem.hpp"
-#include "p_rsdk/event/REvent.hpp"
+#include "rsdk/event/REvent.hpp"
 #include "rsdk/system/SystemManager.hpp"
 
 #include "p_rsdk/plugins/PluginRegister.hpp"

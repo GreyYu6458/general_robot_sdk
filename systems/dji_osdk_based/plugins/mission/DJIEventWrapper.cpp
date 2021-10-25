@@ -1,9 +1,14 @@
 #include "DJIEventWrapper.hpp"
 #include "DJIMissionExecutor.hpp"
 #include "DJIVehicleSystem.hpp"
-#include "DJIMissionContext.hpp"
 #include "DJIWPMission.hpp"
 #include "p_rsdk/plugins/mission/MissionEvent.hpp"
+
+#include "p_rsdk/plugins/mission/waypoint/events/PausedEvent.hpp"
+#include "p_rsdk/plugins/mission/waypoint/events/ResumedEvent.hpp"
+#include "p_rsdk/plugins/mission/waypoint/events/SavedPhotoEvent.hpp"
+#include "p_rsdk/plugins/mission/waypoint/events/TakenPhotoEvent.hpp"
+#include "p_rsdk/plugins/mission/waypoint/events/ProgressUpdateEvent.hpp"
 
 #include <dji_vehicle.hpp>
 #include <dji_waypoint_v2.hpp>
@@ -102,9 +107,14 @@ template <> void process<DJIMissionEvent::MissionFinished>
 {
     event_wrapper.executor()->system()->info("[mission]: Mission Finished:" + std::to_string(ack));
 
-    auto finish_event = std::make_shared<rsdk::mission::FinishedEvent>();
-    finish_event->is_normal_finished = event_wrapper.executor()->currentMissionContext()->hasFinishedAllCount();
-    event_wrapper.executor()->system()->postEvent(event_wrapper.executor(), finish_event);
+    if(event_wrapper.executor()->isAllRepeatTimesFinished())
+    {
+        event_wrapper.executor()->mainTaskFinished(true, "success");
+    }
+    else
+    {
+        event_wrapper.executor()->mainTaskFinished(false, "mission interrupted!");
+    }
 }
 
 /**
@@ -120,12 +130,9 @@ template <> void process<DJIMissionEvent::WaypointIndexUpdate>
     // log date
     event_wrapper.executor()->system()->info("[mission]: Waypoint update:" + std::to_string(ack));
 
-    auto wp_update_event        = std::make_shared<rsdk::mission::ProgressUpdateEvent>();
-    // update context
-    event_wrapper.executor()->currentMissionContext()->setCurrentWaypointNumber(ack);
-
-    wp_update_event->total      = event_wrapper.executor()->currentMissionContext()->totalWaypoint();
-    wp_update_event->current    = ack;
+    auto wp_update_event = std::make_shared<rsdk::mission::waypoint::ProgressUpdatedEvent>(
+        ack, ack, event_wrapper.executor()->total_wp()
+    );
     event_wrapper.executor()->system()->postEvent(event_wrapper.executor(), wp_update_event);
 }
 
@@ -139,9 +146,9 @@ template <> void process<DJIMissionEvent::WaypointIndexUpdate>
 template <> void process<DJIMissionEvent::AvoidEvent>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(AvoidEvent) &ack)
 {
-    auto avoidance_event = std::make_shared<rsdk::mission::AvoidanceEvent>();
+    // auto avoidance_event = std::make_shared<rsdk::mission::AvoidanceEvent>();
     event_wrapper.executor()->system()->warning("[mission]: Avoidance occurred!");
-    event_wrapper.executor()->system()->postEvent(event_wrapper.executor(), avoidance_event);
+    // event_wrapper.executor()->system()->postEvent(event_wrapper.executor(), avoidance_event);
 }
 
 /**
@@ -156,7 +163,7 @@ template <> void process<DJIMissionEvent::MissionExecEvent>
 {
     // event_wrapper.executor()->system()->info("[mission]: Current mission exec num:" + std::to_string(ack.currentMissionExecNum));
     event_wrapper.executor()->system()->info("[mission]: Finish all exec num:" + std::to_string(ack.finishedAllExecNum));
-    event_wrapper.executor()->currentMissionContext()->setFinishedCount(ack.finishedAllExecNum);
+    event_wrapper.executor()->setCurrentRepeatTimes(ack.finishedAllExecNum);
 }
 
 /**
@@ -169,9 +176,7 @@ template <> void process<DJIMissionEvent::MissionExecEvent>
 template <> void process<DJIMissionEvent::ActionExecEvent>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(ActionExecEvent) &ack)
 {
-    auto& dji_wp_description = event_wrapper.executor()->currentMissionContext()->djiWPMission();
     DJIActionEvent action_event_info;
-    dji_wp_description->eventType(ack.actionId, action_event_info);
 
     event_wrapper.executor()->system()->info(
         "[mission]: Action id " + 
@@ -180,8 +185,7 @@ template <> void process<DJIMissionEvent::ActionExecEvent>
 
     DJIActionEvent dji_action_event;
     // query what type the action is
-    if(!event_wrapper.executor()->currentMissionContext()->
-        djiWPMission()->eventType(ack.actionId, dji_action_event))
+    if(!event_wrapper.executor()->dji_wp_mission()->eventType(ack.actionId, dji_action_event))
     {
         event_wrapper.executor()->system()->warning(
             "[mission]: Action id was not registed, action_id:" + 
@@ -190,22 +194,28 @@ template <> void process<DJIMissionEvent::ActionExecEvent>
         return;
     }
 
-    auto event = std::shared_ptr< ::rsdk::mission::ItemTriggerredEvent>();
+    auto event = ::rsdk::event::REventPtr();
     switch(dji_action_event.type)
     {
         case DJIActionEventEnum::Paused:
             {
-                event = std::make_shared<::rsdk::mission::PausedEvent>();
+                event = std::make_shared<::rsdk::mission::waypoint::PausedEvent>(
+                    dji_action_event.adjoint_wp, dji_action_event.item_index
+                );
                 break;
             }
         case DJIActionEventEnum::Resumed:
             {
-                event = std::make_shared<::rsdk::mission::ResumedEvent>();
+                event = std::make_shared<::rsdk::mission::waypoint::ResumedEvent>(
+                    dji_action_event.adjoint_wp, dji_action_event.item_index
+                );
                 break;
             }
         case DJIActionEventEnum::StartRecordVideo:
             {
-                event = std::make_shared<::rsdk::mission::TakePhotoEvent>();
+                event = std::make_shared<::rsdk::mission::waypoint::TakenPhotoEvent>(
+                    dji_action_event.adjoint_wp, dji_action_event.item_index
+                );
                 break;
             }
         default:
@@ -216,7 +226,6 @@ template <> void process<DJIMissionEvent::ActionExecEvent>
     }
     if(event)
     {
-        event->item_index = action_event_info.item_index;
         event_wrapper.executor()->system()->postEvent(event_wrapper.executor(), event);
     }
 }
