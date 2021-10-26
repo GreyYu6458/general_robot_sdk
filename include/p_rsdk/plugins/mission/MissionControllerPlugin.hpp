@@ -9,15 +9,15 @@ namespace rsdk::mission
 {
     class MissionContext;
 
-    class BaseMIssionControllerPlugin : public ::rsdk::BasePlugin
+    class MissionControllerPlugin : public ::rsdk::BasePlugin
     {
         friend class MissionContext;
     public:
-        BaseMIssionControllerPlugin(const std::shared_ptr<RobotSystem>&);
+        MissionControllerPlugin(const std::shared_ptr<RobotSystem>&);
 
         virtual void startMainTask() = 0;
 
-        ~BaseMIssionControllerPlugin();
+        ~MissionControllerPlugin();
 
     protected:
 

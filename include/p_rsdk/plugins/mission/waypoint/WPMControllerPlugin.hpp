@@ -4,7 +4,7 @@
 #include "rsdk/proxy/mission/waypoint/WPMControllerProxy.hpp"
 #include "rsdk/proxy/mission/waypoint/WPMission.hpp"
 #include "p_rsdk/plugins/BasePlugin.hpp"
-#include "p_rsdk/plugins/mission/BaseMIssionControllerPlugin.hpp"
+#include "p_rsdk/plugins/mission/MissionControllerPlugin.hpp"
 
 namespace rsdk
 {
@@ -14,7 +14,7 @@ namespace rsdk
 namespace rsdk::mission::waypoint
 {
     class WPMControllerPlugin :
-        public ::rsdk::mission::BaseMIssionControllerPlugin
+        public ::rsdk::mission::MissionControllerPlugin
     {
     public:
         explicit WPMControllerPlugin(const std::shared_ptr<::rsdk::RobotSystem>& sys);

@@ -1,9 +1,11 @@
 #include "rsdk/proxy/mission/MissionControllerProxy.hpp"
-#include "p_rsdk/plugins/mission/BaseMIssionControllerPlugin.hpp"
+#include "rsdk/system/RobotSystem.hpp"
+#include "p_rsdk/plugins/mission/MissionControllerPlugin.hpp"
 
 #include "p_rsdk/plugins/mission/events/AllTaskFinishedEvent.hpp"
 #include "p_rsdk/plugins/mission/events/TaskFinishedEvent.hpp"
 #include "p_rsdk/plugins/mission/events/TaskStartedEvent.hpp"
+
 
 namespace rsdk::mission
 {
@@ -17,7 +19,7 @@ namespace rsdk::mission
 
     MissionControllerProxy::MissionControllerProxy(
             const std::shared_ptr<RobotSystem>& system,
-            const std::shared_ptr<BaseMIssionControllerPlugin>& executor
+            const std::shared_ptr<MissionControllerPlugin>& executor
     ) : BaseProxy(system, executor), _impl(new Impl())
     {
         executor->installEventFilter(this);
@@ -52,34 +54,34 @@ namespace rsdk::mission
         {
             auto event = std::static_pointer_cast<TaskStartedEvent>(_event);
 
-            if(event->is_main() && _impl->main_task_started_cb)
+            if(event->is_main() && _impl->main_task_started_cb != nullptr)
             {
-                _impl->main_task_started_cb(event->task_name());
+                _impl->main_task_started_cb(event->task_name(), event->is_success(), event->detail());
             }
         }
         else if(_event->isEqualToType< mission_group_id ,TaskFinishedEvent::sub_id>())
         {
             auto event = std::static_pointer_cast<TaskFinishedEvent>(_event);
 
-            if(event->is_main() && _impl->main_task_finished_cb)
+            if(event->is_main() && _impl->main_task_finished_cb != nullptr)
             {
-                _impl->main_task_finished_cb(event->task_name(), event->is_success());
+                _impl->main_task_finished_cb(event->task_name(), event->is_success(), event->detail());
             }
         }
         else if(_event->isEqualToType< mission_group_id ,AllTaskFinishedEvent::sub_id>())
         {
             auto event = std::static_pointer_cast<AllTaskFinishedEvent>(_event);
-
-            if(_impl->all_task_finished_cb)
+            if(_impl->all_task_finished_cb != nullptr)
             {
+                system()->info("all task finished!");
                 _impl->all_task_finished_cb();
             }
         }
         return true;
     }
 
-    std::shared_ptr<BaseMIssionControllerPlugin> MissionControllerProxy::executor()
+    std::shared_ptr<MissionControllerPlugin> MissionControllerProxy::executor()
     {
-        return plugin<BaseMIssionControllerPlugin>();
+        return plugin<MissionControllerPlugin>();
     }
 }

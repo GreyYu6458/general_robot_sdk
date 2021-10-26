@@ -102,6 +102,10 @@ namespace rsdk::mission::waypoint
         typename ItemTypeMap<ItemParam::PARAM_7>::type
     >;
 
+    /**
+     * @brief The base class for item
+     * 
+     */
     class WPMItem
     {
     public:
@@ -119,16 +123,24 @@ namespace rsdk::mission::waypoint
             return std::get<static_cast<uint8_t>(Index)>(item);
         }
 
+        inline void set_sequance(typename ItemTypeMap<ItemParam::SEQUENCE>::type seq)
+        {
+            set<ItemParam::SEQUENCE>(seq);
+        } 
+
     private:
         ItemStructType item;
     };
 
+    /**
+     * @brief The Item contain navigation message
+     * 
+     */
     class NAVItem : public WPMItem
     {
     public:
-        NAVItem(typename ItemTypeMap<ItemParam::SEQUENCE>::type seq)
+        NAVItem()
         {
-            set<ItemParam::COMMAND>(seq);
             set<ItemParam::FRAME>(6); // default : MAV_FRAME_GLOBAL_RELATIVE_ALT_INT
         }
 
@@ -157,8 +169,8 @@ namespace rsdk::mission::waypoint
     class TakeOffItem : public NAVItem
     {
     public:
-        TakeOffItem(typename ItemTypeMap<ItemParam::SEQUENCE>::type seq)
-        : NAVItem(seq){
+        TakeOffItem()
+        {
             set<ItemParam::COMMAND>(22);
             set<ItemParam::CURRENT>(1);
         }
@@ -172,8 +184,8 @@ namespace rsdk::mission::waypoint
     class LandItem : public NAVItem
     {
     public:
-        LandItem(typename ItemTypeMap<ItemParam::SEQUENCE>::type seq)
-        : NAVItem(seq){
+        LandItem()
+        {
             set<ItemParam::COMMAND>(21);
         }
 
@@ -191,8 +203,8 @@ namespace rsdk::mission::waypoint
     class WaypointItem : public NAVItem
     {
     public:
-        WaypointItem(typename ItemTypeMap<ItemParam::SEQUENCE>::type seq)
-        : NAVItem(seq){
+        WaypointItem()
+        {
             set<ItemParam::COMMAND>(16);
         }
 
@@ -209,6 +221,34 @@ namespace rsdk::mission::waypoint
         inline void set_pass_radius(typename ItemTypeMap<ItemParam::PARAM_3>::type value)
         {
             set<ItemParam::PARAM_3>(value);
+        }
+    };
+
+    /**
+     * @brief 
+     * 
+     */
+    class TakePhotoItem : public WPMItem
+    {
+    public:
+        TakePhotoItem()
+        {
+            set<ItemParam::COMMAND>(2000); // MAV_CMD_IMAGE_START_CAPTURE
+        }
+
+        inline void set_interval(typename ItemTypeMap<ItemParam::PARAM_2>::type value)
+        {
+            set<ItemParam::PARAM_2>(value);
+        }
+
+        inline void set_total_image(typename ItemTypeMap<ItemParam::PARAM_3>::type value)
+        {
+            set<ItemParam::PARAM_3>(value);
+        }
+
+        inline void set_sequance_number(typename ItemTypeMap<ItemParam::PARAM_4>::type value)
+        {
+            set<ItemParam::PARAM_4>(value);
         }
     };
 }

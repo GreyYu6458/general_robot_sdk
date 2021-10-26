@@ -21,12 +21,17 @@ namespace rsdk::mission::waypoint
     WPMission& WPMission::addItem(const WPMItem& item)
     {
         _impl->_items.push_back(item);
+        _impl->_items.back().set_sequance(_impl->_items.size());
         return *this;
     }
 
     WPMission& WPMission::addItems(const std::vector<WPMItem>& items)
     {
-        _impl->_items.insert( _impl->_items.end(), items.begin(), items.end() );
+        for(const auto& item : items)
+        {
+            addItem(item);
+        }
+        // _impl->_items.insert( _impl->_items.end(), items.begin(), items.end() );
         return *this;
     }
 

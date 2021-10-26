@@ -16,21 +16,26 @@ namespace rsdk::mission::waypoint
     class WPMControllerProxy::Impl
     {
     public:
-        PausedCB            _paused_cb;
-        ResumedCB           _resumed_cb;
-        TakenPhotoCB        _taken_photo_cb;
-        SavedPhotoCB        _saved_photo_cb;
-        ProgressUpdatedCB   _progress_updated_cb;
+        PausedCB            _paused_cb{nullptr};
+        ResumedCB           _resumed_cb{nullptr};
+        TakenPhotoCB        _taken_photo_cb{nullptr};
+        SavedPhotoCB        _saved_photo_cb{nullptr};
+        ProgressUpdatedCB   _progress_updated_cb{nullptr};
     };
 
     WPMControllerProxy::WPMControllerProxy(const std::shared_ptr<rsdk::RobotSystem>& system )
         : MissionControllerProxy(
             system, system->BasePluginImpl<WPMControllerPlugin>()
-        )
+        ), _impl(new Impl())
     {
         PLUGIN->removeEventFilter();
         PLUGIN->installEventFilter(this);
     }
+
+    WPMControllerProxy::~WPMControllerProxy()
+    {
+        delete _impl;
+    }   
 
     void WPMControllerProxy::setWPMission(std::shared_ptr<WPMission>& mission)
     {
@@ -70,30 +75,35 @@ namespace rsdk::mission::waypoint
         if(_event->isEqualToType< mission_group_id ,ResumedEvent::sub_id>())
         {
             auto event = std::static_pointer_cast<ResumedEvent>(_event);
-            _impl->_resumed_cb( event->wp_index() );
+            if(_impl->_resumed_cb != nullptr)
+                _impl->_resumed_cb( event->wp_index() );
         }
         else if(_event->isEqualToType< mission_group_id ,PausedEvent::sub_id>())
         {
             auto event = std::static_pointer_cast<PausedEvent>(_event);
-            _impl->_paused_cb( event->wp_index() );
+            if(_impl->_paused_cb != nullptr)
+                _impl->_paused_cb( event->wp_index() );
         }
         else if(_event->isEqualToType< mission_group_id , TakenPhotoEvent::sub_id>())
         {
             auto event = std::static_pointer_cast<TakenPhotoEvent>(_event);
-            _impl->_taken_photo_cb( event->wp_index() );
+            if(_impl->_taken_photo_cb != nullptr)
+                _impl->_taken_photo_cb( event->wp_index() );
         }
         else if(_event->isEqualToType< mission_group_id ,SavedPhotoEvent::sub_id>())
         {
             auto event = std::static_pointer_cast<SavedPhotoEvent>(_event);
-            _impl->_saved_photo_cb( event->wp_index(), event->save_path() );
+            if(_impl->_saved_photo_cb != nullptr)
+                _impl->_saved_photo_cb( event->wp_index(), event->save_path() );
         }
         else if(_event->isEqualToType< mission_group_id ,ProgressUpdatedEvent::sub_id>())
         {
             auto event = std::static_pointer_cast<ProgressUpdatedEvent>(_event);
-            _impl->_progress_updated_cb( event->wp_index(), event->total() );
+            if(_impl->_progress_updated_cb != nullptr)
+                _impl->_progress_updated_cb( event->wp_index() + 1, event->total() );
         }
 
-        return MissionControllerProxy::eventFilter(_r_obj, _event);
+        return this->MissionControllerProxy::eventFilter(_r_obj, _event);
     } 
 
     void WPMControllerProxy::subscribeOnResumed(const ResumedCB& f)

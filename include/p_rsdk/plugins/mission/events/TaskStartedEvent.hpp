@@ -11,8 +11,12 @@ namespace rsdk::mission
         constexpr static uint32_t sub_id 
             = valueOfEvent<BasicMissionEvent::TASK_STARTED>();
 
-        TaskStartedEvent(const std::string& task_name, bool is_main):
-            MissionEvent(sub_id), _task_name(task_name), _is_main(is_main){}
+        TaskStartedEvent(const std::string& task_name, bool is_main, bool is_success, const std::string& detail):
+            MissionEvent(sub_id),
+            _task_name(task_name), 
+            _is_main(is_main),
+            _is_success(is_success),
+            _detail(detail){}
 
         bool is_main() const
         {
@@ -23,10 +27,24 @@ namespace rsdk::mission
         {
             return _task_name;
         }
+        
+        bool is_success() const
+        {
+            return _is_success;
+        }
+
+        const std::string& detail() const
+        {
+            return _detail;
+        } 
 
     private:
+    
         bool        _is_main;
         std::string _task_name;
+
+        bool        _is_success;
+        std::string _detail;
     };
 
     template<> struct typeOfEvent<BasicMissionEvent::TASK_STARTED>

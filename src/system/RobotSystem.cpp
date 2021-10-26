@@ -8,6 +8,7 @@
 #include "p_rsdk/tools/platfrom/timestamp.hpp"
 
 #include <mutex>
+#include <iostream>
 
 namespace rsdk
 {
@@ -37,6 +38,11 @@ namespace rsdk
         _impl->event_loop.setOnEvent(
             [this](REventWrapper& event_wrapper)
             {
+                info( "[event pop ] group id:" + 
+                    std::to_string(event_wrapper.event->groupId()) + 
+                    " sub id:" + 
+                    std::to_string(event_wrapper.event->subId()) 
+                );
                 if(event_wrapper.object.is_shared_ptr)
                 {
                     this->notify(
@@ -106,6 +112,11 @@ namespace rsdk
     void RobotSystem::postEvent(RObject* r_obj, ::rsdk::event::REventParam _event)
     {
         _event->setSystemTime( systemTime() );
+        info( "[event post] group id:" + 
+            std::to_string(_event->groupId()) + 
+            " sub id:" + 
+            std::to_string(_event->subId()) 
+        );
         _impl->event_loop.pushEvent(
             {
                 .event  = _event,

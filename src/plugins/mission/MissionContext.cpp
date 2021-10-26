@@ -1,6 +1,6 @@
 #include "p_rsdk/plugins/mission/MissionContext.hpp"
 #include "rsdk/system/RobotSystem.hpp"
-#include "p_rsdk/plugins/mission/BaseMIssionControllerPlugin.hpp"
+#include "p_rsdk/plugins/mission/MissionControllerPlugin.hpp"
 
 #include "p_rsdk/plugins/mission/events/TaskFinishedEvent.hpp"
 #include "p_rsdk/plugins/mission/events/TaskStartedEvent.hpp"
@@ -18,13 +18,13 @@ namespace rsdk::mission
         Impl()
         {}
 
-        BaseMIssionControllerPlugin* executor;
+        MissionControllerPlugin* executor;
         std::unordered_map<std::string, std::unique_ptr<MissionTask>>   task_map;
         MissionState                                                    current_state{MissionState::Executing};
         std::mutex                                                      add_task_mutex;
     };
 
-    MissionContext::MissionContext(BaseMIssionControllerPlugin* executor)
+    MissionContext::MissionContext(MissionControllerPlugin* executor)
     : _impl(new Impl())
     {
         _impl->executor = executor;
@@ -58,22 +58,6 @@ namespace rsdk::mission
     }
 
     /**
-     * @brief 查询指定名称的Task是否完成
-     * 
-     * @param task_name 
-     * @return true 
-     * @return false 
-     */
-    bool MissionContext::isTaskDone(const std::string& task_name)
-    {
-        if(  _impl->task_map.count(task_name) != 0 )
-        {
-            return _impl->task_map[task_name]->isDone();
-        }
-        return false;
-    }
-
-    /**
      * @brief 添加一个Task，通过Task来管理任务。如果Task重名，则会出现以下几种情况:
      *        1.不存在重复名称，添加正常
      *        2.名称重复，但原Task已经执行完毕，则新的任务会覆盖已完成的任务
@@ -91,17 +75,6 @@ namespace rsdk::mission
             _add_task(task);
             return MissionContext::AddTaskRst::SUCCESS;
         }
-        // MainTask只能被添加一次
-        else if(_impl->task_map[task->taskName()]->isMain())
-        {
-            return MissionContext::AddTaskRst::MAIN_TASK_ONLY_ADD_ONCE;
-        }
-        // 名称重复，但原Task已经执行完毕，则新的任务会覆盖已完成的任务,返回true
-        else if(_impl->task_map[task->taskName()]->isDone())
-        {
-            _add_task(task);
-            return MissionContext::AddTaskRst::SUCCESS;
-        }
         // 名称重复，但原Task还在执行，则添加失败,返回false
         else
         {
@@ -115,35 +88,35 @@ namespace rsdk::mission
         bool is_main = task->isMain();
 
         task->onFinished(
-            [this, is_main](const std::string& name, const TaskExectionRst& rst)
+            [this, is_main](const std::string& name, const TaskExecutionRst& rst)
             {
-                // send task finished event
-                _impl->executor->system()->postEvent(
-                    _impl->executor,
-                    std::make_shared<::rsdk::mission::TaskFinishedEvent>
-                    (
-                        name,
-                        is_main,
-                        rst.is_success,
-                        rst.detail
-                    )
-                );
-
-                // earse from map
+                auto event = ::rsdk::event::REventPtr();
+                switch(rst.rst)
                 {
-                    std::lock_guard<std::mutex> lck(_impl->add_task_mutex);
-                    _impl->task_map.erase(name);
+                    case TaskExecutionRstType::START_FAILED:
+                    {
+                        event = std::make_shared<::rsdk::mission::TaskStartedEvent>(name,is_main,false,rst.detail);
+                        _impl->executor->system()->info("[task] :" + name + " start failed");
+                        break;
+                    }
+                    case TaskExecutionRstType::TASK_INTERRUPTTED:
+                    {
+                        event = std::make_shared<::rsdk::mission::TaskFinishedEvent>(name,is_main,false,rst.detail);
+                        _impl->executor->system()->info("[task] :" + name + " interrupted");
+                        break;
+                    }
+                    case TaskExecutionRstType::SUCCESS:
+                    {
+                        event = std::make_shared<::rsdk::mission::TaskFinishedEvent>(name,is_main,true,rst.detail);
+                        _impl->executor->system()->info("[task] :" + name + " start success");
+                        break;
+                    }
                 }
-                
-                // task has last
-                if(_impl->task_map.size())
-                    return;
-
-                // all finished
-                _impl->executor->system()->postEvent(
-                    _impl->executor,
-                    std::make_shared<::rsdk::mission::AllTaskFinishedEvent>()
-                );
+                // send task finished event
+                if(event)
+                {
+                    _impl->executor->system()->postEvent(_impl->executor, event);
+                }
             }
         );
 
@@ -151,14 +124,36 @@ namespace rsdk::mission
             std::lock_guard<std::mutex> lck(_impl->add_task_mutex);
             _impl->task_map[task_name] = std::move(task);
             _impl->task_map[task_name]->start();
-            _impl->executor->system()->postEvent(
-                _impl->executor,
-                std::make_shared<::rsdk::mission::TaskStartedEvent>
-                (
-                    task_name,
-                    is_main
-                )
-            );
         }
+    }
+
+    bool MissionContext::removeTask(const std::string& name)
+    {
+        
+        std::lock_guard<std::mutex> lck(_impl->add_task_mutex);
+
+        if( !_impl->task_map.count(name) )
+        {
+            return false;
+        }
+        // remove from map
+        _impl->task_map.erase(name);
+        
+        // log
+        _impl->executor->system()->info("[task] :" + name + " remove from mission context");
+
+        // task has last
+        if(_impl->task_map.size())
+        {
+            return true;
+        }
+
+        // all finished
+        _impl->executor->system()->postEvent(
+            _impl->executor,
+            std::make_shared<::rsdk::mission::AllTaskFinishedEvent>()
+        );
+
+        return true;
     }
 } // namespace rsdk::mission

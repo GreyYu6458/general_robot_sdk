@@ -79,10 +79,51 @@ int main()
     std::condition_variable wait_finish_cv;
 
     mission_proxy.start();  // proxy start work
+    mission_proxy.subscribeProgressTriggerred(
+        [](uint32_t current, uint32_t total)
+        {
+            std::cout << "current" << current << " total" << total << std::endl;
+        }
+    );
+
+    mission_proxy.subscribeOnMainTaskStarted(
+        [&wait_finish_cv](const std::string& name, bool is_success, const std::string& detail)
+        {
+            std::cout << "mission:" 
+                    << name 
+                    << (is_success? " started success" : " started failed") 
+                    << " detial: " 
+                    << detail 
+                    << std::endl;
+            if(!is_success)
+                wait_finish_cv.notify_all();    
+        }
+    );
+
+    mission_proxy.subscribeOnMainTaskFinished(
+        [&wait_finish_cv](const std::string& name, bool is_success, const std::string& detail)
+        {
+            std::cout << "mission:" 
+                    << name 
+                    << (is_success? " finished success" : " finished failed") 
+                    << " detial: " 
+                    << detail 
+                    << std::endl;
+            if(!is_success)
+                wait_finish_cv.notify_all();    
+        }
+    );
+
+    mission_proxy.subscribeOnAllFinished(
+        [&wait_finish_cv]()
+        {
+            wait_finish_cv.notify_all();
+        }
+    );
 
     std::shared_ptr<rmfw::WPMission> mission = std::make_shared<rmfw::WPMission>();
 
-    rmfw::TakeOffItem takeoff_point(0);
+    rmfw::TakeOffItem takeoff_point;
     takeoff_point.set_x(latitude);
     takeoff_point.set_y(longitude);
     takeoff_point.set_z(20);
@@ -90,48 +131,51 @@ int main()
 
     // 1000 most equal 11.1m
 
-    rmfw::WaypointItem wp_1(1);
+    rmfw::WaypointItem wp_1;
     wp_1.set_hold_time(2);
     wp_1.set_x(latitude + 1000);
     wp_1.set_y(longitude);
     wp_1.set_z(20);
     mission->addItem(wp_1);
 
-    rmfw::WaypointItem wp_2(2);
+    rmfw::WaypointItem wp_2;
     wp_2.set_hold_time(2);
     wp_2.set_x(latitude + 1000);
     wp_2.set_y(longitude + 1000);
     wp_2.set_z(20);
     mission->addItem(wp_2);
 
-    rmfw::WaypointItem wp_3(3);
+    rmfw::WaypointItem wp_3;
     wp_3.set_hold_time(2);
     wp_3.set_x(latitude);
     wp_3.set_y(longitude + 1000);
     wp_3.set_z(20);
     mission->addItem(wp_3);
 
-    rmfw::WaypointItem wp_4(4);
+    rmfw::TakePhotoItem take_photo_item;
+    take_photo_item.set_total_image(1);
+    mission->addItem(take_photo_item);
+
+    rmfw::WaypointItem wp_4;
     wp_4.set_hold_time(2);
     wp_4.set_x(latitude);
     wp_4.set_y(longitude);
     wp_4.set_z(20);
     mission->addItem(wp_4);
 
-    rmfw::LandItem land(5);
+    rmfw::LandItem land;
     land.set_x(latitude);
     land.set_y(longitude);
     land.set_z(altitude);
     mission->addItem(land);
 
-    rmfw::ExecuteRst rst;
     mission_proxy.setWPMission(mission);
     mission_proxy.startMainTask();
-    
-    std::cout << rst.detail << std::endl;
 
     std::unique_lock<std::mutex> lck(wait_finish_mutex);
     wait_finish_cv.wait(lck);
+
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
     return 0;
 }

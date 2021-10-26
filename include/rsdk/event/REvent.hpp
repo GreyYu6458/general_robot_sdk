@@ -90,6 +90,14 @@ namespace rsdk::event
 #ifndef __USE_UNIQUE_EVENT_MODEL
     using REventPtr = std::shared_ptr<BaseREvent>;
     using REventParam = const REventPtr&;
+    template<class T>
+    static inline typename 
+    std::enable_if< std::is_base_of<BaseREvent, T>::value, std::shared_ptr<T> >::type
+    REventCast(REventParam _e)
+    {
+        return std::static_pointer_cast<T>(_e);
+    }
+
 #else
     using REventPtr = std::unique_ptr<BaseREvent>;
     using REventParam = REventPtr&;

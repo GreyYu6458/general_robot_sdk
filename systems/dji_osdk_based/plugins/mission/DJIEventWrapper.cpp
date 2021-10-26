@@ -1,5 +1,5 @@
 #include "DJIEventWrapper.hpp"
-#include "DJIMissionExecutor.hpp"
+#include "DJIWPMController.hpp"
 #include "DJIVehicleSystem.hpp"
 #include "DJIWPMission.hpp"
 #include "p_rsdk/plugins/mission/MissionEvent.hpp"
@@ -9,6 +9,7 @@
 #include "p_rsdk/plugins/mission/waypoint/events/SavedPhotoEvent.hpp"
 #include "p_rsdk/plugins/mission/waypoint/events/TakenPhotoEvent.hpp"
 #include "p_rsdk/plugins/mission/waypoint/events/ProgressUpdateEvent.hpp"
+#include "p_rsdk/plugins/mission/MissionTask.hpp"
 
 #include <dji_vehicle.hpp>
 #include <dji_waypoint_v2.hpp>
@@ -105,15 +106,16 @@ template <> void process<DJIMissionEvent::RecoverProcess>
 template <> void process<DJIMissionEvent::MissionFinished>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(MissionFinished) &ack)
 {
+    using TaskRst = ::rsdk::mission::TaskExecutionRstType;
     event_wrapper.executor()->system()->info("[mission]: Mission Finished:" + std::to_string(ack));
 
     if(event_wrapper.executor()->isAllRepeatTimesFinished())
     {
-        event_wrapper.executor()->mainTaskFinished(true, "success");
+        event_wrapper.executor()->mainTaskFinished(TaskRst::SUCCESS, "success");
     }
     else
     {
-        event_wrapper.executor()->mainTaskFinished(false, "mission interrupted!");
+        event_wrapper.executor()->mainTaskFinished(TaskRst::TASK_INTERRUPTTED, "mission interrupted!");
     }
 }
 
@@ -234,7 +236,7 @@ class DJIEventWrapper::Impl
 {
     friend class DJIEventWrapper;
 public:
-    Impl(DJIEventWrapper* owner, DJIWPExecutor *executor)
+    Impl(DJIEventWrapper* owner, DJIWPMController *executor)
         : _owner(owner),_executor(executor)
     {
     }
@@ -300,10 +302,10 @@ public:
         return OSDK_STAT_SYS_ERR;
     }
     DJIEventWrapper* _owner;
-    DJIWPExecutor *_executor;
+    DJIWPMController *_executor;
 };
 
-DJIEventWrapper::DJIEventWrapper(DJIWPExecutor *executor)
+DJIEventWrapper::DJIEventWrapper(DJIWPMController *executor)
     : _impl(new Impl(this, executor))
 {
 }
@@ -318,7 +320,7 @@ DJIEventWrapper::~DJIEventWrapper()
     delete _impl;
 }
 
-DJIWPExecutor* const DJIEventWrapper::executor()
+DJIWPMController* const DJIEventWrapper::executor()
 {
     return _impl->_executor;
 }

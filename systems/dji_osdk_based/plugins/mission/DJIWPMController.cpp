@@ -1,10 +1,14 @@
-#include "DJIMissionExecutor.hpp"
+#include "DJIWPMController.hpp"
 #include "DJIWPMission.hpp"
 #include "DJIEventWrapper.hpp"
 #include "rsdk/proxy/telemetry/FlyingRbtSt.hpp"
 #include "p_rsdk/plugins/mission/MissionEvent.hpp"
 #include "p_rsdk/plugins/mission/MissionTask.hpp"
 #include "p_rsdk/plugins/mission/MissionContext.hpp"
+#include "p_rsdk/plugins/mission/events/TaskStartedEvent.hpp"
+#include "p_rsdk/plugins/mission/waypoint/events/TakenPhotoEvent.hpp"
+#include "p_rsdk/plugins/mission/events/TaskFinishedEvent.hpp"
+#include "tasks/DownloadPhotoTask.hpp"
 #include "DJIWPMission.hpp"
 
 #include <dji_vehicle.hpp>
@@ -12,14 +16,13 @@
 #include <condition_variable>
 #include <vector>
 #include <mutex>
-#include <iostream>
 
-class DJIWPExecutor::Impl
+class DJIWPMController::Impl
 {
-    friend class DJIWPExecutor;
+    friend class DJIWPMController;
 
 public:
-    Impl(const std::shared_ptr<DJIVehicleSystem>& system, DJIWPExecutor *owner)
+    Impl(const std::shared_ptr<DJIVehicleSystem>& system, DJIWPMController *owner)
         :   _state_listener(system),
             _owner(owner),
             _dji_mission_operator(owner->vehicle()->waypointV2Mission)
@@ -132,9 +135,6 @@ public:
         _total_wp = missionInitSettings.missTotalLen;
         _total_repeated_times = missionInitSettings.repeatTimes + 1;
 
-        // _owner->system()->postEvent(_owner, std::make_shared<rsdk::mission::StartedEvent>());
-        // _owner->onEvent( std::make_unique< rsdk::mission::StartedEvent>(_owner->system()) );
-
         rst.is_success = true;
         rst.detail = "Success";
         return;
@@ -170,7 +170,7 @@ private:
     bool                                            _is_started{false};
     bool                                            _flight_state_listener_available{false};
     DJI::OSDK::WaypointV2MissionOperator*           _dji_mission_operator;
-    DJIWPExecutor* const                            _owner;
+    DJIWPMController* const                            _owner;
     std::unique_ptr<DJIEventWrapper>                _dji_event_wrapper;
     std::mutex                                      _wait_flight_mutex;
     std::condition_variable                         _wait_flight_cv;
@@ -178,7 +178,7 @@ private:
     std::mutex                                      _wait_land_mutex;
     std::condition_variable                         _wait_land_cv;
 
-    ::rsdk::mission::TaskExectionRst                _main_task_rst;
+    ::rsdk::mission::TaskExecutionRst                _main_task_rst;
 
     uint32_t                                        _total_wp;
     uint32_t                                        _current_repeated_times;
@@ -191,9 +191,11 @@ private:
     ::rsdk::telemetry::FlyingRobotStatusProxy       _state_listener;
     std::mutex                                      _event_mutex;
     std::vector<::rsdk::event::REventCBType>        _event_callbacks;
+
+    bool                                            _photo_event_not_handle;
 };
 
-DJIWPExecutor::DJIWPExecutor(const std::shared_ptr<DJIVehicleSystem>& system)
+DJIWPMController::DJIWPMController(const std::shared_ptr<DJIVehicleSystem>& system)
     :   DJIPluginBase(system), 
         ::rmfw::WPMControllerPlugin(system), 
         _impl(new Impl(system, this))
@@ -201,105 +203,160 @@ DJIWPExecutor::DJIWPExecutor(const std::shared_ptr<DJIVehicleSystem>& system)
 
 }
 
-DJIWPExecutor::~DJIWPExecutor()
+DJIWPMController::~DJIWPMController()
 {
     delete _impl;
 }
 
-DJIVehicleModels DJIWPExecutor::supportModel()
+DJIVehicleModels DJIWPMController::supportModel()
 {
     return DJIVehicleModels::MODEL_M300;
 }
 
-void DJIWPExecutor::exec() 
+void DJIWPMController::exec() 
 {
     _impl->start();
 }
 
-bool DJIWPExecutor::start()
+bool DJIWPMController::start()
 {
     exec();
     _impl->_is_started = true;
     return true;
 }
 
-uint32_t DJIWPExecutor::total_wp()
+uint32_t DJIWPMController::total_wp()
 {
     return _impl->_total_wp;
 }
 
-uint32_t DJIWPExecutor::total_repeated_times()
+uint32_t DJIWPMController::total_repeated_times()
 {
     return _impl->_total_repeated_times;
 }
 
-std::shared_ptr<DJIWPMission>& DJIWPExecutor::dji_wp_mission()
+std::shared_ptr<DJIWPMission>& DJIWPMController::dji_wp_mission()
 {
     return _impl->dji_mission;
 }
 
-void DJIWPExecutor::startMainTask()
+void DJIWPMController::startMainTask()
 {
-    context().addTask(
-        std::make_unique<::rsdk::mission::MainMissionTask>(
-            "waypoint task",
-            [this]() -> ::rsdk::mission::TaskExectionRst
+    std::unique_ptr<rsdk::mission::MissionTask> main_task = 
+        std::make_unique<::rsdk::mission::MainMissionTask>("DJI Waypoint Task");
+    
+    main_task->setTask(
+        [this]() -> ::rsdk::mission::TaskExecutionRst
+        {
+            ::rsdk::mission::TaskExecutionRst _rst;
+            rsdk::mission::waypoint::ExecuteRst start_rst;
+            this->_impl->launch( this->wp_mission() , start_rst);
+            if(!start_rst.is_success)
             {
-                rsdk::mission::waypoint::ExecuteRst rst;
-                this->_impl->launch( this->wp_mission() , rst);
-
-                std::unique_lock<std::mutex> lck(this->_impl->_wait_land_mutex);
-                this->_impl->_wait_land_cv.wait(lck);
-
-                return this->_impl->_main_task_rst;
+                _rst.rst = ::rsdk::mission::TaskExecutionRstType::START_FAILED;
+                _rst.detail = start_rst.detail;
+                return _rst;
             }
-        )
+            std::unique_lock<std::mutex> lck(this->_impl->_wait_land_mutex);
+            this->_impl->_wait_land_cv.wait(lck);
+            return this->_impl->_main_task_rst;
+        }
     );
+
+    context().addTask(std::move(main_task));
 }
 
-void DJIWPExecutor::mainTaskFinished(bool success, const std::string& detail)
+void DJIWPMController::mainTaskFinished(::rsdk::mission::TaskExecutionRstType _rst, const std::string& detail)
 {
-    std::unique_lock<std::mutex> lck(this->_impl->_wait_land_mutex);
-    this->_impl->_main_task_rst.is_success = success;
-    this->_impl->_main_task_rst.detail = detail;
-    this->_impl->_wait_land_cv.notify_all();
+    std::unique_lock<std::mutex> lck(this->_impl->_wait_land_mutex, std::try_to_lock);
+    if(lck.owns_lock())
+    {
+        this->_impl->_main_task_rst.rst = _rst;
+        this->_impl->_main_task_rst.detail = detail;
+        this->_impl->_wait_land_cv.notify_all();
+    }
 }
 
-void DJIWPExecutor::setCurrentRepeatTimes(uint32_t times)
+/**
+ * @brief 
+ * 
+ * @param _event 
+ * @return true 
+ * @return false 
+ */
+bool DJIWPMController::revent(::rsdk::event::REventParam _event)
+{
+    static constexpr uint32_t mission_group_id = 
+        ::rsdk::event::valueOfCategory<::rsdk::event::EventCategory::MISSION>();
+
+    if( _event->isEqualToType< mission_group_id , rmfw::TakenPhotoEvent::sub_id>())
+    {
+        auto event = rsdk::event::REventCast<rmfw::TakenPhotoEvent>(_event);
+        auto add_rst = context().addTask( 
+            std::make_unique<DJIDownloadPhotoTask>(this)
+        );
+
+        if(add_rst != rsdk::mission::MissionContext::AddTaskRst::SUCCESS)
+        {
+            _impl->_photo_event_not_handle = true;
+        }
+        else
+        {
+            _impl->_photo_event_not_handle = false;
+            system()->info("[task] : Add download photo task");
+        }
+    }
+    // 任务结束，还有拍摄事件未响应，则新建一个下载任务
+    else if(
+        _event->isEqualToType< mission_group_id , rsdk::mission::TaskFinishedEvent::sub_id>()
+        && std::static_pointer_cast<rsdk::mission::TaskFinishedEvent>(_event)->is_main()
+        && _impl->_photo_event_not_handle
+    )
+    {
+        context().addTask( 
+            std::make_unique<DJIDownloadPhotoTask>(this)
+        );
+    }
+
+    return rmfw::WPMControllerPlugin::revent(_event);
+}
+
+
+void DJIWPMController::setCurrentRepeatTimes(uint32_t times)
 {
     _impl->_current_repeated_times = times;
 }
 
-bool DJIWPExecutor::isAllRepeatTimesFinished()
+bool DJIWPMController::isAllRepeatTimesFinished()
 {
     return _impl->_current_repeated_times == _impl->_total_repeated_times;
 }
 
-bool DJIWPExecutor::isStarted()
+bool DJIWPMController::isStarted()
 {
     return _impl->_is_started;
 }
 
-void DJIWPExecutor::stop(rmfw::ExecuteRst &rst)
+void DJIWPMController::stop(rmfw::ExecuteRst &rst)
 {
     ErrorCode::ErrorCodeType ret = _impl->mission_operator()->stop(10);
 
     _impl->dji_api_ret_handler(ret, rst);
 }
 
-void DJIWPExecutor::pause(rmfw::ExecuteRst &rst)
+void DJIWPMController::pause(rmfw::ExecuteRst &rst)
 {
     ErrorCode::ErrorCodeType ret = _impl->mission_operator()->pause(10);
     _impl->dji_api_ret_handler(ret, rst);
 }
 
-void DJIWPExecutor::resume(rmfw::ExecuteRst &rst)
+void DJIWPMController::resume(rmfw::ExecuteRst &rst)
 {
     ErrorCode::ErrorCodeType ret = _impl->mission_operator()->resume(10);
     _impl->dji_api_ret_handler(ret, rst);
 }
 
-DJI::OSDK::WaypointV2MissionOperator *const DJIWPExecutor::dji_operator()
+DJI::OSDK::WaypointV2MissionOperator *const DJIWPMController::dji_operator()
 {
     return _impl->mission_operator();
 }

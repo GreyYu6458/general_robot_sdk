@@ -1,6 +1,7 @@
 #ifndef _DJI_MISSION_EXECUTOR_HPP_
 #define _DJI_MISSION_EXECUTOR_HPP_
 #include "p_rsdk/plugins/mission/waypoint/WPMControllerPlugin.hpp"
+#include "p_rsdk/plugins/mission/MissionTask.hpp"
 #include "plugins/DJIPluginBase.hpp"
 
 namespace rmfw = ::rsdk::mission::waypoint;
@@ -9,14 +10,14 @@ namespace DJI::OSDK{class WaypointV2MissionOperator;}
 
 class DJIWPMission;
 
-class DJIWPExecutor
+class DJIWPMController
     :   public rmfw::WPMControllerPlugin,
         public DJIPluginBase
 {
 public:
-    DJIWPExecutor(const std::shared_ptr<DJIVehicleSystem>& system);
+    DJIWPMController(const std::shared_ptr<DJIVehicleSystem>& system);
 
-    ~DJIWPExecutor();
+    ~DJIWPMController();
 
     /**
      * @brief 开始监听DJI底层事件
@@ -42,7 +43,7 @@ public:
 
     void exec() override;
 
-    void mainTaskFinished(bool, const std::string& detail);
+    void mainTaskFinished(::rsdk::mission::TaskExecutionRstType, const std::string& detail);
 
     uint32_t total_wp();
 
@@ -53,6 +54,17 @@ public:
     bool isAllRepeatTimesFinished();
 
     std::shared_ptr<DJIWPMission>& dji_wp_mission();
+
+protected:
+    /**
+     * @brief 重写事件函数，大疆的事件函数负责监听拍照事件，然后生成拍照Task。
+     *        其他事件由基类负责
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool revent(::rsdk::event::REventParam) override;
+
 private:
 
     class Impl;

@@ -86,8 +86,9 @@ add_library(
 
     plugins/mission/DJIWPMission.cpp
     plugins/mission/DJIEventWrapper.cpp
-    plugins/mission/DJIMissionExecutor.cpp
+    plugins/mission/DJIWPMController.cpp
     plugins/mission/DJIWPMission.cpp
+    plugins/mission/tasks/DownloadPhotoTask.cpp
 
     plugins/telemetry/DJIBattery.cpp
     plugins/telemetry/DJIGPSTime.cpp

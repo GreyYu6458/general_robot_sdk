@@ -10,6 +10,10 @@ namespace rsdk
     public:
         using SystemInfoCallback = std::function<void (const SystemInfo&)>;
 
+        SystemInfoPublisher();
+
+        ~SystemInfoPublisher();
+
         template<SystemInfoLevel Level>
         inline void publishInfo(const std::string& msg)
         {

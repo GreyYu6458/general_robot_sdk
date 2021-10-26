@@ -4,10 +4,10 @@
 
 namespace rsdk::mission
 {
-    class BaseMIssionControllerPlugin;
+    class MissionControllerPlugin;
 
-    using MainTaskStartedCb     = std::function<void (const std::string& task_name)>;
-    using MainTaskFinishedCb    = std::function<void (const std::string& task_name, bool is_success)>;
+    using MainTaskStartedCb     = std::function<void (const std::string& task_name, bool is_success, const std::string& detail)>;
+    using MainTaskFinishedCb    = std::function<void (const std::string& task_name, bool is_success, const std::string& detail)>;
     using AllTaskFinishedCb     = std::function<void ()>;
 
     class MissionControllerProxy : public BaseProxy
@@ -15,7 +15,7 @@ namespace rsdk::mission
     public:
         MissionControllerProxy(
             const std::shared_ptr<RobotSystem>&,
-            const std::shared_ptr<BaseMIssionControllerPlugin>&
+            const std::shared_ptr<MissionControllerPlugin>&
         );
 
         virtual ~MissionControllerProxy();
@@ -30,7 +30,7 @@ namespace rsdk::mission
 
         bool eventFilter(RObject*, ::rsdk::event::REventParam) override;
 
-        std::shared_ptr<BaseMIssionControllerPlugin> executor();
+        std::shared_ptr<MissionControllerPlugin> executor();
 
     private:
         class Impl;

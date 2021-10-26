@@ -1,12 +1,12 @@
-#ifndef _BASIC_MISSION_EVENT_ENUM_HPP_
-#define _BASIC_MISSION_EVENT_ENUM_HPP_
-#include <cstdint>
+#ifndef _WAYPOINT_MISSION_EVENT_ENUM_HPP_
+#define _WAYPOINT_MISSION_EVENT_ENUM_HPP_
+#include "p_rsdk/plugins/mission/events/BasicMissionEventEnum.hpp"
 
 namespace rsdk::mission::waypoint
 {
     enum class WPMissionEvent
     {
-        PAUSED,
+        PAUSED = ::rsdk::mission::valueOfEvent<::rsdk::mission::BasicMissionEvent::COUNT>(),
         REUMED,
         PROGRESS_UPDATED,
         SAVED_PHOTO,

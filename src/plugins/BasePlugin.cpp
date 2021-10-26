@@ -9,13 +9,16 @@ namespace rsdk
     class BasePlugin::Impl
     {
     public:
+        Impl(const std::shared_ptr<RobotSystem>& sys):
+            _system_ptr(sys){}
+
         ::std::shared_ptr<RobotSystem>              _system_ptr;
         ::std::mutex                                _cb_mutex;
         std::vector<::rsdk::event::REventCBType>    _event_filter_cb;
     };
 
-    BasePlugin::BasePlugin(const std::shared_ptr<RobotSystem>&)
-    : _impl(new Impl())
+    BasePlugin::BasePlugin(const std::shared_ptr<RobotSystem>& sys)
+    : _impl(new Impl(sys))
     {
         
     }

@@ -16,7 +16,7 @@ namespace rsdk::mission::waypoint
     WPMControllerPlugin::WPMControllerPlugin(
         const std::shared_ptr<::rsdk::RobotSystem>& sys
     )
-    : _impl(new Impl()), BaseMIssionControllerPlugin(sys)
+    : _impl(new Impl()), MissionControllerPlugin(sys)
     {
     }
 
@@ -32,7 +32,7 @@ namespace rsdk::mission::waypoint
 
     bool WPMControllerPlugin::revent(::rsdk::event::REventParam event) 
     {
-        return BaseMIssionControllerPlugin::revent(event);
+        return MissionControllerPlugin::revent(event);
     }
 
     std::shared_ptr<WPMission>& WPMControllerPlugin::wp_mission()

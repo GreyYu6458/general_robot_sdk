@@ -25,7 +25,7 @@ add_library(
     plugins/PluginRegister.cpp
     plugins/camera/VideoStreamPlugin.cpp
 
-    plugins/mission/BaseMIssionControllerPlugin.cpp
+    plugins/mission/MissionControllerPlugin.cpp
     plugins/mission/MissionContext.cpp
     plugins/mission/MissionEvent.cpp
     plugins/mission/MissionTask.cpp

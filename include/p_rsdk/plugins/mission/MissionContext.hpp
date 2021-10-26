@@ -6,7 +6,7 @@
 
 namespace rsdk::mission
 {
-    class BaseMIssionControllerPlugin;
+    class MissionControllerPlugin;
     class MissionDescription;
 
     enum class MissionState
@@ -25,7 +25,7 @@ namespace rsdk::mission
     class MissionContext
     {
     public:
-        MissionContext(BaseMIssionControllerPlugin* executor);
+        MissionContext(MissionControllerPlugin* executor);
 
         virtual ~MissionContext();
 
@@ -45,21 +45,10 @@ namespace rsdk::mission
          */
         bool hasTask(const std::string& task_name);
 
-        /**
-         * @brief 查询指定名称的Task是否完成
-         * 
-         * @param task_name 
-         * @return true 
-         * @return false 
-         */
-        bool isTaskDone(const std::string& task_name);
-
         enum AddTaskRst
         {
             SUCCESS,
-            SAME_NAME_TASK_RUNNING,
-            MAIN_TASK_ONLY_ADD_ONCE,
-            UNKNOWN
+            SAME_NAME_TASK_RUNNING
         };
 
         /**
@@ -73,6 +62,13 @@ namespace rsdk::mission
          * @return AddTaskRst
          */
         AddTaskRst addTask(std::unique_ptr<MissionTask> task);
+
+        /**
+         * @brief 移除指定的任务
+         * 
+         * @param name 
+         */
+        bool removeTask(const std::string& name);
 
         /**
          * @brief 设置任务状态，见MissionState

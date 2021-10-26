@@ -5,14 +5,22 @@
 
 namespace rsdk::mission
 {
-    struct TaskExectionRst
+    enum class TaskExecutionRstType
     {
-        bool        is_success;
-        std::string detail;
+        SUCCESS,
+        START_FAILED,
+        TASK_INTERRUPTTED,
+        UNKONOW
     };
 
-    using TaskObject        = std::function<TaskExectionRst (void)>;
-    using TaskFinishedCb    = std::function<void (const std::string&, const TaskExectionRst&)>;
+    struct TaskExecutionRst
+    {
+        TaskExecutionRstType    rst;
+        std::string             detail;
+    };
+
+    using TaskObject        = std::function<TaskExecutionRst (void)>;
+    using TaskFinishedCb    = std::function<void (const std::string&, const TaskExecutionRst&)>;
 
     /**
      * @brief   用于描述耗时的计算任务和IO任务，会作为一个线程执行，
@@ -30,7 +38,6 @@ namespace rsdk::mission
          */
         MissionTask(
             const std::string& _task_name,
-            const TaskObject&  _func,
             bool is_main
         );
 
@@ -41,19 +48,24 @@ namespace rsdk::mission
         virtual ~MissionTask();
 
         /**
+         * @brief Set the Task object
+         * 
+         * @param _func 
+         */
+        void setTask(const TaskObject&  _func);
+
+        /**
+         * @brief 
+         * 
+         */
+        bool emptyTask();
+
+        /**
          * @brief 
          * 
          * @return std::string 
          */
         std::string taskName() const;
-
-        /**
-         * @brief if task is done
-         * 
-         * @return true 
-         * @return false 
-         */
-        bool isDone() const;
 
         /**
          * @brief 
@@ -85,18 +97,16 @@ namespace rsdk::mission
     {
     public:
         MainMissionTask(
-            const std::string& _task_name,
-            const TaskObject&  _func
-        ) : MissionTask(_task_name, _func, true){}
+            const std::string& _task_name
+        ) : MissionTask(_task_name, true){}
     };
 
     class SubMissionTask : public MissionTask
     {
     public:
         SubMissionTask(
-            const std::string& _task_name,
-            const TaskObject&  _func
-        ) : MissionTask(_task_name, _func, false){}
+            const std::string& _task_name
+        ) : MissionTask(_task_name, false){}
     };
 }
 

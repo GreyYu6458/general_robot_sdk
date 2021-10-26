@@ -12,7 +12,10 @@ namespace rsdk::mission
             = valueOfEvent<BasicMissionEvent::ALL_TASK_FINISHED>();
 
         AllTaskFinishedEvent():
-            MissionEvent(sub_id){}
+            MissionEvent(sub_id)
+        {
+            
+        }
     };
 
     template<> struct typeOfEvent<BasicMissionEvent::ALL_TASK_FINISHED>

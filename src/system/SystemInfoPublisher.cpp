@@ -10,6 +10,16 @@ namespace rsdk
         std::vector<SystemInfoPublisher::SystemInfoCallback> system_info_cbs;
     };
 
+    SystemInfoPublisher::SystemInfoPublisher()
+    : _impl(new Impl()){
+        
+    }
+
+    SystemInfoPublisher::~SystemInfoPublisher()
+    {
+        delete _impl;
+    }
+
     // 全局存在，系统负责回收
 
     void SystemInfoPublisher::__publish(const SystemInfo& info)

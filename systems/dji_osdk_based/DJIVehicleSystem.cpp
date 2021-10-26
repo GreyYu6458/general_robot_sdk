@@ -14,7 +14,7 @@
 #include "plugins/telemetry/DJIGNSS.hpp"
 #include "plugins/telemetry/DJIGNSSUncertain.hpp"
 #include "plugins/telemetry/DJIGPSTime.hpp"
-#include "plugins/mission/DJIMissionExecutor.hpp"
+#include "plugins/mission/DJIWPMController.hpp"
 #include "plugins/camera/DJIVideoStream.hpp"
 
 using DJILinker = DJI::OSDK::Linker;
@@ -45,7 +45,7 @@ private:
         REGIST_PLUGIN(DJIGNSSReceiver,      rsdk::telemetry::GNSSReceiverPlugin);
         REGIST_PLUGIN(DJIGNSSUncertain,     rsdk::telemetry::GNSSUncertainInfoPlugin);
         REGIST_PLUGIN(DJIFlightStatus,      rsdk::telemetry::FlyingRobotStatusPlugin);
-        REGIST_PLUGIN(DJIWPExecutor,        rsdk::mission::waypoint::WPMControllerPlugin);
+        REGIST_PLUGIN(DJIWPMController,     rsdk::mission::waypoint::WPMControllerPlugin);
         REGIST_PLUGIN(DJIVideoStream,       rsdk::camera::VideoStreamPlugin);
     }
 

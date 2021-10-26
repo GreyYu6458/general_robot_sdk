@@ -29,6 +29,8 @@ namespace rsdk::mission::waypoint
     public:
         WPMControllerProxy(const std::shared_ptr<rsdk::RobotSystem>& system );
 
+        virtual ~WPMControllerProxy();
+
         void setWPMission(std::shared_ptr<WPMission>& mission);
 
         void startMainTask();
