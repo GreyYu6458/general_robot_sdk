@@ -3,9 +3,11 @@
 
 #include <dji_vehicle.hpp>
 #include <dji_linker.hpp>
+#include <dji_camera_manager.hpp>
 #include <rsdk/system/SystemLinkMethods.hpp>
 
 #include <boost/format.hpp>
+#include <future>
 
 #include "plugins/telemetry/DJIBattery.hpp"
 #include "plugins/telemetry/DJIAvoid.hpp"
@@ -58,6 +60,113 @@ private:
     DJIVehicleSystem* _owner;
 
 public:
+
+    struct FileSyncBlock
+    {
+        SystemImpl* system_impl;
+        std::promise<bool>& _success_promise;
+    };
+
+    static void cameraFileReponse(E_OsdkStat ret_code, const FilePackage file_list, void* userData)
+    {
+        FileSyncBlock* impl = (FileSyncBlock*)userData;
+        
+        if(ret_code != ErrorCode::SysCommonErr::Success)
+        {
+            impl->_success_promise.set_value(false);
+        } 
+        else
+        {
+            for (const auto &media_file : file_list.media)
+            {
+                impl->system_impl->_camera_files_set.insert(media_file.fileName);
+            }
+            impl->_success_promise.set_value(true);
+        } 
+    }
+
+    bool cameraInitization()
+    {
+        /*
+        enum PayloadIndexType {
+          PAYLOAD_INDEX_0 = 0x00,
+          PAYLOAD_INDEX_1 = 0x01,
+          PAYLOAD_INDEX_2 = 0x02,
+          PAYLOAD_INDEX_CNT = 0x03,
+          PAYLOAD_INDEX_INVALID = 0x03,
+        };
+        */
+        ErrorCode::ErrorCodeType ret;
+        ret = _dji_vehicle->cameraManager->initCameraModule(PAYLOAD_INDEX_0,"dji_camera_index_0");
+        if (ret != ErrorCode::SysCommonErr::Success) 
+        {
+            _owner->warning(
+                "Init Camera module DJI CAMERA INDEX 0 failed. Camera Related Function Will Disable"
+            );
+            return false;
+        }
+        else
+        {
+            return syncCameraFile();
+        }
+    }
+
+    /**
+     * @brief 读取存储在DJI 相机中的文件(仅限M300)
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool syncCameraFile()
+    {
+        if(!_dji_vehicle->isM300())
+            return false;
+
+        _owner->info("[system]:M300 Detected, Start Camera File Synchronizating");
+        _owner->info("[system]:Start obtaining download right");
+        auto ret = _dji_vehicle->cameraManager->obtainDownloadRightSync(
+            PAYLOAD_INDEX_0,
+            true,
+            10
+        );
+        if(ret != ErrorCode::SysCommonErr::Success)
+        {
+            _owner->warning("[system]:Obtaining download right failed!");
+        }
+        else
+        {
+            _owner->warning("[system]:Obtaining download right success");
+        }
+
+        _owner->info("[system]:Start Setting camera mode");
+        ret = _dji_vehicle->cameraManager->setModeSync(
+            PAYLOAD_INDEX_0,
+            CameraModule::WorkMode::PLAYBACK,
+            4
+        );
+        if(ret != ErrorCode::SysCommonErr::Success)
+        {
+            _owner->warning("[system]:Setting camera mode failed!");
+        }
+        else
+        {
+            _owner->warning("[system]:Setting camera mode success");
+        }
+
+        std::promise<bool> _file_sync_promise;
+
+        auto future = _file_sync_promise.get_future();
+
+        FileSyncBlock sync_block{this, _file_sync_promise};
+        _owner->warning("[system]:Start Downloading File Descriptions In Camera");
+        _dji_vehicle->cameraManager->startReqFileList(
+            PAYLOAD_INDEX_0,
+            &SystemImpl::cameraFileReponse,
+            &sync_block
+        );
+
+        return future.get();
+    }
 
     // impl of link method
     bool link(const rsdk::SystemConfig &config)
@@ -142,10 +251,9 @@ public:
             _owner->error( (formater % __FILE__ % __LINE__ % "DJI VERIFY ERROR").str());
             return false;
         }
-
         _unique_code = _dji_vehicle->getHwSerialNum();
-
         _owner->info("DJI Vehicle Link Success");
+
         return true;
     }
 
@@ -167,9 +275,12 @@ private:
         }
     }
 
-    std::shared_ptr<DJIVehicle> _dji_vehicle;
-    std::unique_ptr<DJILinker>  _dji_linker;
-    std::unique_ptr<DJIGPSTime> _gps_time_sysc_plugin;
+    std::shared_ptr<DJIVehicle>         _dji_vehicle;
+    std::unique_ptr<DJILinker>          _dji_linker;
+    std::unique_ptr<DJIGPSTime>         _gps_time_sysc_plugin;
+    bool                                _camera_is_enable{false};
+    std::unordered_set<std::string>     _camera_files_set;
+    std::mutex                          _dji_api_mutex;
 
     DJIVehicleModels _model{DJIVehicleModels::UNKNOWN};
 
@@ -200,6 +311,24 @@ bool DJIVehicleSystem::tryLink(const rsdk::SystemConfig &config)
 
     if(rst == false)
         return rst;
+
+    // start camera file sync
+    _impl->_camera_is_enable = _impl->cameraInitization();
+    if(_impl->_camera_is_enable)
+    {
+        info(
+            "Synchronizating Files In Camera Success, Total " 
+            + std::to_string(_impl->_camera_files_set.size())
+            + " Files In Camera"
+        );
+    }
+    else
+    {
+        warning(
+            "Synchronizating Files In Camera Failed! Some Function Will Be Disable!"
+        );
+    }
+
     // start time sync
     _impl->_gps_time_sysc_plugin = 
         std::make_unique<DJIGPSTime>(
@@ -210,6 +339,22 @@ bool DJIVehicleSystem::tryLink(const rsdk::SystemConfig &config)
     _impl->registALLPlugin();
 
     return rst;
+}
+
+bool DJIVehicleSystem::isMainCameraEnable()
+{
+    return _impl->_camera_is_enable;
+}
+
+std::mutex& DJIVehicleSystem::DJIAPIMutex()
+{
+    return _impl->_dji_api_mutex;
+}
+
+// 云台相机中文件名称的集合
+std::unordered_set<std::string>& DJIVehicleSystem::camera_file_set()
+{
+    return _impl->_camera_files_set;
 }
 
 std::shared_ptr<DJIVehicleSystem> DJIVehicleSystem::shared_from_this()
