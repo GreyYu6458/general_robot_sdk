@@ -77,11 +77,12 @@ add_library(
     dji_vehicle
     SHARED
     DJIVehicleSystem.cpp
+    DJICameraManager.cpp
     _regist_dji_message.cpp
     dji_linux_helper/DJIInitializationTool.cpp
     dji_linux_helper/osdkhal_linux.c
     dji_linux_helper/osdkosal_linux.c
-
+  
     plugins/camera/DJIVideoStream.cpp
 
     plugins/mission/DJIWPMission.cpp

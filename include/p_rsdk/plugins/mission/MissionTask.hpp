@@ -55,20 +55,20 @@ namespace rsdk::mission
         void setTask(const TaskObject&  _func);
 
         /**
-         * @brief 
+         * @brief 是否是空Task
          * 
          */
         bool emptyTask();
 
         /**
-         * @brief 
+         * @brief name of task
          * 
          * @return std::string 
          */
         std::string taskName() const;
 
         /**
-         * @brief 
+         * @brief is main task
          * 
          * @return true 
          * @return false 

@@ -208,7 +208,7 @@ template<> bool DJIWPMission::Impl::_convert_item
     auto action = DJIWaypointV2Action(dji_actions.size(), trigger, actuator);
 
     DJIActionEvent event;
-    event.type = DJIActionEventEnum::Paused;
+    event.type = DJIActionEventEnum::StartRecordVideo;
     event.item_index = item_seq;
     event.adjoint_wp = dji_wps.size() - 1;
     mission->_impl->_action_map[ dji_actions.size() ] = event;

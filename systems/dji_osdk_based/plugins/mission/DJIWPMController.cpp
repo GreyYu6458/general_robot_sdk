@@ -193,6 +193,7 @@ private:
     std::vector<::rsdk::event::REventCBType>        _event_callbacks;
 
     bool                                            _photo_event_not_handle;
+    std::vector<DJIActionEvent>                     _event_recorder;
 };
 
 DJIWPMController::DJIWPMController(const std::shared_ptr<DJIVehicleSystem>& system)
@@ -277,8 +278,13 @@ void DJIWPMController::mainTaskFinished(::rsdk::mission::TaskExecutionRstType _r
     }
 }
 
+std::shared_ptr<DJIVehicleSystem> DJIWPMController::system()
+{
+    return _dji_system;
+}
+
 /**
- * @brief 
+ * @brief 捕获拍照事件，生成下载任务
  * 
  * @param _event 
  * @return true 
@@ -286,12 +292,18 @@ void DJIWPMController::mainTaskFinished(::rsdk::mission::TaskExecutionRstType _r
  */
 bool DJIWPMController::revent(::rsdk::event::REventParam _event)
 {
+    // 如果相机没有使能，直接跳过
+    if(!_dji_system->cameraManager().isMainCameraEnable())
+        return rmfw::WPMControllerPlugin::revent(_event);
+
     static constexpr uint32_t mission_group_id = 
         ::rsdk::event::valueOfCategory<::rsdk::event::EventCategory::MISSION>();
 
+    // 新建下载任务，如果已有下载任务在执行，则设置相应标志位
     if( _event->isEqualToType< mission_group_id , rmfw::TakenPhotoEvent::sub_id>())
     {
         auto event = rsdk::event::REventCast<rmfw::TakenPhotoEvent>(_event);
+
         auto add_rst = context().addTask( 
             std::make_unique<DJIDownloadPhotoTask>(this)
         );

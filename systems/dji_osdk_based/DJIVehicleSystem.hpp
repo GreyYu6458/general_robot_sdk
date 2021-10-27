@@ -1,6 +1,7 @@
 #ifndef _DJI_VEHICLE_SYSTEM_HPP_
 #define _DJI_VEHICLE_SYSTEM_HPP_
 #include "rsdk/system/RobotSystem.hpp"
+#include "DJICameraManager.hpp"
 #include <unordered_set>
 #include <mutex>
 
@@ -45,11 +46,8 @@ public:
     // 机器人的名字
     const std::string &robotName() override;
 
-    // 云台相机是否挂载
-    bool isMainCameraEnable();
-
-    // 云台相机中文件名称的集合
-    std::unordered_set<std::string>& camera_file_set();
+    // 获取相机管理器
+    DJICameraManager &cameraManager();
 
     // 大疆API MUTEX
     std::mutex& DJIAPIMutex();
