@@ -5,14 +5,14 @@
 #include "plugins/DJIPluginBase.hpp"
 #include "DJIActionEvent.hpp"
 
-namespace rmfw = ::rsdk::mission::waypoint;
+namespace rmw = ::rsdk::mission::waypoint;
 
 namespace DJI::OSDK{class WaypointV2MissionOperator;}
 
 class DJIWPMission;
 
 class DJIWPMController
-    :   public rmfw::WPMControllerPlugin,
+    :   public rmw::WPMControllerPlugin,
         public DJIPluginBase
 {
 public:
@@ -32,11 +32,11 @@ public:
     */
     void startMainTask() override;
     
-    void stop(rmfw::ExecuteRst& rst) override;
+    void stop(rmw::ExecuteRst& rst) override;
 
-    void pause(rmfw::ExecuteRst& rst) override;
+    void pause(rmw::ExecuteRst& rst) override;
 
-    void resume(rmfw::ExecuteRst& rst) override;
+    void resume(rmw::ExecuteRst& rst) override;
 
     DJI::OSDK::WaypointV2MissionOperator* const dji_operator();
 

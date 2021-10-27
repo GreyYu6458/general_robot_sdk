@@ -2,6 +2,7 @@
 #define _BACKGROUND_TASK_HPP_
 #include <iostream>
 #include <functional>
+#include <memory>
 
 namespace rsdk::mission
 {
@@ -19,17 +20,20 @@ namespace rsdk::mission
         std::string             detail;
     };
 
+    class MissionTask;
+    
     using TaskObject        = std::function<TaskExecutionRst (void)>;
-    using TaskFinishedCb    = std::function<void (const std::string&, const TaskExecutionRst&)>;
+    using TaskFinishedCb    = std::function<void (const MissionTask*, const TaskExecutionRst&)>;
 
     /**
-     * @brief   用于描述耗时的计算任务和IO任务，会作为一个线程执行，
-     *          它的生命周期绑定在MissionContext上。
+     * @brief   用于描述耗时的计算任务和IO任务，会作为一个线程执行
      */
     class MissionTask
     {
         friend class MissionContext;
     public:
+        MissionTask();
+
         /**
          * @brief Construct a new Back Ground Task object
          * 
@@ -40,6 +44,32 @@ namespace rsdk::mission
             const std::string& _task_name,
             bool is_main
         );
+
+        /**
+         * @brief Copy Constructor, Don't copy run state
+         * 
+         */
+        MissionTask(const MissionTask&);
+
+        /**
+         * @brief Move Constructor, Will move run state
+         * 
+         */
+        MissionTask(MissionTask&&);
+
+        /**
+         * @brief Copy assignment, Don't copy run state
+         * 
+         * @return MissionTask& 
+         */
+        MissionTask& operator=(const MissionTask&);
+        
+        /**
+         * @brief Move assignment, Will move run state
+         * 
+         * @return MissionTask& 
+         */
+        MissionTask& operator=(const MissionTask&&);
 
         /**
          * @brief Destroy the Back Ground Task object
@@ -65,7 +95,7 @@ namespace rsdk::mission
          * 
          * @return std::string 
          */
-        std::string taskName() const;
+        const std::string& taskName() const;
 
         /**
          * @brief is main task
@@ -75,19 +105,13 @@ namespace rsdk::mission
          */
         bool isMain() const;
 
+        /**
+         * @brief 开始在一个新的线程中执行任务
+         * 
+         */
+        void execute(const TaskFinishedCb&);
+
     private:
-
-        /**
-         * @brief 
-         * 
-         */
-        void start();
-
-        /**
-         * @brief 
-         * 
-         */
-        void onFinished(const TaskFinishedCb&);
 
         class Impl;
         Impl* _impl;
@@ -96,6 +120,8 @@ namespace rsdk::mission
     class MainMissionTask : public MissionTask
     {
     public:
+        MainMissionTask() = default;
+
         MainMissionTask(
             const std::string& _task_name
         ) : MissionTask(_task_name, true){}
@@ -104,6 +130,8 @@ namespace rsdk::mission
     class SubMissionTask : public MissionTask
     {
     public:
+        SubMissionTask() = default;
+
         SubMissionTask(
             const std::string& _task_name
         ) : MissionTask(_task_name, false){}

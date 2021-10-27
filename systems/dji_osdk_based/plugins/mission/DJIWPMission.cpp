@@ -23,8 +23,8 @@ class DJIWPMission::Impl
 public:
     std::vector<DJI::OSDK::WaypointV2>          _dji_wps;
     std::vector<DJI::OSDK::DJIWaypointV2Action> _dji_actions;
-    std::shared_ptr<RSDKWaypoint::WPMission>    _raw_mission;
     std::unordered_map<size_t, DJIActionEvent>  _action_map;
+    bool                                        _is_valid;
 
     void clear()
     {
@@ -65,7 +65,7 @@ public:
         return yaw > 180 ? yaw - 360 : yaw;
     }
 
-    template<size_t> static bool _convert_item(const ::RSDKWaypoint::WPMItem& item, std::shared_ptr<DJIWPMission>& mission)
+    template<size_t> static bool _convert_item(const rmw::WPMItem& item, DJIWPMission& mission)
     {
         return false;
     }
@@ -73,17 +73,17 @@ public:
 
 template<> bool DJIWPMission::Impl::_convert_item
 <CMD_NAV_WAYPOINT>
-(const ::RSDKWaypoint::WPMItem& item, std::shared_ptr<DJIWPMission>& mission)
+(const rmw::WPMItem& item, DJIWPMission& mission)
 {
     using namespace DJI::OSDK;
     DJI::OSDK::WaypointV2 dji_wp;
     wp_common_set(dji_wp);
 
-    auto wait_time          = item.get<::RSDKWaypoint::ItemParam::PARAM_1>();
-    auto yaw_degree         = item.get<::RSDKWaypoint::ItemParam::PARAM_4>();
-    auto item_x             = item.get<::RSDKWaypoint::ItemParam::PARAM_5>();
-    auto item_y             = item.get<::RSDKWaypoint::ItemParam::PARAM_6>();
-    auto item_z             = item.get<::RSDKWaypoint::ItemParam::PARAM_7>();
+    auto wait_time          = item.get<rmw::ItemParam::PARAM_1>();
+    auto yaw_degree         = item.get<rmw::ItemParam::PARAM_4>();
+    auto item_x             = item.get<rmw::ItemParam::PARAM_5>();
+    auto item_y             = item.get<rmw::ItemParam::PARAM_6>();
+    auto item_z             = item.get<rmw::ItemParam::PARAM_7>();
 
     // 大疆是弧度制的。为了兼容PX4 经纬度是一个uint32类型的整数
     dji_wp.latitude         = item_x / 1e7 * M_PI / 180.0;
@@ -91,8 +91,8 @@ template<> bool DJIWPMission::Impl::_convert_item
     dji_wp.relativeHeight   = item_z;
     dji_wp.heading          = nomoralizeYawAngle(yaw_degree);
 
-    auto& dji_wps           = mission->_impl->_dji_wps;
-    auto& dji_actions       = mission->_impl->_dji_actions;
+    auto& dji_wps           = mission._impl->_dji_wps;
+    auto& dji_actions       = mission._impl->_dji_actions;
 
     if(wait_time > 25.5) 
     {
@@ -109,7 +109,7 @@ template<> bool DJIWPMission::Impl::_convert_item
         event.type = DJIActionEventEnum::Paused;
         event.item_index = dji_wps.size();
         event.adjoint_wp = dji_wps.size();
-        mission->_impl->_action_map[ dji_actions.size() ] = event;
+        mission._impl->_action_map[ dji_actions.size() ] = event;
 
         DJIWaypointV2SampleReachPointTriggerParam reached_trigger;
         reached_trigger.waypointIndex = dji_wps.size();
@@ -139,7 +139,7 @@ template<> bool DJIWPMission::Impl::_convert_item
         event.type = DJIActionEventEnum::Resumed;
         event.item_index = dji_wps.size();
         event.adjoint_wp = dji_wps.size();
-        mission->_impl->_action_map[ dji_actions.size() ] = event;
+        mission._impl->_action_map[ dji_actions.size() ] = event;
 
         DJIWaypointV2AssociateTriggerParam action_associated_trigger;
         action_associated_trigger.actionAssociatedType = DJIWaypointV2TriggerAssociatedTimingTypeAfterFinised;
@@ -172,13 +172,13 @@ template<> bool DJIWPMission::Impl::_convert_item
 
 template<> bool DJIWPMission::Impl::_convert_item
 <CMD_IMAGE_START_CAPTURE>
-(const ::RSDKWaypoint::WPMItem& item, std::shared_ptr<DJIWPMission>& mission)
+(const rmw::WPMItem& item, DJIWPMission& mission)
 {
     using namespace DJI::OSDK;
-    auto& dji_wps           = mission->_impl->_dji_wps;
-    auto& dji_actions       = mission->_impl->_dji_actions;
-    auto item_seq           = item.get<::RSDKWaypoint::ItemParam::SEQUENCE>();
-    auto total_image        = item.get<::RSDKWaypoint::ItemParam::PARAM_3>();
+    auto& dji_wps           = mission._impl->_dji_wps;
+    auto& dji_actions       = mission._impl->_dji_actions;
+    auto item_seq           = item.get<rmw::ItemParam::SEQUENCE>();
+    auto total_image        = item.get<rmw::ItemParam::PARAM_3>();
 
     DJIWaypointV2SampleReachPointTriggerParam reached_trigger;
     reached_trigger.waypointIndex = dji_wps.size() - 1;
@@ -190,7 +190,7 @@ template<> bool DJIWPMission::Impl::_convert_item
 
     if(total_image != 1)
     {
-        mission->_impl->clear();
+        mission._impl->clear();
         // DJIVehicleSystem::publishInfo<::rsdk::SystemInfoLevel::ERROR>(
         //     "DJI Not Support Continuous Photo Params"
         // );
@@ -211,22 +211,19 @@ template<> bool DJIWPMission::Impl::_convert_item
     event.type = DJIActionEventEnum::StartRecordVideo;
     event.item_index = item_seq;
     event.adjoint_wp = dji_wps.size() - 1;
-    mission->_impl->_action_map[ dji_actions.size() ] = event;
+    mission._impl->_action_map[ dji_actions.size() ] = event;
 
     dji_actions.push_back(action);
     return true;
 }
 
-std::shared_ptr<DJIWPMission> DJIWPMission::convertFromStandard(
-    const std::shared_ptr<RSDKWaypoint::WPMission> &standard_mission)
+bool DJIWPMission::convertFromStandard(const rmw::WaypointItems& standard_mission, DJIWPMission& dji_mission)
 {
-    auto dji_mission = std::make_shared<DJIWPMission>();
+    auto& standard_items = standard_mission.getItems();
 
-    auto& standard_items = standard_mission->getItems();
-
-    for( const ::RSDKWaypoint::WPMItem& item : standard_items )
+    for( const rmw::WPMItem& item : standard_items )
     {
-        auto item_cmd = item.get< ::RSDKWaypoint::ItemParam::COMMAND >();
+        auto item_cmd = item.get< rmw::ItemParam::COMMAND >();
 
         // the following cmd id will conflict with first point and last point
         // just throw them
@@ -240,25 +237,49 @@ std::shared_ptr<DJIWPMission> DJIWPMission::convertFromStandard(
         {
         case CMD_NAV_WAYPOINT:
             if(!Impl::_convert_item<CMD_NAV_WAYPOINT>(item, dji_mission))
-                return nullptr;
+            {
+                return false;
+            }
             break;
-
         case CMD_IMAGE_START_CAPTURE:
             if(!Impl::_convert_item<CMD_IMAGE_START_CAPTURE>(item, dji_mission))
-                return nullptr;
+            {
+                return false;
+            }
             break;
         default:
-            return nullptr;
+            return false;
         }
     }
-    dji_mission->_impl->_raw_mission = standard_mission;
-    return dji_mission;
+    return true;
 }
 
 DJIWPMission::DJIWPMission()
 {
     _impl = new Impl();
 }
+
+
+DJIWPMission::DJIWPMission(const DJIWPMission& other)
+{
+    _impl = new Impl(*other._impl);
+}
+
+DJIWPMission::DJIWPMission(DJIWPMission&& other)
+{
+    _impl = new Impl(std::move(*this->_impl));
+}
+
+DJIWPMission& DJIWPMission::operator=(const DJIWPMission& other)
+{
+    *this->_impl = *other._impl;   
+}
+
+DJIWPMission& DJIWPMission::operator=(DJIWPMission&& other)
+{
+    *this->_impl = std::move(*this->_impl);
+}
+
 
 DJIWPMission::~DJIWPMission()
 {
@@ -273,11 +294,6 @@ std::vector< DJI::OSDK::WaypointV2 >& DJIWPMission::djiWayPoints()
 std::vector< DJI::OSDK::DJIWaypointV2Action>& DJIWPMission::djiActions()
 {
     return _impl->_dji_actions;
-}
-
-const std::shared_ptr<RSDKWaypoint::WPMission>& DJIWPMission::rawMission()
-{
-    return _impl->_raw_mission;
 }
 
 bool DJIWPMission::eventType(size_t action_id, DJIActionEvent& dji_action_event)

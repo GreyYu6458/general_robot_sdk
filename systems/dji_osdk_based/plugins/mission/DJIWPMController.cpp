@@ -58,7 +58,7 @@ public:
         _dji_event_wrapper->startListeningDJILowLayerEvent();
     }
 
-    void launch(std::shared_ptr<RSDKWaypoint::WPMission> &mission, rmfw::ExecuteRst &rst)
+    void launch(std::shared_ptr<RSDKWaypoint::WPMission> &mission, rmw::ExecuteRst &rst)
     {
         if (_current_flight_state == sensor_msg::FlightEnum::IN_AIR)
         {
@@ -146,7 +146,7 @@ public:
         return std::string("ErrorMsg:") + msg.errorMsg + ";ModuleMsg:" + msg.moduleMsg + ";SolutionMsg:" + msg.solutionMsg;
     }
 
-    void dji_api_ret_handler(ErrorCode::ErrorCodeType& ret, rmfw::ExecuteRst &rst)
+    void dji_api_ret_handler(ErrorCode::ErrorCodeType& ret, rmw::ExecuteRst &rst)
     {
         if (ret != ErrorCode::SysCommonErr::Success)
         {
@@ -170,7 +170,7 @@ private:
     bool                                            _is_started{false};
     bool                                            _flight_state_listener_available{false};
     DJI::OSDK::WaypointV2MissionOperator*           _dji_mission_operator;
-    DJIWPMController* const                            _owner;
+    DJIWPMController* const                         _owner;
     std::unique_ptr<DJIEventWrapper>                _dji_event_wrapper;
     std::mutex                                      _wait_flight_mutex;
     std::condition_variable                         _wait_flight_cv;
@@ -198,7 +198,7 @@ private:
 
 DJIWPMController::DJIWPMController(const std::shared_ptr<DJIVehicleSystem>& system)
     :   DJIPluginBase(system), 
-        ::rmfw::WPMControllerPlugin(system), 
+        ::rmw::WPMControllerPlugin(system), 
         _impl(new Impl(system, this))
 {
 
@@ -294,15 +294,15 @@ bool DJIWPMController::revent(::rsdk::event::REventParam _event)
 {
     // 如果相机没有使能，直接跳过
     if(!_dji_system->cameraManager().isMainCameraEnable())
-        return rmfw::WPMControllerPlugin::revent(_event);
+        return rmw::WPMControllerPlugin::revent(_event);
 
     static constexpr uint32_t mission_group_id = 
         ::rsdk::event::valueOfCategory<::rsdk::event::EventCategory::MISSION>();
 
     // 新建下载任务，如果已有下载任务在执行，则设置相应标志位
-    if( _event->isEqualToType< mission_group_id , rmfw::TakenPhotoEvent::sub_id>())
+    if( _event->isEqualToType< mission_group_id , rmw::TakenPhotoEvent::sub_id>())
     {
-        auto event = rsdk::event::REventCast<rmfw::TakenPhotoEvent>(_event);
+        auto event = rsdk::event::REventCast<rmw::TakenPhotoEvent>(_event);
 
         auto add_rst = context().addTask( 
             std::make_unique<DJIDownloadPhotoTask>(this)
@@ -330,7 +330,7 @@ bool DJIWPMController::revent(::rsdk::event::REventParam _event)
         );
     }
 
-    return rmfw::WPMControllerPlugin::revent(_event);
+    return rmw::WPMControllerPlugin::revent(_event);
 }
 
 
@@ -349,20 +349,20 @@ bool DJIWPMController::isStarted()
     return _impl->_is_started;
 }
 
-void DJIWPMController::stop(rmfw::ExecuteRst &rst)
+void DJIWPMController::stop(rmw::ExecuteRst &rst)
 {
     ErrorCode::ErrorCodeType ret = _impl->mission_operator()->stop(10);
 
     _impl->dji_api_ret_handler(ret, rst);
 }
 
-void DJIWPMController::pause(rmfw::ExecuteRst &rst)
+void DJIWPMController::pause(rmw::ExecuteRst &rst)
 {
     ErrorCode::ErrorCodeType ret = _impl->mission_operator()->pause(10);
     _impl->dji_api_ret_handler(ret, rst);
 }
 
-void DJIWPMController::resume(rmfw::ExecuteRst &rst)
+void DJIWPMController::resume(rmw::ExecuteRst &rst)
 {
     ErrorCode::ErrorCodeType ret = _impl->mission_operator()->resume(10);
     _impl->dji_api_ret_handler(ret, rst);

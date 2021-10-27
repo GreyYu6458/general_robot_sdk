@@ -69,11 +69,11 @@ int main()
     std::cout << "is uav linked: " << (gnss_proxy.system()->isLink() ? "True" : "False") << std::endl;
     gnss_proxy.start();
 
-    namespace rmfw = rsdk::mission::waypoint;
+    namespace rmw = rsdk::mission::waypoint;
 
     std::this_thread::sleep_for(std::chrono::seconds(3));
 
-    rmfw::WPMControllerProxy mission_proxy(dji_system);
+    rmw::WPMControllerProxy mission_proxy(dji_system);
 
     std::mutex              wait_finish_mutex;
     std::condition_variable wait_finish_cv;
@@ -121,9 +121,9 @@ int main()
         }
     );
 
-    std::shared_ptr<rmfw::WPMission> mission = std::make_shared<rmfw::WPMission>();
+    std::shared_ptr<rmw::WPMission> mission = std::make_shared<rmw::WPMission>();
 
-    rmfw::TakeOffItem takeoff_point;
+    rmw::TakeOffItem takeoff_point;
     takeoff_point.set_x(latitude);
     takeoff_point.set_y(longitude);
     takeoff_point.set_z(20);
@@ -131,39 +131,39 @@ int main()
 
     // 1000 most equal 11.1m
 
-    rmfw::WaypointItem wp_1;
+    rmw::WaypointItem wp_1;
     wp_1.set_hold_time(2);
     wp_1.set_x(latitude + 1000);
     wp_1.set_y(longitude);
     wp_1.set_z(20);
     mission->addItem(wp_1);
 
-    rmfw::WaypointItem wp_2;
+    rmw::WaypointItem wp_2;
     wp_2.set_hold_time(2);
     wp_2.set_x(latitude + 1000);
     wp_2.set_y(longitude + 1000);
     wp_2.set_z(20);
     mission->addItem(wp_2);
 
-    rmfw::WaypointItem wp_3;
+    rmw::WaypointItem wp_3;
     wp_3.set_hold_time(2);
     wp_3.set_x(latitude);
     wp_3.set_y(longitude + 1000);
     wp_3.set_z(20);
     mission->addItem(wp_3);
 
-    rmfw::TakePhotoItem take_photo_item;
+    rmw::TakePhotoItem take_photo_item;
     take_photo_item.set_total_image(1);
     mission->addItem(take_photo_item);
 
-    rmfw::WaypointItem wp_4;
+    rmw::WaypointItem wp_4;
     wp_4.set_hold_time(2);
     wp_4.set_x(latitude);
     wp_4.set_y(longitude);
     wp_4.set_z(20);
     mission->addItem(wp_4);
 
-    rmfw::LandItem land;
+    rmw::LandItem land;
     land.set_x(latitude);
     land.set_y(longitude);
     land.set_z(altitude);

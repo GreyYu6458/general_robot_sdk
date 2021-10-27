@@ -2,12 +2,12 @@
 #define _DOWNLOAD_PHOTO_TASK_HPP_
 #include "p_rsdk/plugins/mission/MissionTask.hpp"
 
-class DJIWPMController;
+class DJIWPMInstance;
 
 class DJIDownloadPhotoTask : public rsdk::mission::SubMissionTask
 {
 public:
-    DJIDownloadPhotoTask(DJIWPMController*);
+    DJIDownloadPhotoTask(DJIWPMInstance*);
 
     virtual ~DJIDownloadPhotoTask();
 

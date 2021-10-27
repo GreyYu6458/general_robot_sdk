@@ -1,32 +1,30 @@
 #include "DownloadPhotoTask.hpp"
-#include "../DJIWPMController.hpp"
+#include "plugins/mission/DJIWPMInstance.hpp"
 
 #include <unordered_set>
 
 class DJIDownloadPhotoTask::Impl
 {
 public:
-    Impl(DJIWPMController* controller)
-    : controller(controller)
+    Impl(DJIWPMInstance* instance)
+    : instance(instance)
     {
 
     }
 
     ::rsdk::mission::TaskExecutionRst taskImpl()
     {
-        auto sync_rst = controller->system()->cameraManager().updateFilesSetSync();
-
-        
+        auto sync_rst = instance->system()->cameraManager().updateFilesSetSync();
 
     }
 
 
-    DJIWPMController* controller;
+    DJIWPMInstance* instance;
 };
 
-DJIDownloadPhotoTask::DJIDownloadPhotoTask(DJIWPMController* controller):
+DJIDownloadPhotoTask::DJIDownloadPhotoTask(DJIWPMInstance* instance):
     rsdk::mission::SubMissionTask("DJI Download Photo Task"),
-    _impl(new Impl(controller))
+    _impl(new Impl(instance))
 {
     setTask(std::bind(&Impl::taskImpl, _impl));
 }

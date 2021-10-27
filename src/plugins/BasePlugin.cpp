@@ -33,7 +33,7 @@ namespace rsdk
      * 
      * @return std::shared_ptr<RobotSystem> 
      */
-    std::shared_ptr<RobotSystem> BasePlugin::system()
+    const std::shared_ptr<RobotSystem>& BasePlugin::system() const
     {
         return _impl->_system_ptr;
     }

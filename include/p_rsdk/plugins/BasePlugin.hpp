@@ -29,7 +29,7 @@ namespace rsdk
          * 
          * @return std::shared_ptr<RobotSystem> 
          */
-        std::shared_ptr<RobotSystem> system();
+        const std::shared_ptr<RobotSystem>& system() const;
 
     private:
         class Impl;
