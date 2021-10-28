@@ -4,9 +4,28 @@
 
 namespace rsdk::mission::waypoint
 {
-    RegistBasePlugin(WPMissionPlugin);
+    RegistBasePlugin(WPMInstancePlugin);
 
-    WPMissionPlugin::WPMissionPlugin(const std::shared_ptr<RobotSystem>& system):
-    Description(system)
-    {}
+    class WPMInstancePlugin::Impl
+    {
+    public:
+        WaypointItems _items;
+    };
+
+
+    WPMInstancePlugin::WPMInstancePlugin(const std::shared_ptr<RobotSystem>& system)
+        :InstancePlugin(system)
+    {
+        
+    }
+
+    void WPMInstancePlugin::setWaypointItems(const WaypointItems& items)
+    {
+        _impl->_items = items;
+    }
+
+    const WaypointItems& WPMInstancePlugin::waypointItems()
+    {
+        return _impl->_items;
+    }
 }

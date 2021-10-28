@@ -87,14 +87,6 @@ namespace rsdk::mission
         _impl->_system          = system;
     }
 
-    InstancePlugin::InstancePlugin(const std::string& id, const std::shared_ptr<RobotSystem>& system)
-    : BasePlugin(system)
-    {
-        _impl = new Impl(this);
-        _impl->_id              = id;
-        _impl->_system          = system;
-    }
-
     void InstancePlugin::setMainTask( const MainMissionTask& task)
     {
         _impl->_main_task_name  = task.taskName();
@@ -116,6 +108,11 @@ namespace rsdk::mission
     void InstancePlugin::startMainTask()
     {
         _impl->__run_task(_impl->_main_task_name);
+    }
+
+    void InstancePlugin::setId(const std::string& id)
+    {
+        _impl->_id = id;
     }
 
     const std::string& InstancePlugin::id()

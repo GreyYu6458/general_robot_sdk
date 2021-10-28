@@ -24,13 +24,9 @@ add_library(
     plugins/BasePlugin.cpp
     plugins/PluginRegister.cpp
     plugins/camera/VideoStreamPlugin.cpp
-
-    plugins/mission/MissionControllerPlugin.cpp
-    plugins/mission/MissionContext.cpp
-    plugins/mission/MissionEvent.cpp
+    plugins/mission/InstancePlugin.cpp
     plugins/mission/MissionTask.cpp
-    plugins/mission/waypoint/WPMControllerPlugin.cpp
-
+    plugins/mission/waypoint/WPMInstancePlugin.cpp
     plugins/collector/collector_plugin_regist.cpp
     
     proxy/BaseProxy.cpp
