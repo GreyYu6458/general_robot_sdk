@@ -1,4 +1,4 @@
-#include "p_rsdk/plugins/mission/Instance.hpp"
+#include "p_rsdk/plugins/mission/InstancePlugin.hpp"
 #include "rsdk/system/RobotSystem.hpp"
 #include "rsdk/event/MissionEvents.hpp"
 
@@ -11,15 +11,15 @@ namespace rsdk::mission
 {
     using TaskMap = std::unordered_map< std::string, std::unique_ptr<MissionTask> >;
 
-    class Instance::Impl
+    class InstancePlugin::Impl
     {
     public:
-        Impl(Instance* owner)
+        Impl(InstancePlugin* owner)
         {
             _owner = owner;  
         }
 
-        Instance*                       _owner;
+        InstancePlugin*                 _owner;
         std::string                     _id;
         std::string                     _main_task_name;
         TaskMap                         _task_map;
@@ -29,14 +29,28 @@ namespace rsdk::mission
         {
             using namespace rsdk::event::mission;
 
-            TaskInfo info;
-            info.mission_info.instance_name     = this->_id;
-            info.detail                         = std::move(rst.detail);
-            info.execute_result                 = rst.rst_type;
-            info.task_name                      = task_ptr->taskName();
-            info.is_main_task                   = task_ptr->isMain();
+            TaskInfo task_info;
+            task_info.mission_info.instance_name     = this->_id;
+            task_info.detail                         = std::move(rst.detail);
+            task_info.execute_result                 = rst.rst_type;
+            task_info.task_name                      = task_ptr->taskName();
+            task_info.is_main_task                   = task_ptr->isMain();
 
-            _system->postEvent(_owner, std::make_shared<TaskEvent>(std::move(info)) );
+            _system->postEvent(
+                _owner, 
+                std::make_shared<TaskEvent>(std::move(task_info)) 
+            );
+
+            // all task done
+            if(!_task_map.size())
+            {
+                typename MissionFinished::payload_type mission_info;
+                mission_info.instance_name = this->_id;
+                _system->postEvent(
+                    _owner, 
+                    std::make_shared<MissionFinished>(std::move(mission_info)) 
+                );
+            }
         }
         
         bool __add_task(const std::string& name,  std::unique_ptr<MissionTask> task)
@@ -62,7 +76,8 @@ namespace rsdk::mission
         }
     };
 
-    Instance::Instance(const std::shared_ptr<RobotSystem>& system)
+    InstancePlugin::InstancePlugin(const std::shared_ptr<RobotSystem>& system)
+    : BasePlugin(system)
     {
         _impl = new Impl(this);
         
@@ -72,48 +87,49 @@ namespace rsdk::mission
         _impl->_system          = system;
     }
 
-    Instance::Instance(const std::string& id, const std::shared_ptr<RobotSystem>& system)
+    InstancePlugin::InstancePlugin(const std::string& id, const std::shared_ptr<RobotSystem>& system)
+    : BasePlugin(system)
     {
         _impl = new Impl(this);
         _impl->_id              = id;
         _impl->_system          = system;
     }
 
-    void Instance::setMainTask( const MainMissionTask& task)
+    void InstancePlugin::setMainTask( const MainMissionTask& task)
     {
         _impl->_main_task_name  = task.taskName();
         _impl->__add_task(task.taskName(), std::make_unique<MainMissionTask>(task));
     }
 
-    void Instance::setMainTask( const std::string& task_name, const TaskObject& taskobj)
+    void InstancePlugin::setMainTask( const std::string& task_name, const TaskObject& taskobj)
     {
         auto task = std::make_unique<SubMissionTask>(task_name);
         task->setTask(taskobj);
         _impl->__add_task(task_name, std::move(task));
     }
 
-    Instance::~Instance()
+    InstancePlugin::~InstancePlugin()
     {
         delete _impl;
     }
 
-    void Instance::startMainTask()
+    void InstancePlugin::startMainTask()
     {
         _impl->__run_task(_impl->_main_task_name);
     }
 
-    const std::string& Instance::id()
+    const std::string& InstancePlugin::id()
     {
         return _impl->_id;
     }
 
-    Instance::AddTaskRst Instance::runSubtask(const SubMissionTask& task)
+    InstancePlugin::RunSubtaskRst InstancePlugin::runSubtask(const SubMissionTask& task)
     {
         if(!_impl->__add_task(task.taskName(), std::make_unique<SubMissionTask>(task)))
-            return AddTaskRst::CONFLICT;
+            return RunSubtaskRst::CONFLICT;
 
         _impl->__run_task(task.taskName());
-        return AddTaskRst::SUCCESS;
+        return RunSubtaskRst::SUCCESS;
     }
 
     /**
@@ -122,15 +138,15 @@ namespace rsdk::mission
      * @param task_name 
      * @param is_main 
      */
-    Instance::AddTaskRst Instance::runSubtask(const std::string& task_name, const TaskObject& obj)
+    InstancePlugin::RunSubtaskRst InstancePlugin::runSubtask(const std::string& task_name, const TaskObject& obj)
     {
         auto task = std::make_unique<SubMissionTask>(task_name);
         task->setTask(obj);
         
         if(_impl->__add_task(task_name, std::move(task)))
-            return AddTaskRst::CONFLICT;
+            return RunSubtaskRst::CONFLICT;
 
         _impl->__run_task(task_name);
-        return AddTaskRst::SUCCESS;
+        return RunSubtaskRst::SUCCESS;
     }
 }

@@ -143,7 +143,7 @@ bool DJIWPMInstance::revent(::rsdk::event::REventParam _event)
             DJIDownloadPhotoTask(this)
         );
 
-        if(add_rst != AddTaskRst::SUCCESS)
+        if(add_rst != RunSubtaskRst::SUCCESS)
         {
             _impl->_photo_event_not_handle = true;
         }

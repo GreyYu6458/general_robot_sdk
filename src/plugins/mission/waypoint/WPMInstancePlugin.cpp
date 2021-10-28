@@ -1,4 +1,4 @@
-#include "p_rsdk/plugins/mission/waypoint/WPMissionPlugin.hpp"
+#include "p_rsdk/plugins/mission/waypoint/WPMInstancePlugin.hpp"
 #include "p_rsdk/plugins/PluginRegister.hpp"
 
 

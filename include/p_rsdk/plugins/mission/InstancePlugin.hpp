@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rsdk/robject/RObject.hpp"
+#include "p_rsdk/plugins/BasePlugin.hpp"
 #include "Description.hpp"
 #include "MissionTask.hpp"
 
@@ -13,41 +13,35 @@ namespace rsdk::mission
 {
     class Description;
 
-    class Instance : public rsdk::RObject
+    class InstancePlugin : public rsdk::BasePlugin
     {
         friend class Description;
     public:
 
         /**
-         * @brief Construct a new Instance object
+         * @brief Construct a new InstancePlugin object
          * 
          * @param desc 
          */
-        Instance(const std::shared_ptr<RobotSystem>&);
+        explicit InstancePlugin(const std::shared_ptr<RobotSystem>&);
 
         /**
-         * @brief Construct a new Instance object
+         * @brief Construct a new InstancePlugin object
          * 
          * @param desc 
          */
-        Instance(const std::string&, const std::shared_ptr<RobotSystem>&);
+        InstancePlugin(const std::string&, const std::shared_ptr<RobotSystem>&);
 
         /**
-         * @brief Destroy the Instance object
+         * @brief Destroy the InstancePlugin object
          * 
          */
-        virtual ~Instance();
+        virtual ~InstancePlugin();
 
         /**
          * @brief 
          * 
-         */
-        void startMainTask();
-
-        /**
-         * @brief 
-         * 
-         * @return const std::string& 
+         * @return const std::string&
          */
         const std::string& id();
 
@@ -66,7 +60,18 @@ namespace rsdk::mission
          */
         void setMainTask( const std::string& task_name, const TaskObject& taskobj);
 
-        enum class AddTaskRst
+
+        /**
+         * @brief 开始主任务，一个Mission的实例以main task启动开始，所有task结束代表mission Instance结束。
+         *                      
+         */
+        void startMainTask();
+
+        /**
+         * @brief 添加task的结果，success代表任务添加成功，conflict代表有同名task正在进行中。
+         * 
+         */
+        enum class RunSubtaskRst
         {
             SUCCESS,
             CONFLICT
@@ -75,7 +80,7 @@ namespace rsdk::mission
         /**
          * @brief Set the Main Task object
          */
-        AddTaskRst runSubtask(const SubMissionTask&);
+        RunSubtaskRst runSubtask(const SubMissionTask&);
 
         /**
          * @brief 重载的
@@ -83,7 +88,7 @@ namespace rsdk::mission
          * @param task_name 
          * @param is_main 
          */
-        AddTaskRst runSubtask(const std::string& task_name, const TaskObject&);
+        RunSubtaskRst runSubtask(const std::string& task_name, const TaskObject&);
 
         class Impl;
         Impl* _impl;

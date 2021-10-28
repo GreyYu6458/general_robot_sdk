@@ -308,7 +308,7 @@ bool DJIWPMController::revent(::rsdk::event::REventParam _event)
             std::make_unique<DJIDownloadPhotoTask>(this)
         );
 
-        if(add_rst != rsdk::mission::MissionContext::AddTaskRst::SUCCESS)
+        if(add_rst != rsdk::mission::MissionContext::RunSubtaskRst::SUCCESS)
         {
             _impl->_photo_event_not_handle = true;
         }
