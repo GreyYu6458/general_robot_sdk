@@ -3,33 +3,38 @@
 #include <cstdint>
 #include <memory>
 #include <functional>
+#include <tuple>
+
+#include "REventType.hpp"
 
 namespace rsdk::event
 {
     class BaseREvent
     {
-        friend class RobotSystem;
-        friend class BasePlugin;
-
     public:
-        BaseREvent(uint32_t gid, uint32_t sid);
+        BaseREvent(uint64_t type);
 
         virtual ~BaseREvent();
 
-        uint32_t groupId() const;
-
-        uint32_t subId() const;
+        /**
+         * @brief 事件类型
+         * 
+         * @return EventType 
+         */
+        uint64_t type();
 
         /**
-         * @brief   calculate by groupid and subid
-         *          see EventIdCal
+         * @brief 事件生成时被控系统的时间
          * 
-         * @return uint64_t 
+         * @return int64_t 
          */
-        uint64_t id() const;
-
         int64_t systemTime() const;
 
+        /**
+         * @brief 事件生成的主机时间
+         * 
+         * @return int64_t 
+         */
         int64_t hostTime() const;
 
         /**
@@ -38,26 +43,6 @@ namespace rsdk::event
          * @param time 
          */
         void setSystemTime(int64_t time);
-
-        template<uint32_t b_id, uint32_t s_id>
-        static inline constexpr uint64_t EventIdCal()
-        {
-            return (((uint64_t)(b_id & UINT32_MAX)) << 32) | ( s_id & UINT32_MAX);
-        }
-        
-        /**
-         * @brief 
-         * 
-         * @tparam b_id 
-         * @tparam s_id 
-         * @return true 
-         * @return false 
-         */
-        template<uint32_t b_id, uint32_t s_id>
-        inline bool isEqualToType()
-        {
-            return id() == EventIdCal<b_id, s_id>();
-        }
 
         /**
          * @brief   if true, event will not send to up level handler,
@@ -68,7 +53,20 @@ namespace rsdk::event
          */
         bool isIgnored();
 
-    protected:
+        /**
+         * @brief name of event
+         * 
+         * @return const char* 
+         */
+        virtual const char* event_name() = 0;
+
+        /**
+         * @brief 获取任意类型的payload,这是不安全的
+         *        如果事件不带有负载，返回nullptr
+         * 
+         * @return void* 
+         */
+        virtual void* payload_unsafe() = 0;
 
         /**
          * @brief Set the Ignore object
@@ -90,8 +88,8 @@ namespace rsdk::event
 #ifndef __USE_UNIQUE_EVENT_MODEL
     using REventPtr = std::shared_ptr<BaseREvent>;
     using REventParam = const REventPtr&;
-    template<class T>
-    static inline typename 
+
+    template<class T> static inline typename 
     std::enable_if< std::is_base_of<BaseREvent, T>::value, std::shared_ptr<T> >::type
     REventCast(REventParam _e)
     {
@@ -103,6 +101,77 @@ namespace rsdk::event
     using REventParam = REventPtr&;
 #endif
     using REventCBType = std::function<void (REventParam)>;
+
+    template<uint64_t I, class Payload>
+    class ConcreteEvent : public BaseREvent
+    {
+    public:
+        static constexpr uint64_t event_type = I;
+        using payload_type = Payload;
+
+        explicit ConcreteEvent(const payload_type& payload)
+            : BaseREvent(I), _payload(payload){}
+
+        explicit ConcreteEvent(payload_type&& payload)
+            : BaseREvent(I), _payload(payload){}
+
+        payload_type& payload()
+        {
+            return _payload;
+        }
+        
+        void* payload_unsafe() override
+        {
+            return &_payload;
+        }
+
+    private:
+        Payload _payload;
+    };
+
+    template<uint64_t I> 
+    class ConcreteEvent<I, void> : public BaseREvent
+    {
+    public:
+        static constexpr uint64_t event_type = I;
+        
+        ConcreteEvent()
+            : BaseREvent(I){}
+
+        void* payload_unsafe() override
+        {
+            return nullptr;
+        }
+    };
+
 }
+
+/**
+ * @brief 带有负载类型的事件定义
+ * 
+ */
+#define EventDefine(name, event_type, payload) \
+    template<> const char* nameOf<event_type>(){return #name ; }; \
+    class name : public ConcreteEvent< static_cast<uint64_t>(event_type), payload > \
+    { \
+    public: \
+        name (typename ConcreteEvent::payload_type& payload): \
+            ConcreteEvent(payload){} \
+        const char* event_name() override{return nameOf<event_type>();} \
+    }; \
+    template<> struct typeOf<event_type>{ typedef name type; }; \
+
+/**
+ * @brief 没有任何负载的事件定义
+ * 
+ */
+#define EventDefineNoPayload(name, event_type) \
+    template<> const char* nameOf<event_type>(){return #name ; }; \
+    class name : public ConcreteEvent< static_cast<uint64_t>(event_type), void > \
+    { \
+    public: \
+        const char* event_name() override{return nameOf<event_type>();} \
+    }; \
+    template<> struct typeOf<event_type>{ typedef name type; }; \
 
 #endif

@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <tuple>
 #include <cmath>
+#include "ItemEnum.hpp"
 
 namespace rsdk::mission::waypoint
 {
@@ -126,7 +127,12 @@ namespace rsdk::mission::waypoint
         inline void set_sequance(typename ItemTypeMap<ItemParam::SEQUENCE>::type seq)
         {
             set<ItemParam::SEQUENCE>(seq);
-        } 
+        }
+
+        inline void set_command(MavMissionItems item)
+        {
+            set<ItemParam::COMMAND>( static_cast<uint16_t>(item) );
+        }
 
     private:
         ItemStructType item;
@@ -171,7 +177,7 @@ namespace rsdk::mission::waypoint
     public:
         TakeOffItem()
         {
-            set<ItemParam::COMMAND>(22);
+            set_command(MavMissionItems::NAV_TAKEOFF);
             set<ItemParam::CURRENT>(1);
         }
 
@@ -186,7 +192,7 @@ namespace rsdk::mission::waypoint
     public:
         LandItem()
         {
-            set<ItemParam::COMMAND>(21);
+            set_command(MavMissionItems::NAV_LAND);
         }
 
         inline void set_abort_alt(typename ItemTypeMap<ItemParam::PARAM_1>::type value)
@@ -205,7 +211,7 @@ namespace rsdk::mission::waypoint
     public:
         WaypointItem()
         {
-            set<ItemParam::COMMAND>(16);
+            set_command(MavMissionItems::NAV_WAYPOINT);
         }
 
         inline void set_hold_time(typename ItemTypeMap<ItemParam::PARAM_1>::type value)
@@ -233,7 +239,7 @@ namespace rsdk::mission::waypoint
     public:
         TakePhotoItem()
         {
-            set<ItemParam::COMMAND>(2000); // MAV_CMD_IMAGE_START_CAPTURE
+            set_command(MavMissionItems::IMAGE_START_CAPTURE);
         }
 
         inline void set_interval(typename ItemTypeMap<ItemParam::PARAM_2>::type value)

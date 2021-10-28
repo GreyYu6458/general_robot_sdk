@@ -4,16 +4,16 @@
 #include "rsdk/system/SystemLinkMethods.hpp"
 #include "DJIVehicleSystem.hpp"
 
-#include "rsdk/proxy/telemetry/Attitude.hpp"
-#include "rsdk/proxy/telemetry/Avoid.hpp"
-#include "rsdk/proxy/telemetry/Battery.hpp"
-#include "rsdk/proxy/telemetry/GNSSReceiver.hpp"
-#include "rsdk/proxy/telemetry/GNSSUncertainInfo.hpp"
-#include "rsdk/proxy/telemetry/FlyingRbtSt.hpp"
+#include "rsdk/proxy/collector/Attitude.hpp"
+#include "rsdk/proxy/collector/Avoid.hpp"
+#include "rsdk/proxy/collector/Battery.hpp"
+#include "rsdk/proxy/collector/GNSSReceiver.hpp"
+#include "rsdk/proxy/collector/GNSSUncertainInfo.hpp"
+#include "rsdk/proxy/collector/FlyingRbtSt.hpp"
 
 namespace callbacks{
 
-    using namespace rsdk::telemetry;
+    using namespace rsdk::collector;
 
 void onAttitudeDataUpdate(const AttitudeProxy::msg_type& msg)
 {
@@ -104,12 +104,12 @@ int main()
     
     dji_system->link(config);
 
-    rsdk::telemetry::AttitudeProxy              attitude_proxy(dji_system);
-    rsdk::telemetry::AvoidanceProxy             avoidance_proxy(dji_system);
-    rsdk::telemetry::BatteryProxy               battery_proxy(dji_system);
-    rsdk::telemetry::GNSSReceiverProxy          gnss_proxy(dji_system);
-    rsdk::telemetry::GNSSUncertainInfoProxy     gnssu_proxy(dji_system);
-    rsdk::telemetry::FlyingRobotStatusProxy     fs_proxy(dji_system);
+    rsdk::collector::AttitudeProxy              attitude_proxy(dji_system);
+    rsdk::collector::AvoidanceProxy             avoidance_proxy(dji_system);
+    rsdk::collector::BatteryProxy               battery_proxy(dji_system);
+    rsdk::collector::GNSSReceiverProxy          gnss_proxy(dji_system);
+    rsdk::collector::GNSSUncertainInfoProxy     gnssu_proxy(dji_system);
+    rsdk::collector::FlyingRobotStatusProxy     fs_proxy(dji_system);
     
     attitude_proxy.subscribe(&callbacks::onAttitudeDataUpdate);
     avoidance_proxy.subscribe(&callbacks::onAvoidanceDataUpdata);

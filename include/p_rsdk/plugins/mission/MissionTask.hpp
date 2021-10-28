@@ -3,21 +3,14 @@
 #include <iostream>
 #include <functional>
 #include <memory>
+#include "rsdk/event/MissionEvents.hpp"
 
 namespace rsdk::mission
 {
-    enum class TaskExecutionRstType
-    {
-        SUCCESS,
-        START_FAILED,
-        TASK_INTERRUPTTED,
-        UNKONOW
-    };
-
     struct TaskExecutionRst
     {
-        TaskExecutionRstType    rst;
-        std::string             detail;
+        rsdk::event::TaskEventType  rst_type;
+        std::string                 detail;
     };
 
     class MissionTask;

@@ -91,9 +91,9 @@ add_library(
     plugins/mission/DJIWPMission.cpp
     plugins/mission/tasks/DownloadPhotoTask.cpp
 
-    plugins/telemetry/DJIBattery.cpp
-    plugins/telemetry/DJIGPSTime.cpp
-    plugins/telemetry/DJISensors_Impl.cpp
+    plugins/collector/DJIBattery.cpp
+    plugins/collector/DJIGPSTime.cpp
+    plugins/collector/DJISensors_Impl.cpp
 )
 
 add_dependencies(

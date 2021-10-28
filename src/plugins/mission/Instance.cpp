@@ -1,8 +1,6 @@
 #include "p_rsdk/plugins/mission/Instance.hpp"
-#include "p_rsdk/plugins/mission/events/TaskFinishedEvent.hpp"
-#include "p_rsdk/plugins/mission/events/TaskStartedEvent.hpp"
-#include "p_rsdk/plugins/mission/events/AllTaskFinishedEvent.hpp"
 #include "rsdk/system/RobotSystem.hpp"
+#include "rsdk/event/MissionEvents.hpp"
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -26,57 +24,21 @@ namespace rsdk::mission
         std::string                     _main_task_name;
         TaskMap                         _task_map;
         std::shared_ptr<RobotSystem>    _system;
-        std::unique_ptr<Description>    _description;
 
         void taskCallback(const MissionTask* task_ptr, const TaskExecutionRst& rst)
         {
-            const auto& task_name = task_ptr->taskName();
-            bool is_main = task_ptr->isMain();
-            auto event = ::rsdk::event::REventPtr();
-            switch(rst.rst)
-            {
-                case TaskExecutionRstType::START_FAILED:
-                {
-                    event = std::make_shared<::rsdk::mission::TaskStartedEvent>(
-                        task_name,
-                        is_main,
-                        false,
-                        rst.detail
-                    );
-                    _system->info("[task] :" + task_name + " start failed");
-                    break;
-                }
-                case TaskExecutionRstType::TASK_INTERRUPTTED:
-                {
-                    event = std::make_shared<::rsdk::mission::TaskFinishedEvent>(
-                        task_name,
-                        is_main,
-                        false,
-                        rst.detail
-                    );
-                    _system->info("[task] :" + task_name + " interrupted");
-                    break;
-                }
-                case TaskExecutionRstType::SUCCESS:
-                {
-                    event = std::make_shared<::rsdk::mission::TaskFinishedEvent>(
-                        task_name,
-                        is_main,
-                        true,
-                        rst.detail
-                    );
-                    _system->info("[task] :" + task_name + " start success");
-                    break;
-                }
-            }
-            // send task finished event
-            if(event)
-            {
-                _system->postEvent(_owner, event);
-            }
+            using namespace rsdk::event::mission;
+
+            TaskInfo info;
+            info.mission_info.instance_name     = this->_id;
+            info.detail                         = std::move(rst.detail);
+            info.execute_result                 = rst.rst_type;
+            info.task_name                      = task_ptr->taskName();
+            info.is_main_task                   = task_ptr->isMain();
+
+            _system->postEvent(_owner, std::make_shared<TaskEvent>(std::move(info)) );
         }
         
-
         bool __add_task(const std::string& name,  std::unique_ptr<MissionTask> task)
         {
             if(!_task_map.count(name))
@@ -90,7 +52,7 @@ namespace rsdk::mission
         void __run_task(const std::string& name)
         {
             _task_map[name]->execute(
-                std::bind( 
+                std::bind(
                     &Impl::taskCallback, 
                     this,
                     std::placeholders::_1, 
@@ -155,7 +117,7 @@ namespace rsdk::mission
     }
 
     /**
-     * @brief 重载的
+     * @brief 
      * 
      * @param task_name 
      * @param is_main 
@@ -164,6 +126,7 @@ namespace rsdk::mission
     {
         auto task = std::make_unique<SubMissionTask>(task_name);
         task->setTask(obj);
+        
         if(_impl->__add_task(task_name, std::move(task)))
             return AddTaskRst::CONFLICT;
 

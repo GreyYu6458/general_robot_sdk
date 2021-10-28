@@ -1,11 +1,11 @@
-#include "rsdk/proxy/telemetry/Attitude.hpp"
-#include "rsdk/proxy/telemetry/Avoid.hpp"
-#include "rsdk/proxy/telemetry/Battery.hpp"
-#include "rsdk/proxy/telemetry/GNSSReceiver.hpp"
-#include "rsdk/proxy/telemetry/GNSSUncertainInfo.hpp"
-#include "rsdk/proxy/telemetry/FlyingRbtSt.hpp"
+#include "rsdk/proxy/collector/Attitude.hpp"
+#include "rsdk/proxy/collector/Avoid.hpp"
+#include "rsdk/proxy/collector/Battery.hpp"
+#include "rsdk/proxy/collector/GNSSReceiver.hpp"
+#include "rsdk/proxy/collector/GNSSUncertainInfo.hpp"
+#include "rsdk/proxy/collector/FlyingRbtSt.hpp"
 
-#include "p_rsdk/plugins/telemetry/telemetryPlugins.hpp"
+#include "p_rsdk/plugins/collector/CollectorPlugins.hpp"
 #include "p_rsdk/plugins/PluginRegister.hpp"
 #include "rsdk/system/RobotSystem.hpp"
 
@@ -18,7 +18,7 @@
         plugin<x ## Plugin>()->subscribe(cb); \
     } \
 
-namespace rsdk::telemetry
+namespace rsdk::collector
 {    
     TelemetryProxyDefine(Attitude)
     

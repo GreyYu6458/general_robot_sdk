@@ -9,14 +9,13 @@
 #include <boost/format.hpp>
 #include <future>
 
-#include "plugins/telemetry/DJIBattery.hpp"
-#include "plugins/telemetry/DJIAvoid.hpp"
-#include "plugins/telemetry/DJIFlightStatus.hpp"
-#include "plugins/telemetry/DJIAttitude.hpp"
-#include "plugins/telemetry/DJIGNSS.hpp"
-#include "plugins/telemetry/DJIGNSSUncertain.hpp"
-#include "plugins/telemetry/DJIGPSTime.hpp"
-#include "plugins/mission/DJIWPMController.hpp"
+#include "plugins/collector/DJIBattery.hpp"
+#include "plugins/collector/DJIAvoid.hpp"
+#include "plugins/collector/DJIFlightStatus.hpp"
+#include "plugins/collector/DJIAttitude.hpp"
+#include "plugins/collector/DJIGNSS.hpp"
+#include "plugins/collector/DJIGNSSUncertain.hpp"
+#include "plugins/collector/DJIGPSTime.hpp"
 #include "plugins/camera/DJIVideoStream.hpp"
 
 using DJILinker = DJI::OSDK::Linker;
@@ -41,13 +40,13 @@ class DJIVehicleSystem::SystemImpl
 private:
     void registALLPlugin()
     {
-        REGIST_PLUGIN(DJIAttitude,          rsdk::telemetry::AttitudePlugin);
-        REGIST_PLUGIN(DJIAvoid,             rsdk::telemetry::AvoidancePlugin);
-        REGIST_PLUGIN(DJIBatteryWrapper,    rsdk::telemetry::BatteryPlugin);
-        REGIST_PLUGIN(DJIGNSSReceiver,      rsdk::telemetry::GNSSReceiverPlugin);
-        REGIST_PLUGIN(DJIGNSSUncertain,     rsdk::telemetry::GNSSUncertainInfoPlugin);
-        REGIST_PLUGIN(DJIFlightStatus,      rsdk::telemetry::FlyingRobotStatusPlugin);
-        REGIST_PLUGIN(DJIWPMController,     rsdk::mission::waypoint::WPMControllerPlugin);
+        REGIST_PLUGIN(DJIAttitude,          rsdk::collector::AttitudePlugin);
+        REGIST_PLUGIN(DJIAvoid,             rsdk::collector::AvoidancePlugin);
+        REGIST_PLUGIN(DJIBatteryWrapper,    rsdk::collector::BatteryPlugin);
+        REGIST_PLUGIN(DJIGNSSReceiver,      rsdk::collector::GNSSReceiverPlugin);
+        REGIST_PLUGIN(DJIGNSSUncertain,     rsdk::collector::GNSSUncertainInfoPlugin);
+        REGIST_PLUGIN(DJIFlightStatus,      rsdk::collector::FlyingRobotStatusPlugin);
+        // REGIST_PLUGIN(DJIWPMController,     rsdk::mission::waypoint::WPMControllerPlugin);
         REGIST_PLUGIN(DJIVideoStream,       rsdk::camera::VideoStreamPlugin);
     }
 

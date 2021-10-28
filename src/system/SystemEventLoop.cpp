@@ -37,6 +37,9 @@ namespace rsdk
                     _cv.wait( ulck );
                 }
 
+                if(_thread_quit)
+                    break;
+
                 while(!_event_queue.empty())
                 {
                     auto& event_wrapper = _event_queue.front();
@@ -51,8 +54,8 @@ namespace rsdk
 
         void pushEvent(REventWrapper& event_wrapper)
         {
+            // use std::try_to_lock because Push action may invoked in the same thread
             std::unique_lock<std::mutex> ulck(_queue_wait_mutex, std::try_to_lock);
-            // use std::try_to_lock because may push in same thread
             _event_queue.push(std::move(event_wrapper));
             _cv.notify_all();
         }

@@ -21,9 +21,8 @@ namespace rsdk
         std::mutex _sub_mutex;
 
         ::rsdk::event::REventCBType         _callbacks;
-
         std::shared_ptr<RobotSystem>        _sys;
-        std::shared_ptr<BasePlugin>    _plugin;
+        std::shared_ptr<BasePlugin>         _plugin;
     };
 
     BaseProxy::BaseProxy(
@@ -31,6 +30,7 @@ namespace rsdk
             const std::shared_ptr<BasePlugin>& plugin
     ): _impl(new Impl(system, plugin))
     {
+        plugin->installEventFilter(this);
     }
 
     BaseProxy::~BaseProxy()
@@ -43,9 +43,22 @@ namespace rsdk
         return _impl->_sys;
     }
 
+    void BaseProxy::setEventListener(const rsdk::event::REventCBType& cb, 
+            EventDistributeMethod method = EventDistributeMethod::DIRECT)
+    {
+        std::lock_guard<std::mutex> lck(_impl->_sub_mutex);
+        _impl->_callbacks = cb;
+    }
+
     std::shared_ptr<BasePlugin>    BaseProxy::_plugin()
     {
         return _impl->_plugin;
+    }
+
+    bool BaseProxy::eventFilter(RObject*, ::rsdk::event::REventParam event)
+    {
+        std::lock_guard<std::mutex> lck(_impl->_sub_mutex);
+        _impl->_callbacks(event);
     }
 
     bool BaseProxy::isLoaded()

@@ -8,15 +8,15 @@ namespace rsdk::event
     class BaseREvent::Impl
     {
     public:
-        Impl(uint32_t gid, uint32_t sid)
-        :   gid(gid),
-            sid(sid)
+        Impl(uint64_t _type)
+        :   type(_type)
         {
             using namespace ::std::chrono;
             host_time = mirco_timestamp();
         }
 
         std::atomic<bool> is_ignore{false};
+        uint64_t type;
         int64_t system_time;
         int64_t host_time;
         uint64_t  id;
@@ -24,10 +24,10 @@ namespace rsdk::event
         uint32_t sid;
     };
 
-    BaseREvent::BaseREvent(uint32_t gid, uint32_t sid)
-    : _impl(new Impl(gid, sid))
+    BaseREvent::BaseREvent(uint64_t _type)
+    : _impl(new Impl(_type))
     {
-        _impl->id = (((uint64_t)(gid & UINT32_MAX) << 32)) | ( sid & UINT32_MAX);
+        
     }
     
     BaseREvent::~BaseREvent()
@@ -35,20 +35,10 @@ namespace rsdk::event
         delete _impl;
     }
 
-    uint32_t BaseREvent::groupId() const
+    uint64_t BaseREvent::type()
     {
-        return _impl->gid;
-    }
-
-    uint32_t BaseREvent::subId() const
-    {
-        return _impl->sid;
-    }
-
-    uint64_t BaseREvent::id() const
-    {
-        return _impl->id;
-    }
+        return _impl->type;
+    } 
 
     void BaseREvent::setSystemTime(int64_t time)
     {

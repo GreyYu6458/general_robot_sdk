@@ -1,7 +1,7 @@
 #include "DJIWPMController.hpp"
 #include "DJIWPMission.hpp"
 #include "DJIEventWrapper.hpp"
-#include "rsdk/proxy/telemetry/FlyingRbtSt.hpp"
+#include "rsdk/proxy/collector/FlyingRbtSt.hpp"
 #include "p_rsdk/plugins/mission/MissionEvent.hpp"
 #include "p_rsdk/plugins/mission/MissionTask.hpp"
 #include "p_rsdk/plugins/mission/MissionContext.hpp"
@@ -188,7 +188,7 @@ private:
 
     sensor_msg::FlightEnum                          _last_flight_state;
     sensor_msg::FlightEnum                          _current_flight_state;
-    ::rsdk::telemetry::FlyingRobotStatusProxy       _state_listener;
+    ::rsdk::collector::FlyingRobotStatusProxy       _state_listener;
     std::mutex                                      _event_mutex;
     std::vector<::rsdk::event::REventCBType>        _event_callbacks;
 

@@ -2,14 +2,10 @@
 #include <thread>
 #include "rsdk/system/RobotSystem.hpp"
 #include "rsdk/system/SystemLinkMethods.hpp"
-#include "rsdk/proxy/mission/waypoint/WPMControllerProxy.hpp"
 #include "rsdk/proxy/mission/waypoint/WPMItem.hpp"
 
-#include "rsdk/proxy/PluginsIndex.hpp"
-#include "p_rsdk/plugins/mission/MissionEvent.hpp"
-
 #include "DJIVehicleSystem.hpp"
-#include "rsdk/proxy/telemetry/GNSSReceiver.hpp"
+#include "rsdk/proxy/collector/GNSSReceiver.hpp"
 #include <condition_variable>
 #include <mutex>
 
@@ -19,7 +15,7 @@ static double   altitude;
 
 namespace callbacks{
 
-    using namespace rsdk::telemetry;
+    using namespace rsdk::collector;
     void onGNSSDataUpdate(const GNSSReceiverProxy::msg_type& msg)
     {
         longitude = static_cast<uint32_t>( msg.longitude * 1e7 );
@@ -64,7 +60,7 @@ int main()
     
     dji_system->link(config);
 
-    rsdk::telemetry::GNSSReceiverProxy gnss_proxy(dji_system);
+    rsdk::collector::GNSSReceiverProxy gnss_proxy(dji_system);
     gnss_proxy.subscribe(&callbacks::onGNSSDataUpdate);
     std::cout << "is uav linked: " << (gnss_proxy.system()->isLink() ? "True" : "False") << std::endl;
     gnss_proxy.start();

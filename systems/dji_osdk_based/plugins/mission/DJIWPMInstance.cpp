@@ -5,7 +5,7 @@
 #include <dji_waypoint_v2.hpp>
 #include <mutex>
 
-#include "rsdk/proxy/telemetry/FlyingRbtSt.hpp"
+#include "rsdk/proxy/collector/FlyingRbtSt.hpp"
 #include "tasks/DownloadPhotoTask.hpp"
 
 #include "p_rsdk/plugins/mission/events/TaskStartedEvent.hpp"

@@ -31,7 +31,7 @@ add_library(
     plugins/mission/MissionTask.cpp
     plugins/mission/waypoint/WPMControllerPlugin.cpp
 
-    plugins/telemetry/telemetry_plugin_regist.cpp
+    plugins/collector/collector_plugin_regist.cpp
     
     proxy/BaseProxy.cpp
     proxy/camera/VideoStream.cpp
@@ -39,6 +39,6 @@ add_library(
     proxy/mission/waypoint/WPMControllerProxy.cpp
     proxy/mission/waypoint/WPMission.cpp
     
-    proxy/telemetry/telemetry.cpp
+    proxy/collector/collector.cpp
 )
 

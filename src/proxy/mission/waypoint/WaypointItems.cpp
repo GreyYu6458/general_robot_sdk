@@ -19,26 +19,24 @@ namespace rsdk::mission::waypoint
     }
 
     WaypointItems::WaypointItems(const WaypointItems& other)
+    : _impl (new Impl(*other._impl))
     {
-        _impl = new Impl();
-        _impl->_items = other._impl->_items;
     }
 
     WaypointItems::WaypointItems(WaypointItems&& other)
     {
-        _impl = new Impl();
-        _impl->_items = std::move(other._impl->_items);
+        _impl = new Impl(std::move(*other._impl));
     }
 
     WaypointItems& WaypointItems::operator=(const WaypointItems& other)
     {
-        _impl->_items = other._impl->_items;
+        *(_impl) = *(other._impl);
         return *this;
     }
 
     WaypointItems& WaypointItems::operator=(WaypointItems&& other)
     {
-        _impl->_items = other._impl->_items;
+        *_impl = std::move(*other._impl);
         return *this;
     }
 
@@ -55,7 +53,6 @@ namespace rsdk::mission::waypoint
         {
             addItem(item);
         }
-        // _impl->_items.insert( _impl->_items.end(), items.begin(), items.end() );
         return *this;
     }
 
