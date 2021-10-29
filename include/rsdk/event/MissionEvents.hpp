@@ -2,6 +2,18 @@
 
 #include "REvent.hpp"
 
+EventField(
+    EventCategory::MISSION,
+    rsdk::event::mission,
+    MissionEvent,
+    MISSION_TASK,
+    MISSION_TOTAL_FINISHED,
+    /* enums */
+    WAYPOINT_MISSION_PAUSED,
+    WAYPOINT_MISSION_RESUMED,
+    WAYPOINT_MISSION_TAKEN_PHOTO
+)
+
 namespace rsdk::event::mission
 {
     struct MissionInfo

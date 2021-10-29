@@ -9,7 +9,8 @@ namespace rsdk::mission::waypoint
     class WPMInstancePlugin::Impl
     {
     public:
-        WaypointItems _items;
+        WaypointItems   _items;
+        std::string     _media_path;
     };
 
 
@@ -27,5 +28,15 @@ namespace rsdk::mission::waypoint
     const WaypointItems& WPMInstancePlugin::waypointItems()
     {
         return _impl->_items;
+    }
+
+    void WPMInstancePlugin::setMediaRootPath(const std::string& path)
+    {
+        _impl->_media_path = path;
+    }
+
+    const std::string& WPMInstancePlugin::mediaRootPath()
+    {
+        return _impl->_media_path;
     }
 }

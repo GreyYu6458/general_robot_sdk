@@ -6,11 +6,10 @@
 #include <mutex>
 
 #include "rsdk/proxy/collector/FlyingRbtSt.hpp"
-#include "tasks/DownloadPhotoTask.hpp"
+#include "rsdk/event/MissionEvents.hpp"
 
-#include "p_rsdk/plugins/mission/events/TaskStartedEvent.hpp"
-#include "p_rsdk/plugins/mission/waypoint/events/TakenPhotoEvent.hpp"
-#include "p_rsdk/plugins/mission/events/TaskFinishedEvent.hpp"
+#include "tasks/DJIWPMMainTask.hpp"
+#include "tasks/DownloadPhotoTask.hpp"
 
 class DJIWPMInstance::Impl
 {
@@ -22,11 +21,11 @@ public:
         _dji_mission_operator = _system->vehicle()->waypointV2Mission;
     }
 
-    void startMission(rsdk::mission::CMDExecRst& rst)
+    void startMission(rsdk::mission::StageRst& rst)
     {   
-        if(DJIWPMission::convertFromStandard(_raw_waypoint, _dji_mission))
+        if(DJIWPMission::convertFromStandard(_owner->waypointItems(), _dji_mission))
         {
-            rst.is_success = false;
+            rst.type = rsdk::mission::StageRstType::FAILED;
             rst.detail = "Can not convert waypoint from standard waypoint items";
             return;
         }
@@ -34,7 +33,9 @@ public:
         WayPointV2InitSettings missionInitSettings;
         missionInitSettings.missionID = rand();
         missionInitSettings.repeatTimes = 0;
-        missionInitSettings.finishedAction = DJIWaypointV2MissionFinishedAutoLanding;
+        missionInitSettings.finishedAction = _dji_mission.autoReturnHome() ? 
+                                                DJIWaypointV2MissionFinishedGoHome : 
+                                                DJIWaypointV2MissionFinishedAutoLanding;
         missionInitSettings.maxFlightSpeed = 5;
         missionInitSettings.autoFlightSpeed = 2;
         missionInitSettings.exitMissionOnRCSignalLost = 1;
@@ -47,7 +48,7 @@ public:
         ErrorCode::ErrorCodeType ret = _dji_mission_operator->init(&missionInitSettings, 10);
         if (ret != ErrorCode::SysCommonErr::Success)
         {
-            rst.is_success = false;
+            rst.type = rsdk::mission::StageRstType::FAILED;
             rst.detail = djiRet2String(ret);
             return;
         }
@@ -55,7 +56,7 @@ public:
         ret = _dji_mission_operator->uploadMission(10);
         if (ret != ErrorCode::SysCommonErr::Success)
         {
-            rst.is_success = false;
+            rst.type = rsdk::mission::StageRstType::FAILED;
             rst.detail = djiRet2String(ret);
             return;
         }
@@ -63,7 +64,7 @@ public:
         ret = _dji_mission_operator->uploadAction(_dji_mission.djiActions(), 10);
         if (ret != ErrorCode::SysCommonErr::Success)
         {
-            rst.is_success = false;
+            rst.type = rsdk::mission::StageRstType::FAILED;
             rst.detail = djiRet2String(ret);
             return;
         }
@@ -71,14 +72,15 @@ public:
         ret = _dji_mission_operator->start(10);
         if (ret != ErrorCode::SysCommonErr::Success)
         {
-            rst.is_success = false;
+            rst.type = rsdk::mission::StageRstType::FAILED;
             rst.detail = djiRet2String(ret);
             return;
         }
 
         _total_wp = missionInitSettings.missTotalLen;
-        _total_repeated_times = missionInitSettings.repeatTimes + 1;
-        rst.is_success = true;
+        
+        _total_repeated_times = missionInitSettings.repeatTimes;
+        rst.type = rsdk::mission::StageRstType::SUCCESS;
         rst.detail = "Success";
     }
 
@@ -90,7 +92,6 @@ public:
 
     std::shared_ptr<DJIVehicleSystem>               _system;
     DJI::OSDK::WaypointV2MissionOperator*           _dji_mission_operator;
-    rmw::WaypointItems                              _raw_waypoint;
     DJIWPMission                                    _dji_mission;
     DJIWPMInstance*                                 _owner;
 
@@ -102,23 +103,14 @@ public:
 };
 
 DJIWPMInstance::DJIWPMInstance(
-    const std::shared_ptr<DJIVehicleSystem>& system,
-    const rmw::WaypointItems& dji_mission
-) : rsdk::mission::Instance(system)
+    const std::shared_ptr<DJIVehicleSystem>& system
+) : rsdk::mission::waypoint::WPMInstancePlugin(system)
 {
     _impl = new Impl(this, system);
-    _impl->_raw_waypoint = dji_mission;
+
+    setMainTask( std::make_unique<DJIWPMMainTask>() );
 }
 
-DJIWPMInstance::DJIWPMInstance(
-    const std::string& id,
-    const std::shared_ptr<DJIVehicleSystem>& system,
-    const rmw::WaypointItems& dji_mission
-) : rsdk::mission::Instance(id, system)
-{
-    _impl = new Impl(this, system);
-    _impl->_raw_waypoint = dji_mission;
-}
 
 DJIWPMInstance::~DJIWPMInstance()
 {
@@ -127,21 +119,18 @@ DJIWPMInstance::~DJIWPMInstance()
 
 bool DJIWPMInstance::revent(::rsdk::event::REventParam _event)
 {
+    using namespace rsdk::event;
+    using namespace rsdk::mission;
     // 如果相机没有使能，直接跳过
     if(!system()->cameraManager().isMainCameraEnable())
-        return rsdk::mission::Instance::revent(_event);
-
-    static constexpr uint32_t mission_group_id = 
-        ::rsdk::event::valueOfCategory<::rsdk::event::EventCategory::MISSION>();
+        return waypoint::WPMInstancePlugin::revent(_event);
 
     // 新建下载任务，如果已有下载任务在执行，则设置相应标志位
-    if( _event->isEqualToType< mission_group_id , rmw::TakenPhotoEvent::sub_id>())
+    if( _event->type() == mission::WPMTakenPhotoEvent::event_type)
     {
-        auto event = rsdk::event::REventCast<rmw::TakenPhotoEvent>(_event);
+        auto event = rsdk::event::REventCast<mission::WPMTakenPhotoEvent>(_event);
 
-        auto add_rst = runSubtask( 
-            DJIDownloadPhotoTask(this)
-        );
+        auto add_rst = runSubtask( std::make_unique<DJIDownloadPhotoTask>(this) );
 
         if(add_rst != RunSubtaskRst::SUCCESS)
         {
@@ -155,43 +144,75 @@ bool DJIWPMInstance::revent(::rsdk::event::REventParam _event)
     }
     // 任务结束，还有拍摄事件未响应，则新建一个下载任务
     else if(
-        _event->isEqualToType< mission_group_id , rsdk::mission::TaskFinishedEvent::sub_id>()
-        && std::static_pointer_cast<rsdk::mission::TaskFinishedEvent>(_event)->is_main()
+        _event->type() == mission::TaskEvent::event_type
+        && rsdk::event::REventCast<mission::TaskEvent>(_event)->payload().is_main_task
         && _impl->_photo_event_not_handle
     )
     {
-        runSubtask( 
-            DJIDownloadPhotoTask(this)
-        );
+        runSubtask( std::make_unique<DJIDownloadPhotoTask>(this) );
     }
 
-    return rsdk::mission::Instance::revent(_event);
+    // TODO 还有一种情况没有考虑到，任务结束，
+    // TODO 上一次下载任务还在继续，但是在上一次下载任务后，有新的照片产生。这个时候人会有遗漏的照片
+
+    return waypoint::WPMInstancePlugin::revent(_event);
 }
 
-
-void DJIWPMInstance::start( rsdk::mission::CMDExecRst&  )
+rsdk::mission::StageRst DJIWPMInstance::launchImpl()
 {
-    setMainTask(
-        "DJI Waypoint Mission V2",
-        [this]()-> ::rsdk::mission::TaskExecutionRst
-        {
-        }
-    );
+    rsdk::mission::StageRst impl_rst;
+
+    _impl->startMission(impl_rst);
+
+    return impl_rst;
 }
 
-void DJIWPMInstance::stop( rsdk::mission::CMDExecRst&  )
+void DJIWPMInstance::pause(const rsdk::mission::ControlCallback& cb)
 {
+    rsdk::mission::ControlResult rst;
 
+    auto ret = _impl->_dji_mission_operator->pause(10);
+
+    rst.is_success = (ret == ErrorCode::SysCommonErr::Success);
+    rst.detail = Impl::djiRet2String(ret);
+
+    cb(rst);
 }
 
-void DJIWPMInstance::pause( rsdk::mission::CMDExecRst&  )
+void DJIWPMInstance::resume(const rsdk::mission::ControlCallback& cb)
 {
+    rsdk::mission::ControlResult rst;
 
+    auto ret = _impl->_dji_mission_operator->resume(10);
+
+    rst.is_success = (ret == ErrorCode::SysCommonErr::Success);
+    rst.detail = Impl::djiRet2String(ret);
+    
+    cb(rst);
 }
 
-void DJIWPMInstance::resume( rsdk::mission::CMDExecRst&  )
+void DJIWPMInstance::stop(const rsdk::mission::ControlCallback& cb)
 {
+    rsdk::mission::ControlResult rst;
 
+    auto ret = _impl->_dji_mission_operator->stop(10);
+
+    rst.is_success = (ret == ErrorCode::SysCommonErr::Success);
+    rst.detail = Impl::djiRet2String(ret);
+    
+    cb(rst);
+}
+
+void DJIWPMInstance::return2home(const rsdk::mission::ControlCallback& cb)
+{
+    rsdk::mission::ControlResult rst;
+
+    auto ret = _impl->_system->vehicle()->flightController->startGoHomeSync(10);
+
+    rst.is_success = (ret == ErrorCode::SysCommonErr::Success);
+    rst.detail = Impl::djiRet2String(ret);
+    
+    cb(rst);
 }
 
 const std::shared_ptr<DJIVehicleSystem>& DJIWPMInstance::system()

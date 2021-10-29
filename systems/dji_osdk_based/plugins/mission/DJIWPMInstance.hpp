@@ -1,13 +1,11 @@
 #pragma once
 #include "DJIVehicleSystem.hpp"
-#include "p_rsdk/plugins/mission/Instance.hpp"
-#include "rsdk/proxy/mission/InstanceInterfaces.hpp"
+#include "p_rsdk/plugins/mission/waypoint/WPMInstancePlugin.hpp"
 #include "DJIWPMission.hpp"
 
 class DJIWPMInstance : 
-    public ::rsdk::mission::Instance, 
-    public ::rsdk::mission::ControllableInstance
-{
+    public rsdk::mission::waypoint::WPMInstancePlugin
+{   
 public:
     /**
      * @brief Construct a new DJIWPMInstance object
@@ -17,22 +15,7 @@ public:
      * @param dji_mission 
      */
     DJIWPMInstance(
-        const std::shared_ptr<DJIVehicleSystem>& system,
-        const rmw::WaypointItems& waypoint
-    );
-
-    /**
-     * @brief Construct a new DJIWPMInstance object
-     * 
-     * @param id 
-     * @param task 
-     * @param system
-     * @param dji_mission
-     */
-    DJIWPMInstance(
-        const std::string& id,
-        const std::shared_ptr<DJIVehicleSystem>& system,
-        const rmw::WaypointItems& waypoint
+        const std::shared_ptr<DJIVehicleSystem>& system
     );
 
     /**
@@ -41,13 +24,16 @@ public:
      */
     virtual ~DJIWPMInstance();
 
-    void start( rsdk::mission::CMDExecRst&  ) override;
+    rsdk::mission::StageRst launchImpl();
 
-    void stop( rsdk::mission::CMDExecRst&  ) override;
+    // TODO 如下三个接口是同步实现，以后可以尝试异步
+    void pause(const  rsdk::mission::ControlCallback&) override;
 
-    void pause( rsdk::mission::CMDExecRst&  ) override;
+    void resume(const rsdk::mission::ControlCallback&) override;
 
-    void resume( rsdk::mission::CMDExecRst&  ) override;
+    void stop(const   rsdk::mission::ControlCallback&) override;
+
+    void return2home(const rsdk::mission::ControlCallback&) override;
 
     const std::shared_ptr<DJIVehicleSystem>& system();
 

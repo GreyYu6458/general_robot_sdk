@@ -18,7 +18,6 @@ public:
 
     }
 
-
     DJIWPMInstance* instance;
 };
 
@@ -26,10 +25,33 @@ DJIDownloadPhotoTask::DJIDownloadPhotoTask(DJIWPMInstance* instance):
     rsdk::mission::SubMissionTask("DJI Download Photo Task"),
     _impl(new Impl(instance))
 {
-    setTask(std::bind(&Impl::taskImpl, _impl));
+    
 }
 
 DJIDownloadPhotoTask::~DJIDownloadPhotoTask()
 {
     delete _impl;
+}
+
+
+/**
+ * @brief 启动阶段, 同步文件
+ * 
+ * @return true 
+ * @return false 
+ */
+rsdk::mission::StageRst DJIDownloadPhotoTask::start_stage()
+{
+    
+}
+
+/**
+ * @brief 执行阶段, 下载文件
+ * 
+ * @return true 
+ * @return false 
+ */
+rsdk::mission::StageRst DJIDownloadPhotoTask::executing_stage()
+{
+    
 }

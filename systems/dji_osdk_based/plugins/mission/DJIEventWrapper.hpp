@@ -24,5 +24,4 @@ private:
     Impl* _impl;
 };
 
-
 #endif

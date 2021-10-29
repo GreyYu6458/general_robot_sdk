@@ -4,13 +4,15 @@
 #include <functional>
 #include <memory>
 #include "rsdk/event/MissionEvents.hpp"
+#include "TaskListener.hpp"
+#include "rsdk/robject/RObject.hpp"
 
 namespace rsdk::mission
 {
     struct TaskExecutionRst
     {
-        rsdk::event::TaskEventType  rst_type;
-        std::string                 detail;
+        rsdk::event::mission::TaskEventType  rst_type;
+        std::string                          detail;
     };
 
     class MissionTask;
@@ -19,11 +21,14 @@ namespace rsdk::mission
     using TaskFinishedCb    = std::function<void (const MissionTask*, const TaskExecutionRst&)>;
 
     /**
-     * @brief   用于描述耗时的计算任务和IO任务，会作为一个线程执行
+     * @brief   Task 本身是一个被约束了行为的线程，
+     *          他需要子类实现start_stage以及executing_stage两个虚方法
+     *          用于描述耗时的计算任务和IO任务
+     *          TODO 增加TASK的状态查询
+     *          TODO 提供标志位，告诉实现的子类应该中断任务
      */
-    class MissionTask
+    class MissionTask : public RObject
     {
-        friend class MissionContext;
     public:
         MissionTask();
 
@@ -39,49 +44,10 @@ namespace rsdk::mission
         );
 
         /**
-         * @brief Copy Constructor, Don't copy run state
-         * 
-         */
-        MissionTask(const MissionTask&);
-
-        /**
-         * @brief Move Constructor, Will move run state
-         * 
-         */
-        MissionTask(MissionTask&&);
-
-        /**
-         * @brief Copy assignment, Don't copy run state
-         * 
-         * @return MissionTask& 
-         */
-        MissionTask& operator=(const MissionTask&);
-        
-        /**
-         * @brief Move assignment, Will move run state
-         * 
-         * @return MissionTask& 
-         */
-        MissionTask& operator=(const MissionTask&&);
-
-        /**
          * @brief Destroy the Back Ground Task object
          * 
          */
         virtual ~MissionTask();
-
-        /**
-         * @brief Set the Task object
-         * 
-         * @param _func 
-         */
-        void setTask(const TaskObject&  _func);
-
-        /**
-         * @brief 是否是空Task
-         * 
-         */
-        bool emptyTask();
 
         /**
          * @brief name of task
@@ -102,7 +68,25 @@ namespace rsdk::mission
          * @brief 开始在一个新的线程中执行任务
          * 
          */
-        void execute(const TaskFinishedCb&);
+        void execute(TaskListener*);
+
+
+    protected:
+        /**
+         * @brief 启动阶段
+         * 
+         * @return true 
+         * @return false 
+         */
+        virtual StageRst start_stage() = 0;
+
+        /**
+         * @brief 执行阶段
+         * 
+         * @return true 
+         * @return false 
+         */
+        virtual StageRst executing_stage() = 0;
 
     private:
 

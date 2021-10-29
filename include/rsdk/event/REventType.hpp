@@ -22,88 +22,22 @@ namespace rsdk::event
         return static_cast<uint64_t>(I);
     }
 
-    namespace system
-    {
-        static constexpr uint64_t enum_start    = valueOf<EventCategory::SYSTEM>();
-        enum class SystemEvent : uint64_t
-        {
-            /* system events */
-            SYSTEM_LINKED                       = enum_start,
-            SYSTEM_DISLINKED,
-            SYSTEM_IN_DANGER,
-            COUNT
-        };
-        
-        static constexpr uint64_t enum_end      = static_cast<uint64_t>(SystemEvent::COUNT);
+#define ENUM_CLASS_HELPER(category, enum_class_name, first, ...)    \
+    static constexpr uint64_t enum_start    = valueOf<category>();  \
+    enum class enum_class_name : uint64_t                           \
+    {                                                               \
+        first = enum_start,                                         \
+        __VA_ARGS__,                                                \
+        COUNT                                                       \
+    };                                                              \
+    static constexpr uint64_t enum_end = static_cast<uint64_t>(enum_class_name::COUNT);
 
-        template<SystemEvent I> struct typeOf;
-        template<SystemEvent I> const char* nameOf();
-    }
-
-    namespace mission{
-        static constexpr uint64_t enum_start    = valueOf<EventCategory::MISSION>();
-
-        enum class MissionEvent : uint64_t
-        {
-            /* mission events */
-            MISSION_TASK                        = enum_start,
-            MISSION_TOTAL_FINISHED,
-                /* waypoint item events */
-            WAYPOINT_MISSION_PAUSED,
-            WAYPOINT_MISSION_RESUMED,
-            WAYPOINT_MISSION_TAKEN_PHOTO,
-            COUNT
-        };
-
-        static constexpr uint64_t enum_end      = static_cast<uint64_t>(MissionEvent::COUNT);
-
-        template<MissionEvent I> struct typeOf;
-        template<MissionEvent I> const char* nameOf();
-    }
-
-    namespace collector
-    {
-        static constexpr uint64_t enum_start    = valueOf<EventCategory::COLLECTOR>();
-
-        enum class CollectorEvent : uint64_t
-        {
-            /* telemetry */
-            COLLECTOR_START_WORK                = enum_start,
-            COLLECTOR_STOP_WORK,
-            TELEMETRY_BATTERY,                
-            TELEMETRY_GLOBAL_POSITION,
-            TELEMETRY_LOCAL_POSITION,
-            TELEMETRY_FLIGHT_STATUS,
-            TELEMETRY_RANGE_FINDER,
-            TELEMETRY_ATTITUDE,
-            TELEMETRY_GNSS_STATUS,
-            COUNT
-        };
-
-        static constexpr uint64_t enum_end      = static_cast<uint64_t>(CollectorEvent::COUNT);
-
-        template<CollectorEvent I> struct typeOf;
-        template<CollectorEvent I> const char* nameOf();
-    }
-
-    namespace payload
-    {
-        static constexpr uint64_t enum_start    = valueOf<EventCategory::PAYLOAD>();
-
-        enum class PayloadEvent : uint64_t
-        {
-            /* payload */
-            CAMERA_TAKEN_PHOTO                  = enum_start,
-            CAMERA_SAVED_PHOTO,
-            START_RECORD,
-            STOP_RECORD,
-            COUNT
-        };
-
-        static constexpr uint64_t enum_end      = static_cast<uint64_t>(PayloadEvent::COUNT);
-
-        template<PayloadEvent I> struct typeOf;
-        template<PayloadEvent I> const char* nameOf();
+#define EventField(category, ns, enum_class_name, ...)              \
+    namespace ns                                                    \
+    {                                                               \
+        ENUM_CLASS_HELPER(category, enum_class_name, __VA_ARGS__)   \
+        template<enum_class_name I> struct typeOf;                  \
+        template<enum_class_name I> const char* nameOf();           \
     }
 }
 

@@ -57,7 +57,7 @@ namespace rsdk::mission::waypoint
 
     template<>          struct ItemTypeMap<ItemParam::COMMAND>
     { 
-        typedef uint16_t  type;
+        typedef MavMissionItems  type;
         type    dvalue    {0};
     };
 
@@ -131,7 +131,7 @@ namespace rsdk::mission::waypoint
 
         inline void set_command(MavMissionItems item)
         {
-            set<ItemParam::COMMAND>( static_cast<uint16_t>(item) );
+            set<ItemParam::COMMAND>( item );
         }
 
     private:

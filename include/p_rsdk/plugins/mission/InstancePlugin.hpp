@@ -1,8 +1,10 @@
 #pragma once
 
 #include "p_rsdk/plugins/BasePlugin.hpp"
+#include "rsdk/proxy/mission/InstanceState.hpp"
 #include "Description.hpp"
 #include "MissionTask.hpp"
+#include "TaskListener.hpp"
 
 namespace rsdk
 {
@@ -11,11 +13,15 @@ namespace rsdk
 
 namespace rsdk::mission
 {
-    class Description;
-
-    class InstancePlugin : public rsdk::BasePlugin
+    /**
+     * @brief 
+     *          设计点:在Instance中产生的sub task，不会影响状态的判断
+     *          
+     */
+    class InstancePlugin : 
+        public rsdk::BasePlugin, 
+        public TaskListener
     {
-        friend class Description;
     public:
 
         /**
@@ -39,6 +45,13 @@ namespace rsdk::mission
         void setId(const std::string&);
 
         /**
+        * @brief 返回当前状态
+        * 
+        * @return InstanceState 
+        */
+        InstanceState state();
+
+        /**
          * @brief 
          * 
          * @return const std::string&
@@ -51,23 +64,36 @@ namespace rsdk::mission
          */
         void startMainTask();
 
+        /**
+         * @brief Set the State Changed Callback object
+         * 
+         */
+        void setStateChangedCallback(const std::function<void (InstanceState)>&);
+
+        /**
+         * @brief 
+         * 
+         * @param rst 
+         */
+        void OnStartStageFinished(MissionTask*, StageRst rst) override;
+
+        /**
+         * @brief 
+         * 
+         * @param rst 
+         */
+        void OnExecutingStageFinished(MissionTask*,StageRst rst) override;
+
     protected:
 
         /**
-         * @brief Set the Main Task object
+         * @brief   设置main task 主要给子类调用，
+         *          传入unique_ptr是为了保证instance的生命周期长于task
          * 
          * @param task 
          */
-        void setMainTask( const MainMissionTask& task);
-
-        /**
-         * @brief Set the Main Task object
-         * 
-         * @param task 
-         */
-        void setMainTask( const std::string& task_name, const TaskObject& taskobj);
-
-
+        void setMainTask(std::unique_ptr<MainMissionTask> task);
+        
         /**
          * @brief 添加task的结果，success代表任务添加成功，conflict代表有同名task正在进行中。
          * 
@@ -79,17 +105,9 @@ namespace rsdk::mission
         };
 
         /**
-         * @brief Set the Main Task object
+         * @brief 运行子任务，如果同名子任务在运行，则返回RunSubtaskRst::CONFLICT
          */
-        RunSubtaskRst runSubtask(const SubMissionTask&);
-
-        /**
-         * @brief 重载的
-         * 
-         * @param task_name 
-         * @param is_main 
-         */
-        RunSubtaskRst runSubtask(const std::string& task_name, const TaskObject&);
+        RunSubtaskRst runSubtask(std::unique_ptr<SubMissionTask>);
 
         class Impl;
         Impl* _impl;

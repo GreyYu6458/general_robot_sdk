@@ -1,4 +1,6 @@
 #include "p_rsdk/plugins/mission/MissionTask.hpp"
+#include "p_rsdk/plugins/mission/TaskListener.hpp"
+#include "InstancePlugin.hpp"
 #include <thread>
 #include <atomic>
 
@@ -13,16 +15,20 @@ namespace rsdk::mission
                 task_thread.join();
         }
 
-        bool                is_main;
-        TaskObject          task_object;
-        TaskFinishedCb      on_finished_cb;
-        std::string         task_name;
-        std::thread         task_thread;
+        bool                    is_main;
+        bool                    is_running{false};
+        TaskListener*           listener{nullptr};
+        TaskFinishedCb          on_finished_cb;
+        std::string             task_name;
+        std::thread             task_thread;
+
+        rsdk::mission::StageRst start_stage_rst{StageRstType::UNEXECUTE, "UNEXECUTE"};
+        rsdk::mission::StageRst executing_stage_rst{StageRstType::UNEXECUTE, "UNEXECUTE"};
     };
 
     MissionTask::MissionTask()
+    : _impl(new Impl())
     {
-        _impl = new Impl();
         _impl->task_name = "unknow";
         _impl->is_main   = false;
     }
@@ -36,57 +42,9 @@ namespace rsdk::mission
         _impl->is_main      = is_main;
     }
     
-    MissionTask::MissionTask(const MissionTask& other)
-    {
-        _impl = new Impl();
-        _impl->is_main          = other._impl->is_main;
-        _impl->task_name        = other._impl->task_name;
-        _impl->task_object      = other._impl->task_object;
-    }
-
-    MissionTask::MissionTask(MissionTask&& other)
-    {
-        _impl = new Impl();
-        _impl->is_main          = other._impl->is_main;
-        _impl->task_name        = std::move(other._impl->task_name);
-        _impl->task_object      = std::move(other._impl->task_object);
-        _impl->on_finished_cb   = std::move(other._impl->on_finished_cb);
-        _impl->task_thread      = std::move(other._impl->task_thread);
-    }
-
-    MissionTask& MissionTask::operator=(const MissionTask& other)
-    {
-        _impl = new Impl();
-        _impl->is_main          = other._impl->is_main;
-        _impl->task_name        = other._impl->task_name;
-        _impl->task_object      = other._impl->task_object;
-
-        return *this;
-    }
-
-    MissionTask& MissionTask::operator=(const MissionTask&& other)
-    {
-        _impl->is_main          = other._impl->is_main;
-        _impl->task_name        = std::move(other._impl->task_name);
-        _impl->task_object      = std::move(other._impl->task_object);
-        _impl->on_finished_cb   = std::move(other._impl->on_finished_cb);
-        _impl->task_thread      = std::move(other._impl->task_thread);
-        return *this;
-    }
-
     MissionTask::~MissionTask()
     {
         delete _impl;
-    }
-
-    void MissionTask::setTask(const TaskObject&  _func)
-    {
-        _impl->task_object = _func;
-    }
-
-    bool MissionTask::emptyTask()
-    {
-        return _impl->task_object == nullptr;
     }
 
     const std::string& MissionTask::taskName() const
@@ -103,20 +61,28 @@ namespace rsdk::mission
      * @brief 
      * 
      */
-    void MissionTask::execute(const TaskFinishedCb& cb)
+    void MissionTask::execute(TaskListener* listerner)
     {
-        this->_impl->on_finished_cb = cb;
+        if(_impl->is_running)
+            return; // TODO 返回正在运行警告
+
+        _impl->is_running = true;
+        this->_impl->listener = listerner;
         std::thread(
             [this]()
             {
-                // launch task
-                auto rst = this->_impl->task_object();
+                _impl->start_stage_rst = this->start_stage();
 
-                // invoke finished callback if enable
-                if (this->_impl->on_finished_cb)
-                {
-                    this->_impl->on_finished_cb(this, rst);
-                }
+                if(this->_impl->listener)
+                    this->_impl->listener->OnStartStageFinished(this, _impl->start_stage_rst);
+
+                if(_impl->start_stage_rst.type != StageRstType::SUCCESS)
+                    return;
+
+                _impl->executing_stage_rst = this->executing_stage();
+
+                if(this->_impl->listener)
+                    this->_impl->listener->OnExecutingStageFinished(this, _impl->executing_stage_rst);
             }
         ).swap(_impl->task_thread);
     }

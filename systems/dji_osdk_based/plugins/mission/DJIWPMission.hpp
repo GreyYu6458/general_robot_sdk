@@ -25,7 +25,8 @@ public:
     virtual ~DJIWPMission();
 
     /**
-     * @brief 从标准航线构造对象
+     * @brief   将标准航线解释位DJI航线
+     *          TODO 提供更加完善的报错和航点分析
      * 
      * @param standard_mission 
      * @return std::shared_ptr<DJIWPMission> 
@@ -53,6 +54,14 @@ public:
      * @return DJIActionEvent 
      */
     bool eventType(size_t action_id, DJIActionEvent& dji_action_event);
+
+    /**
+     * @brief 在出发点结束任务
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool autoReturnHome();
 
     /**
      * @brief 是否有效

@@ -1,6 +1,15 @@
 #pragma
-
 #include "REvent.hpp"
+
+EventField(
+    EventCategory::SYSTEM,
+    rsdk::event::system,
+    SystemEvent,
+    /* enums */
+    SYSTEM_LINKED,
+    SYSTEM_DISLINKED,
+    SYSTEM_IN_DANGER
+)
 
 namespace rsdk::event::system
 {

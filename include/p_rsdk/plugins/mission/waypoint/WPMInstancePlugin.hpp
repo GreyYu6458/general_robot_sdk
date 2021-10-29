@@ -9,17 +9,38 @@ namespace rsdk::mission::waypoint
                                 public rsdk::mission::Controllable
     {
     public:
+        /**
+         * @brief Construct a new WPMInstancePlugin object
+         * 
+         */
         WPMInstancePlugin(const std::shared_ptr<RobotSystem>&);
 
+        /**
+         * @brief 设置航点
+         * 
+         */
         void setWaypointItems(const WaypointItems&);
 
+        /**
+         * @brief 返回航线航点列表对象
+         * 
+         * @return const WaypointItems& 
+         */
         const WaypointItems& waypointItems();
 
-        virtual void pause(ControlResult&) = 0 ;
+        /**
+         * @brief 设置媒体保存的目录
+         * 
+         * @param path 
+         */
+        void setMediaRootPath(const std::string& path);
 
-        virtual void resume(ControlResult&) = 0 ;
-
-        virtual void stop(ControlResult&) = 0 ;
+        /**
+         * @brief 获取保存媒体的根目录,如果未设置,返回空字符串
+         * 
+         * @return const std::string& 
+         */
+        const std::string& mediaRootPath();
 
     private:
         class Impl;

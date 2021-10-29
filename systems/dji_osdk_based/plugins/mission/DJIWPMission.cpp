@@ -3,20 +3,7 @@
 
 #include <cmath>
 #include <unordered_map>
-
 #include <dji_vehicle.hpp>
-
-enum SupportConvertCMD
-{
-    CMD_NAV_WAYPOINT = 16,
-    CMD_NAV_RETURN_TO_LAUNCH = 20,
-    CMD_NAV_LAND = 21,
-    CMD_NAV_TAKEOFF = 22,
-    CMD_IMAGE_START_CAPTURE = 2000,
-    CMD_IMAGE_STOP_CAPTURE = 2001,
-    CMD_VIDEO_START_CAPTURE = 2500,
-    CMD_VIDEO_STOP_CAPTURE = 2501
-};
 
 class DJIWPMission::Impl
 {
@@ -24,7 +11,8 @@ public:
     std::vector<DJI::OSDK::WaypointV2>          _dji_wps;
     std::vector<DJI::OSDK::DJIWaypointV2Action> _dji_actions;
     std::unordered_map<size_t, DJIActionEvent>  _action_map;
-    bool                                        _is_valid;
+    bool                                        _is_valid{true};
+    bool                                        _autoReturnHome{false};
 
     void clear()
     {
@@ -65,14 +53,14 @@ public:
         return yaw > 180 ? yaw - 360 : yaw;
     }
 
-    template<size_t> static bool _convert_item(const rmw::WPMItem& item, DJIWPMission& mission)
+    template<rmw::MavMissionItems> static bool _convert_item(const rmw::WPMItem& item, DJIWPMission& mission)
     {
         return false;
     }
 };
 
 template<> bool DJIWPMission::Impl::_convert_item
-<CMD_NAV_WAYPOINT>
+<rmw::MavMissionItems::NAV_WAYPOINT>
 (const rmw::WPMItem& item, DJIWPMission& mission)
 {
     using namespace DJI::OSDK;
@@ -171,7 +159,7 @@ template<> bool DJIWPMission::Impl::_convert_item
 }
 
 template<> bool DJIWPMission::Impl::_convert_item
-<CMD_IMAGE_START_CAPTURE>
+<rmw::MavMissionItems::IMAGE_START_CAPTURE>
 (const rmw::WPMItem& item, DJIWPMission& mission)
 {
     using namespace DJI::OSDK;
@@ -219,7 +207,16 @@ template<> bool DJIWPMission::Impl::_convert_item
 
 bool DJIWPMission::convertFromStandard(const rmw::WaypointItems& standard_mission, DJIWPMission& dji_mission)
 {
+    dji_mission._impl->_is_valid = true;
     auto& standard_items = standard_mission.getItems();
+
+    if( // 最后一个航点为 NAV_RETURN_TO_LAUNCH 则置位返航标志位
+        standard_items.back().get<rmw::ItemParam::COMMAND>() 
+        == rmw::MavMissionItems::NAV_RETURN_TO_LAUNCH
+    )
+    {
+        dji_mission._impl->_autoReturnHome = true;
+    }
 
     for( const rmw::WPMItem& item : standard_items )
     {
@@ -228,37 +225,43 @@ bool DJIWPMission::convertFromStandard(const rmw::WaypointItems& standard_missio
         // the following cmd id will conflict with first point and last point
         // just throw them
         if(
-            item_cmd == CMD_NAV_TAKEOFF  ||
-            item_cmd == CMD_NAV_LAND     || 
-            item_cmd == CMD_NAV_RETURN_TO_LAUNCH
+            item_cmd == rmw::MavMissionItems::NAV_TAKEOFF  ||
+            item_cmd == rmw::MavMissionItems::NAV_LAND     || 
+            item_cmd == rmw::MavMissionItems::NAV_RETURN_TO_LAUNCH
         )   continue;
+        
+        bool parse_success_flag = false;
 
         switch ( item_cmd )
         {
-        case CMD_NAV_WAYPOINT:
-            if(!Impl::_convert_item<CMD_NAV_WAYPOINT>(item, dji_mission))
-            {
-                return false;
-            }
+        case rmw::MavMissionItems::NAV_WAYPOINT:
+                parse_success_flag = Impl::_convert_item<
+                    rmw::MavMissionItems::NAV_WAYPOINT
+                >(item, dji_mission);
             break;
-        case CMD_IMAGE_START_CAPTURE:
-            if(!Impl::_convert_item<CMD_IMAGE_START_CAPTURE>(item, dji_mission))
-            {
-                return false;
-            }
+        case rmw::MavMissionItems::IMAGE_START_CAPTURE:
+                parse_success_flag = Impl::_convert_item<
+                    rmw::MavMissionItems::IMAGE_START_CAPTURE
+                >(item, dji_mission);
             break;
         default:
-            return false;
+            break;
         }
+        if(!parse_success_flag)
+            goto fail_flag;
     }
+
     return true;
+
+    fail_flag:
+        dji_mission._impl->_is_valid = false;
+        return false;
 }
 
 DJIWPMission::DJIWPMission()
 {
     _impl = new Impl();
 }
-
 
 DJIWPMission::DJIWPMission(const DJIWPMission& other)
 {
@@ -280,10 +283,14 @@ DJIWPMission& DJIWPMission::operator=(DJIWPMission&& other)
     *this->_impl = std::move(*this->_impl);
 }
 
-
 DJIWPMission::~DJIWPMission()
 {
     delete _impl;
+}
+
+bool DJIWPMission::autoReturnHome()
+{
+    return _impl->_autoReturnHome;
 }
 
 std::vector< DJI::OSDK::WaypointV2 >& DJIWPMission::djiWayPoints()
@@ -304,4 +311,9 @@ bool DJIWPMission::eventType(size_t action_id, DJIActionEvent& dji_action_event)
         return true;
     }
     return false;
+}
+
+bool DJIWPMission::isValid()
+{
+    return _impl->_is_valid;
 }
