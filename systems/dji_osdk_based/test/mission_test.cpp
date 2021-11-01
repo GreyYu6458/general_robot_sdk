@@ -81,6 +81,7 @@ int main()
         [&wait_finish_cv](::rsdk::event::REventParam event)
         {
             using namespace rsdk::event;
+            std::cout << "listened event: " + std::string(event->event_name()) <<  std::endl;;
             if(event->type() == mission::TaskEvent::event_type)
             {
                 const auto& payload = REventCast<mission::TaskEvent>(event)->payload();
@@ -92,7 +93,7 @@ int main()
             }
         }
     );
-
+    mission_proxy.setMediaRootPath("/home/chenhui/");
     rsdk::mission::waypoint::WaypointItems mission;
 
     rmw::TakeOffItem takeoff_point;
@@ -102,7 +103,6 @@ int main()
     mission.addItem(takeoff_point);
 
     // 1000 most equal 11.1m
-
     rmw::WaypointItem wp_1;
     wp_1.set_hold_time(2);
     wp_1.set_x(latitude + 1000);

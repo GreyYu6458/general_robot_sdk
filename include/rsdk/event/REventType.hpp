@@ -22,22 +22,22 @@ namespace rsdk::event
         return static_cast<uint64_t>(I);
     }
 
-#define ENUM_CLASS_HELPER(category, enum_class_name, first, ...)    \
-    static constexpr uint64_t enum_start    = valueOf<category>();  \
-    enum class enum_class_name : uint64_t                           \
-    {                                                               \
-        first = enum_start,                                         \
-        __VA_ARGS__,                                                \
-        COUNT                                                       \
-    };                                                              \
+#define ENUM_CLASS_HELPER(category, enum_class_name, first, ...)        \
+    static constexpr uint64_t enum_start    = valueOf<category>();      \
+    enum class enum_class_name : uint64_t                               \
+    {                                                                   \
+        first = enum_start,                                             \
+        __VA_ARGS__,                                                    \
+        COUNT                                                           \
+    };                                                                  \
     static constexpr uint64_t enum_end = static_cast<uint64_t>(enum_class_name::COUNT);
 
-#define EventField(category, ns, enum_class_name, ...)              \
-    namespace ns                                                    \
-    {                                                               \
-        ENUM_CLASS_HELPER(category, enum_class_name, __VA_ARGS__)   \
-        template<enum_class_name I> struct typeOf;                  \
-        template<enum_class_name I> const char* nameOf();           \
+#define EventField(category, ns, enum_class_name, ...)                  \
+    namespace ns                                                        \
+    {                                                                   \
+        ENUM_CLASS_HELPER(category, enum_class_name, __VA_ARGS__)       \
+        template<enum_class_name I> struct typeOf;                      \
+        template<enum_class_name I> static inline const char* nameOf(); \
     }
 }
 

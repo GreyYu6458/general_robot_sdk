@@ -276,11 +276,13 @@ DJIWPMission::DJIWPMission(DJIWPMission&& other)
 DJIWPMission& DJIWPMission::operator=(const DJIWPMission& other)
 {
     *this->_impl = *other._impl;   
+    return *this;
 }
 
 DJIWPMission& DJIWPMission::operator=(DJIWPMission&& other)
 {
     *this->_impl = std::move(*this->_impl);
+    return *this;
 }
 
 DJIWPMission::~DJIWPMission()

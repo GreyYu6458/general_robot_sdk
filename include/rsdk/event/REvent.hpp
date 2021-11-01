@@ -151,7 +151,7 @@ namespace rsdk::event
  * 
  */
 #define EventDefine(name, event_type, payload) \
-    template<> const char* nameOf<event_type>(){return #name ; }; \
+    template<> inline const char* nameOf<event_type>(){return #name ; }; \
     class name : public ConcreteEvent< static_cast<uint64_t>(event_type), payload > \
     { \
     public: \
@@ -166,7 +166,7 @@ namespace rsdk::event
  * 
  */
 #define EventDefineNoPayload(name, event_type) \
-    template<> const char* nameOf<event_type>(){return #name ; }; \
+    template<> inline const char* nameOf<event_type>(){return #name ; }; \
     class name : public ConcreteEvent< static_cast<uint64_t>(event_type), void > \
     { \
     public: \

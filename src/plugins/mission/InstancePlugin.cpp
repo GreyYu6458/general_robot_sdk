@@ -46,6 +46,24 @@ namespace rsdk::mission
         std::mutex                                  _state_mutex;       // mutex for state
 
         /**
+         * @brief   对终态进行判断(FAILED和FINISHED)
+         * 
+         * @return InstanceState 
+         */
+        InstanceState real_state()
+        {
+            if(_state == InstanceState::FAILED && _sub_task_map.size())
+            {
+                return InstanceState::FAILED_WITH_SUBTASK;
+            }
+            else if (_state == InstanceState::FINISHED && _sub_task_map.size())
+            {
+                return InstanceState::FINISHED_WITH_SUBTASK;
+            }
+            return _state;
+        }
+
+        /**
         *          WAITTING                --(instance start)                                >> STARTING
         *          STARTING                --(success)                                       >> EXECUTING
         *          STARTING                --(failed)                                        >> FAILED(END STATE)
@@ -60,36 +78,25 @@ namespace rsdk::mission
          */
         void mainTaskStartHandle(MissionTask* task, StageRst rst)
         {
-            // 目前状态错误，只能在 STARTING 状态， 这个函数才会被调用
-            if(_state != InstanceState::STARTING)
-            {
-                _state = InstanceState::CHAOS;
-                return;
-            }
+            using namespace rsdk::event::mission;
+
+            MissionInfo mission_info;
+            mission_info.instance_name  = _id;
+
+            auto event = rsdk::event::REventPtr();
             // main task 成功开始
+            
             if(rst.type == StageRstType::SUCCESS)
             {
-                // 任务开始执行
+                event = std::make_shared<MissionStartedEvent>(mission_info);
                 _state = InstanceState::EXECUTING;
             }
             else
             {
-                // 任务失败
+                event = std::make_shared<MissionStartFailedEvent>(mission_info);
                 _state = InstanceState::FAILED;
             }
-        }
-        
-        InstanceState real_state()
-        {
-            if(_state == InstanceState::FAILED && _sub_task_map.size())
-            {
-                return InstanceState::FAILED_WITH_SUBTASK;
-            }
-            else if (_state == InstanceState::FINISHED && _sub_task_map.size())
-            {
-                return InstanceState::FINISHED_WITH_SUBTASK;
-            }
-            return _state;
+            _system->postEvent(_owner, event);
         }
 
         /**
@@ -111,20 +118,23 @@ namespace rsdk::mission
 
         void mainTaskExecutingHandle(MissionTask* task, StageRst rst)
         {
-            if(_state != InstanceState::EXECUTING)
-            {
-                _state = InstanceState::CHAOS;
-                return;
-            }
+            using namespace rsdk::event::mission;
+            auto event = rsdk::event::REventPtr();
+
+            MissionInfo mission_info;
+            mission_info.instance_name  = _id;
 
             if(rst.type == StageRstType::SUCCESS)
             {
+                event = std::make_shared<MissionFinishedEvent>(mission_info);
                 _state = InstanceState::FINISHED;
             }
             else
             {
+                event = std::make_shared<MissionFailedEvent>(mission_info);
                 _state = InstanceState::FAILED;
             }
+            _system->postEvent(_owner, event);
         }
 
         void subtaskExecutingHandle(MissionTask* task, StageRst rst)
@@ -225,7 +235,7 @@ namespace rsdk::mission
         // 如果状态改变, 调用回调
         if(_impl->_last_state != _impl->_state && _impl->_state_changed_cb)
         {
-            _impl->_state_changed_cb(_impl->real_state());
+            _impl->_state_changed_cb(_impl->_state);
         }
     }
 
@@ -237,6 +247,11 @@ namespace rsdk::mission
     const std::string& InstancePlugin::id()
     {
         return _impl->_id;
+    }
+
+    std::unique_ptr<MissionTask>& InstancePlugin::mainTask()
+    {
+        return _impl->_main_task;
     }
 
     /**
@@ -254,6 +269,9 @@ namespace rsdk::mission
      */
     InstancePlugin::RunSubtaskRst InstancePlugin::runSubtask(std::unique_ptr<SubMissionTask> task)
     {
+        if(is_end_state( _impl->real_state() ))
+            return RunSubtaskRst::MISSION_HAS_FINISHED;
+
         return _impl->__run_task(std::move(task)) ?
             RunSubtaskRst::SUCCESS : RunSubtaskRst::CONFLICT;
     }

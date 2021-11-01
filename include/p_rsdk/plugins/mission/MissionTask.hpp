@@ -9,16 +9,8 @@
 
 namespace rsdk::mission
 {
-    struct TaskExecutionRst
-    {
-        rsdk::event::mission::TaskEventType  rst_type;
-        std::string                          detail;
-    };
-
-    class MissionTask;
     
-    using TaskObject        = std::function<TaskExecutionRst (void)>;
-    using TaskFinishedCb    = std::function<void (const MissionTask*, const TaskExecutionRst&)>;
+    class MissionTask;
 
     /**
      * @brief   Task 本身是一个被约束了行为的线程，
@@ -26,6 +18,14 @@ namespace rsdk::mission
      *          用于描述耗时的计算任务和IO任务
      *          TODO 增加TASK的状态查询
      *          TODO 提供标志位，告诉实现的子类应该中断任务
+     * 
+     *          任务的主要流程是，任务启动，开启一个线程，其中运行 start_stage 和 executing_stage
+     *          这两个虚方法。start_stage失败后，会调用listener的OnStartStageFinished函数，并立刻返回，
+     *          否则继续执行executing_stage。
+     * 
+     *          listener为Instance时的情况:
+     *          
+     *          
      */
     class MissionTask : public RObject
     {

@@ -85,11 +85,11 @@ add_library(
   
     plugins/camera/DJIVideoStream.cpp
 
-    plugins/mission/DJIWPMission.cpp
-    plugins/mission/DJIEventWrapper.cpp
-    plugins/mission/DJIWPMController.cpp
-    plugins/mission/DJIWPMission.cpp
+    plugins/mission/tasks/DJIWPMMainTask.cpp
     plugins/mission/tasks/DownloadPhotoTask.cpp
+    plugins/mission/DJIEventWrapper.cpp
+    plugins/mission/DJIWPMInstance.cpp
+    plugins/mission/DJIWPMission.cpp
 
     plugins/collector/DJIBattery.cpp
     plugins/collector/DJIGPSTime.cpp

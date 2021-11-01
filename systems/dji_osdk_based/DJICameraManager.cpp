@@ -28,7 +28,7 @@ public:
         {
             // 同步失败
             file_sync_block->_success_promise.set_value(false);
-        } 
+        }
         else
         {
             // 同步成功
@@ -39,7 +39,7 @@ public:
                     .index = media_file.fileIndex,
                     .type  = media_file.fileType == MediaFileType::JPEG ? DJIFileType::JPG : DJIFileType::OTHERS
                 };
-                // 已经没记录该文件
+                // 没记录该文件
                 if(!file_sync_block->_impl->_camera_files_set.count(wrapper_file))
                 {
                     auto rst = file_sync_block->_impl->_camera_files_set.insert(wrapper_file);
@@ -112,6 +112,7 @@ public:
         auto future = _file_sync_promise.get_future();
 
         FileSyncBlock sync_block{this, _file_sync_promise};
+        std::lock_guard<std::mutex> lck(_system->DJIAPIMutex());
         _system->warning("[system]:Start Downloading File Descriptions In Camera");
         _system->vehicle()->cameraManager->startReqFileList(
             PAYLOAD_INDEX_0,

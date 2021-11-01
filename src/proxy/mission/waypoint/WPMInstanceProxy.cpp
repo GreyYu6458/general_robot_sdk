@@ -21,4 +21,14 @@ namespace rsdk::mission::waypoint
     {
         return PLUGIN->waypointItems();
     }
+
+    void WPMInstanceProxy::setStateChangedCallback(const std::function<void (InstanceState)>& f)
+    {
+        PLUGIN->setStateChangedCallback(f);
+    }
+
+    void WPMInstanceProxy::setMediaRootPath(const std::string& path)
+    {
+        PLUGIN->setMediaRootPath(path);
+    }
 }

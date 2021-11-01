@@ -2,7 +2,6 @@
 
 #include "p_rsdk/plugins/BasePlugin.hpp"
 #include "rsdk/proxy/mission/InstanceState.hpp"
-#include "Description.hpp"
 #include "MissionTask.hpp"
 #include "TaskListener.hpp"
 
@@ -60,7 +59,7 @@ namespace rsdk::mission
 
         /**
          * @brief 开始主任务，一个Mission的实例以main task启动开始，所有task结束代表mission Instance结束。
-         *                      
+         *        
          */
         void startMainTask();
 
@@ -101,13 +100,21 @@ namespace rsdk::mission
         enum class RunSubtaskRst
         {
             SUCCESS,
+            MISSION_HAS_FINISHED,
             CONFLICT
         };
 
         /**
-         * @brief 运行子任务，如果同名子任务在运行，则返回RunSubtaskRst::CONFLICT
+         * @brief   运行子任务，如果同名子任务在运行，则返回RunSubtaskRst::CONFLICT
+         *          如果任务已经结束，则返回 MISSION_HAS_FINISHED
          */
         RunSubtaskRst runSubtask(std::unique_ptr<SubMissionTask>);
+
+        /**
+         * @brief 
+         * 
+         */
+        std::unique_ptr<MissionTask>& mainTask();
 
         class Impl;
         Impl* _impl;

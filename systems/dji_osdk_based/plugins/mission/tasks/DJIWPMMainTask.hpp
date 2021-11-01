@@ -10,6 +10,12 @@ public:
 
     virtual ~DJIWPMMainTask();
 
+    /**
+     * @brief 提示该task,任务终止
+     * 
+     */
+    void notifyExecutingStageFinished(const rsdk::mission::StageRst&);
+
 protected:
     /**
      * @brief 启动阶段

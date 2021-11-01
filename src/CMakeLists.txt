@@ -31,10 +31,9 @@ add_library(
     
     proxy/BaseProxy.cpp
     proxy/camera/VideoStream.cpp
-    proxy/mission/MissionControllerProxy.cpp
-    proxy/mission/waypoint/WPMControllerProxy.cpp
-    proxy/mission/waypoint/WPMission.cpp
-    
+    proxy/mission/MissionInstanceProxy.cpp
+    proxy/mission/waypoint/WaypointItems.cpp
+    proxy/mission/waypoint/WPMInstanceProxy.cpp
     proxy/collector/collector.cpp
 )
 

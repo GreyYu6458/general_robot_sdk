@@ -1,6 +1,6 @@
 #include "p_rsdk/plugins/mission/MissionTask.hpp"
 #include "p_rsdk/plugins/mission/TaskListener.hpp"
-#include "InstancePlugin.hpp"
+#include "p_rsdk/plugins/mission/InstancePlugin.hpp"
 #include <thread>
 #include <atomic>
 
@@ -18,7 +18,6 @@ namespace rsdk::mission
         bool                    is_main;
         bool                    is_running{false};
         TaskListener*           listener{nullptr};
-        TaskFinishedCb          on_finished_cb;
         std::string             task_name;
         std::thread             task_thread;
 

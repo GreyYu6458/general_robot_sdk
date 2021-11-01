@@ -66,9 +66,12 @@ public:
 
     using SyncRst = std::pair<std::vector<const DJIMediaFile*>, bool>;
     
-    // 更新云台文件，这个函数是阻塞的
+    /**
+     * @brief 更新云台数据
+     * 
+     * @return SyncRst 
+     */
     SyncRst updateFilesSetSync();
-
 
 private:
     class Impl;

@@ -8,6 +8,7 @@ namespace rsdk::mission
     {
         SUCCESS,
         FAILED,
+        INTERRUPTTED,
         UNEXECUTE
     };
 
