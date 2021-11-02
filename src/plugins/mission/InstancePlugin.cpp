@@ -254,7 +254,7 @@ namespace rsdk::mission
         _impl->_id = id;
     }
 
-    const std::string& InstancePlugin::id()
+    const std::string& InstancePlugin::id() const
     {
         return _impl->_id;
     }

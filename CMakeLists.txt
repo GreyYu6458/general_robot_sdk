@@ -12,5 +12,5 @@ add_subdirectory(systems)
 
 install(
     DIRECTORY include/rsdk
-    DESTINATION include/rsdk
+    DESTINATION include
 )

@@ -55,7 +55,7 @@ namespace rsdk::mission
          * 
          * @return const std::string&
          */
-        const std::string& id();
+        const std::string& id() const;
 
         /**
          * @brief 开始主任务，一个Mission的实例以main task启动开始，所有task结束代表mission Instance结束。
