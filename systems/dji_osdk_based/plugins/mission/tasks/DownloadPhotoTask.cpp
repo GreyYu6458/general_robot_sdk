@@ -15,6 +15,9 @@ public:
 
     rsdk::mission::StageRst startSyncFiles()
     {
+        // wait photo totally recorded
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+
         auto sync_rst = instance->system()->cameraManager().updateFilesSetSync();
         
         rsdk::mission::StageRst rst;
@@ -25,11 +28,11 @@ public:
             rst.type = rsdk::mission::StageRstType::FAILED;
             return rst;
         }
-        
+
         files_ready_to_download = std::move(sync_rst.first);
 
         rst.detail = "Sync Files In Camera Successfully.";
-        rst.type = rsdk::mission::StageRstType::FAILED;
+        rst.type = rsdk::mission::StageRstType::SUCCESS;
         return rst;
     }
 
@@ -50,8 +53,12 @@ public:
     {
         const auto& save_path = instance->mediaRootPath();
 
+        std::cout << "find " << files_ready_to_download.size() << " new files in camera" << std::endl;
+        for(const auto& file : files_ready_to_download)
+        {
+            std::cout << "find new file:" << file->name << " index:" << file->index << std::endl;
+        }
         rsdk::mission::StageRst rst;
-
         if(save_path.empty())
         {
             rst.detail = "media save path not set";
@@ -63,6 +70,7 @@ public:
 
         for(auto file_ptr: files_ready_to_download)
         {
+            instance->system()->info("Start Downloading File :" + file_ptr->name);
             std::promise<bool> _file_download_promise;
 
             auto future = _file_download_promise.get_future();
@@ -70,8 +78,9 @@ public:
             FileDownloadBlock download_block{this, _file_download_promise};
 
             std::lock_guard<std::mutex>  lck(instance->system()->DJIAPIMutex());
-
+            
             rsdk::event::mission::SavedPhotoInfo info;
+
             info.file_path = save_path + file_ptr->name;
 
             dji_vehicle->cameraManager->startReqFileData(
