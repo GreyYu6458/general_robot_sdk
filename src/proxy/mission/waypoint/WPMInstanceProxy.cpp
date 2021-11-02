@@ -31,4 +31,24 @@ namespace rsdk::mission::waypoint
     {
         PLUGIN->setMediaRootPath(path);
     }
+
+    void WPMInstanceProxy::pause(const ControlCallback& f)
+    {
+        PLUGIN->pause(f);
+    }
+
+    void WPMInstanceProxy::resume(const ControlCallback& f)
+    {
+        PLUGIN->resume(f);
+    }
+
+    void WPMInstanceProxy::stop(const ControlCallback& f)
+    {
+        PLUGIN->stop(f);
+    }
+
+    void WPMInstanceProxy::return2home(const ControlCallback& f)
+    {
+        PLUGIN->return2home(f);
+    }
 }
