@@ -156,7 +156,7 @@ namespace rsdk::mission
         bool __run_task(std::unique_ptr<MissionTask> task)
         {
             const std::string& name = task->taskName();
-            if(_sub_task_map.count(name))
+            if(_sub_task_map.count(name) && _sub_task_map[name]->isRunning())
             {
                 return false;
             }

@@ -99,7 +99,7 @@ public:
             return UINT32_MAX;
         }
 
-        std::time_t time_stamp = mktime(&t);
+        uint64_t time_stamp = mktime(&t) * 1e6;
         uint64_t min = UINT64_MAX;
         uint64_t event_time = UINT64_MAX;
         uint32_t item_index = UINT32_MAX;

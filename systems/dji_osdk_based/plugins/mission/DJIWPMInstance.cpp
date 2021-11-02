@@ -85,7 +85,7 @@ bool DJIWPMInstance::revent(::rsdk::event::REventParam _event)
         return waypoint::WPMInstancePlugin::revent(_event);
     }
     if( _event->type() == mission::WPMTakenPhotoEvent::event_type)
-    {   
+    {
         auto event = rsdk::event::REventCast<mission::WPMTakenPhotoEvent>(_event);
         // 记录事件
         sharedInfo().photo_time_item_index_list.push_back( 

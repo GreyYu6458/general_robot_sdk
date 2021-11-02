@@ -86,8 +86,11 @@ int main()
                 event->type() == static_cast<uint64_t>(mission::MissionEvent::MISSION_FAILED) 
             )
             {
-                const auto& payload = REventCast<mission::TaskEvent>(event)->payload();
                 wait_finish_cv.notify_all();
+            }
+            if(event->type() == static_cast<uint64_t>(mission::MissionEvent::MISSION_START_FAILED_EVNET))
+            {
+                
             }
         }
     );
@@ -115,6 +118,10 @@ int main()
     wp_2.set_z(20);
     mission.addItem(wp_2);
 
+    rmw::TakePhotoItem take_photo_item;
+    take_photo_item.set_total_image(1);
+    mission.addItem(take_photo_item);
+
     rmw::WaypointItem wp_3;
     wp_3.set_hold_time(2);
     wp_3.set_x(latitude);
@@ -122,9 +129,9 @@ int main()
     wp_3.set_z(20);
     mission.addItem(wp_3);
 
-    rmw::TakePhotoItem take_photo_item;
-    take_photo_item.set_total_image(1);
-    mission.addItem(take_photo_item);
+    rmw::TakePhotoItem take_photo_item2;
+    take_photo_item2.set_total_image(1);
+    mission.addItem(take_photo_item2);
 
     rmw::WaypointItem wp_4;
     wp_4.set_hold_time(2);

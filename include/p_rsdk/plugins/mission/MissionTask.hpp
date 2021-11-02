@@ -63,6 +63,14 @@ namespace rsdk::mission
         bool isMain() const;
 
         /**
+         * @brief 
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool isRunning() const;
+
+        /**
          * @brief 开始在一个新的线程中执行任务
          * 
          */

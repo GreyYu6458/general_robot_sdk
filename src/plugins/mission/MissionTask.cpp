@@ -23,7 +23,6 @@ namespace rsdk::mission
         TaskListener*           listener{nullptr};
         std::string             task_name;
         std::thread             task_thread;
-
         rsdk::mission::StageRst start_stage_rst{StageRstType::UNEXECUTE, "UNEXECUTE"};
         rsdk::mission::StageRst executing_stage_rst{StageRstType::UNEXECUTE, "UNEXECUTE"};
     };
@@ -35,6 +34,11 @@ namespace rsdk::mission
     {
         _impl->task_name    = _task_name;
         _impl->is_main      = is_main;
+    }
+
+    bool MissionTask::isRunning() const
+    {
+        return _impl->is_running;
     }
     
     MissionTask::~MissionTask()
@@ -78,6 +82,8 @@ namespace rsdk::mission
 
                 if(this->_impl->listener)
                     this->_impl->listener->OnExecutingStageFinished(this, _impl->executing_stage_rst);
+
+                _impl->is_running = false;
             }
         ).swap(_impl->task_thread);
     }
