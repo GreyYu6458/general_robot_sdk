@@ -37,3 +37,7 @@ add_library(
     proxy/collector/collector.cpp
 )
 
+install(
+    TARGETS robot_sdk
+    DESTINATION lib
+)

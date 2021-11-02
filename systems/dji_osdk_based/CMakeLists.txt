@@ -6,7 +6,7 @@ include(ExternalProject)
 SET(DJI_OSDK_INSTALL_DIR ${CMAKE_BINARY_DIR}/dji_osdk)
 
 ExternalProject_Add(
-  dji_osdk
+    dji_osdk
   GIT_REPOSITORY
     https://gitee.com/insky-cache/insky-dji-osdk.git
   GIT_TAG           
@@ -14,8 +14,8 @@ ExternalProject_Add(
   GIT_PROGRESS
     1
   UPDATE_COMMAND 
-    ""  
-  CMAKE_ARGS        
+    ""
+  CMAKE_ARGS
     "-DCMAKE_INSTALL_PREFIX:PATH=${DJI_OSDK_INSTALL_DIR}"
 )
 
@@ -124,6 +124,12 @@ target_link_libraries(
 install(
     TARGETS dji_vehicle
     DESTINATION lib
+)
+
+install(
+    FILES "DJIVehicleSystem.hpp"
+          "DJICameraManager.hpp"
+    DESTINATION include/rsdk/systems/dji_system
 )
 
 if(BUILD_DJI_TEST)
