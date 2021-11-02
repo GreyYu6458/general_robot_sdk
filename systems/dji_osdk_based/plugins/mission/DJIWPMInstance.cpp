@@ -21,6 +21,12 @@ public:
         _dji_mission_operator = _system->vehicle()->waypointV2Mission;
     }
 
+    ~Impl()
+    {
+        if(_event_wrapper)
+            delete _event_wrapper;
+    }
+
     static std::string djiRet2String(DJI::OSDK::ErrorCode::ErrorCodeType code)
     {
         auto msg = DJI::OSDK::ErrorCode::getErrorCodeMsg(code);
@@ -46,6 +52,7 @@ public:
     DJIWPMission                                    _dji_mission;
     DJIWPMInstance*                                 _owner;
     DJIMissionSharedInfo                            _shared_info;
+    DJIEventWrapper*                                _event_wrapper;
 
     bool                                            _photo_event_not_handle{false};
 };
@@ -55,6 +62,8 @@ DJIWPMInstance::DJIWPMInstance(
 ) : rsdk::mission::waypoint::WPMInstancePlugin(system), DJIPluginBase(system)
 {
     _impl = new Impl(this, system);
+    _impl->_event_wrapper = new DJIEventWrapper(this);
+    _impl->_event_wrapper->startListeningDJILowLayerEvent();
 
     setMainTask( std::make_unique<DJIWPMMainTask>(this) );
 }
@@ -174,4 +183,15 @@ DJIVehicleModels DJIWPMInstance::supportModel()
 void DJIWPMInstance::exec()
 {
     startMainTask(); 
+}
+
+
+bool DJIWPMInstance::start()
+{
+    return true;
+}
+
+bool DJIWPMInstance::isStarted()
+{
+    return true;
 }

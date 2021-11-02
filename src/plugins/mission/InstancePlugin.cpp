@@ -29,7 +29,7 @@ namespace rsdk::mission
                 "[instance] Instance Name :" 
                 + _id + " State From "
                 + std::to_string(static_cast<uint16_t>(_last_state))
-                + " To"
+                + " To "
                 + std::to_string(static_cast<uint16_t>(_state))
             );
         }
@@ -124,10 +124,15 @@ namespace rsdk::mission
             MissionInfo mission_info;
             mission_info.instance_name  = _id;
 
-            if(rst.type == StageRstType::SUCCESS)
+            if( rst.type == StageRstType::SUCCESS or 
+                rst.type == StageRstType::INTERRUPTTED)
             {
                 event = std::make_shared<MissionFinishedEvent>(mission_info);
                 _state = InstanceState::FINISHED;
+            }
+            if(rst.type == StageRstType::INTERRUPTTED)
+            {
+                mission_info.is_interrupted = true;
             }
             else
             {
@@ -205,9 +210,11 @@ namespace rsdk::mission
         // 记录状态
         _impl->_last_state = _impl->_state;
 
-        task->isMain() ? 
-            _impl->mainTaskStartHandle(task, rst) : 
+        if(task->isMain()){
+            _impl->mainTaskStartHandle(task, rst);
+        }else{
             _impl->subtaskStartHandle(task, rst);
+        }
 
         _impl->_state = _impl->real_state();
 
@@ -223,12 +230,13 @@ namespace rsdk::mission
         std::lock_guard<std::mutex> lck(_impl->_state_mutex);
         // 记录状态
         _impl->_last_state = _impl->_state;
-
         // 交给状态转移函数处理
         // TODO 封装状态机
-        task->isMain() ? 
-            _impl->mainTaskExecutingHandle(task, rst) : 
+        if(task->isMain()){
+            _impl->mainTaskExecutingHandle(task, rst);
+        }else{
             _impl->subtaskExecutingHandle(task, rst);
+        }
 
         _impl->_state = _impl->real_state();
 
@@ -274,5 +282,10 @@ namespace rsdk::mission
 
         return _impl->__run_task(std::move(task)) ?
             RunSubtaskRst::SUCCESS : RunSubtaskRst::CONFLICT;
+    }
+
+    bool InstancePlugin::revent(::rsdk::event::REventParam event)
+    {
+        return RObject::revent(event);
     }
 }

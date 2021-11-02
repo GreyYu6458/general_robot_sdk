@@ -116,6 +116,9 @@ namespace rsdk::mission
          */
         std::unique_ptr<MissionTask>& mainTask();
 
+
+        bool revent(::rsdk::event::REventParam) override;
+
         class Impl;
         Impl* _impl;
     };

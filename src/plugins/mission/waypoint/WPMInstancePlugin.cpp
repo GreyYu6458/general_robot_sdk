@@ -17,7 +17,12 @@ namespace rsdk::mission::waypoint
     WPMInstancePlugin::WPMInstancePlugin(const std::shared_ptr<RobotSystem>& system)
         :InstancePlugin(system)
     {
-        
+        _impl = new Impl();
+    }
+
+    WPMInstancePlugin::~WPMInstancePlugin()
+    {
+        delete _impl;
     }
 
     void WPMInstancePlugin::setWaypointItems(const WaypointItems& items)
@@ -38,5 +43,10 @@ namespace rsdk::mission::waypoint
     const std::string& WPMInstancePlugin::mediaRootPath()
     {
         return _impl->_media_path;
+    }
+
+    bool WPMInstancePlugin::revent(::rsdk::event::REventParam event)
+    {
+        return InstancePlugin::revent(event);
     }
 }

@@ -81,15 +81,13 @@ int main()
         [&wait_finish_cv](::rsdk::event::REventParam event)
         {
             using namespace rsdk::event;
-            std::cout << "listened event: " + std::string(event->event_name()) <<  std::endl;;
-            if(event->type() == mission::TaskEvent::event_type)
+            std::cout << "listened event: " + std::string(event->event_name()) <<  std::endl;
+            if( event->type() == static_cast<uint64_t>(mission::MissionEvent::MISSION_SUCCESS_FINIHED) or
+                event->type() == static_cast<uint64_t>(mission::MissionEvent::MISSION_FAILED) 
+            )
             {
                 const auto& payload = REventCast<mission::TaskEvent>(event)->payload();
-
-                if(payload.execute_result == mission::TaskEventType::SUCCESS)
-                {
-                    wait_finish_cv.notify_all();
-                }
+                wait_finish_cv.notify_all();
             }
         }
     );
@@ -142,12 +140,12 @@ int main()
     mission.addItem(land);
 
     mission_proxy.setWaypointItems(mission);
+
     mission_proxy.startMission();
+
 
     std::unique_lock<std::mutex> lck(wait_finish_mutex);
     wait_finish_cv.wait(lck);
-
-    std::this_thread::sleep_for(std::chrono::seconds(2));
 
     return 0;
 }

@@ -43,7 +43,7 @@ namespace rsdk
         return _impl->_sys;
     }
 
-    void BaseProxy::setEventListener(const rsdk::event::REventCBType& cb, 
+    void BaseProxy::setEventListener(const rsdk::event::REventCBType& cb,
             EventDistributeMethod method )
     {
         std::lock_guard<std::mutex> lck(_impl->_sub_mutex);
@@ -58,7 +58,8 @@ namespace rsdk
     bool BaseProxy::eventFilter(RObject*, ::rsdk::event::REventParam event)
     {
         std::lock_guard<std::mutex> lck(_impl->_sub_mutex);
-        _impl->_callbacks(event);
+        if(_impl->_callbacks)
+            _impl->_callbacks(event);
         return true;
     }
 

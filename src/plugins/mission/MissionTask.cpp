@@ -12,7 +12,10 @@ namespace rsdk::mission
         ~Impl()
         {
             if (task_thread.joinable())
+            {
+                std::cout << "start join task thread" << std::endl;
                 task_thread.join();
+            }
         }
 
         bool                    is_main;
@@ -24,13 +27,6 @@ namespace rsdk::mission
         rsdk::mission::StageRst start_stage_rst{StageRstType::UNEXECUTE, "UNEXECUTE"};
         rsdk::mission::StageRst executing_stage_rst{StageRstType::UNEXECUTE, "UNEXECUTE"};
     };
-
-    MissionTask::MissionTask()
-    : _impl(new Impl())
-    {
-        _impl->task_name = "unknow";
-        _impl->is_main   = false;
-    }
 
     MissionTask::MissionTask(
         const std::string &_task_name,

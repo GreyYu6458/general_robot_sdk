@@ -30,8 +30,6 @@ namespace rsdk::mission
     class MissionTask : public RObject
     {
     public:
-        MissionTask();
-
         /**
          * @brief Construct a new Back Ground Task object
          * 
@@ -97,8 +95,6 @@ namespace rsdk::mission
     class MainMissionTask : public MissionTask
     {
     public:
-        MainMissionTask() = default;
-
         MainMissionTask(
             const std::string& _task_name
         ) : MissionTask(_task_name, true){}
@@ -107,8 +103,6 @@ namespace rsdk::mission
     class SubMissionTask : public MissionTask
     {
     public:
-        SubMissionTask() = default;
-
         SubMissionTask(
             const std::string& _task_name
         ) : MissionTask(_task_name, false){}

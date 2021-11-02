@@ -15,7 +15,7 @@ namespace rsdk
     static BasePluginMap convertSet2Map()
     {
         BasePluginMap plugin_hash_map;
-        const auto& hash_set = BaseBasePlugin::pluginHashSet();
+        const auto& hash_set = PluginPreRegister::pluginHashSet();
 
         for(const auto& item : hash_set)
         {

@@ -12,7 +12,7 @@ namespace rsdk
 
     using BasePluginSet = std::unordered_set<size_t>;
 
-    class BaseBasePlugin
+    class PluginPreRegister
     {
     public:
         template<class T>
@@ -38,7 +38,7 @@ namespace rsdk
     public:
         BasePluginRegistHelper()
         {
-            BaseBasePlugin::registPlugin<T>();
+            PluginPreRegister::registPlugin<T>();
         }
     };
 

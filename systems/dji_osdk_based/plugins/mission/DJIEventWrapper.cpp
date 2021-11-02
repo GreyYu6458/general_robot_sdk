@@ -307,9 +307,9 @@ public:
     DJIWPMInstance * _instance;
 };
 
-DJIEventWrapper::DJIEventWrapper(DJIWPMInstance *executor)
-    : _impl(new Impl(this, executor))
+DJIEventWrapper::DJIEventWrapper(DJIWPMInstance *instance)
 {
+    _impl = new Impl(this, instance);
 }
 
 void DJIEventWrapper::startListeningDJILowLayerEvent()

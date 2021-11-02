@@ -83,6 +83,22 @@ public:
      */
     void exec() override;
 
+    /**
+     * @brief TODO 
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool start() override;
+
+    /**
+     * @brief 
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool isStarted() override;
+
 protected:
     /**
      * @brief 

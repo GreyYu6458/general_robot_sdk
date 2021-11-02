@@ -16,6 +16,12 @@ namespace rsdk::mission::waypoint
         WPMInstancePlugin(const std::shared_ptr<RobotSystem>&);
 
         /**
+         * @brief Destroy the WPMInstancePlugin object
+         * 
+         */
+        virtual ~WPMInstancePlugin();
+
+        /**
          * @brief 设置航点
          * 
          */
@@ -41,6 +47,9 @@ namespace rsdk::mission::waypoint
          * @return const std::string& 
          */
         const std::string& mediaRootPath();
+
+    protected:
+        bool revent(::rsdk::event::REventParam) override;
 
     private:
         class Impl;

@@ -38,9 +38,6 @@ namespace rsdk
         _impl->event_loop.setOnEvent(
             [this](REventWrapper& event_wrapper)
             {
-                info( "[event pop ] group id:" + 
-                    std::string(event_wrapper.event->event_name())
-                );
                 if(event_wrapper.object.is_shared_ptr)
                 {
                     this->notify(
@@ -110,9 +107,6 @@ namespace rsdk
     void RobotSystem::postEvent(RObject* r_obj, ::rsdk::event::REventParam _event)
     {
         _event->setSystemTime( systemTime() );
-        info( "[event post] event name:" + 
-            std::string(_event->event_name())
-        );
         _impl->event_loop.pushEvent(
             {
                 .event  = _event,

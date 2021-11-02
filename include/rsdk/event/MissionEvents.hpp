@@ -23,6 +23,7 @@ namespace rsdk::event::mission
     struct MissionInfo
     {
         std::string instance_name;
+        bool        is_interrupted;
     };
 
     enum class TaskEventType

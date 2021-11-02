@@ -8,13 +8,13 @@ namespace rsdk
         return plugin_set;
     }
 
-    const BasePluginSet& BaseBasePlugin::pluginHashSet()
+    const BasePluginSet& PluginPreRegister::pluginHashSet()
     {
         // copy a empty map from global map
         return getSet();
     }
 
-    void BaseBasePlugin::_regist_plugin_interface_hash(size_t hash)
+    void PluginPreRegister::_regist_plugin_interface_hash(size_t hash)
     {
         if( getSet().count(hash) == 0 )
             getSet().insert(hash);

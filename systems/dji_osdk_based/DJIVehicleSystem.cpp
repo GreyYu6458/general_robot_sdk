@@ -17,6 +17,7 @@
 #include "plugins/collector/DJIGNSSUncertain.hpp"
 #include "plugins/collector/DJIGPSTime.hpp"
 #include "plugins/camera/DJIVideoStream.hpp"
+#include "plugins/mission/DJIWPMInstance.hpp"
 
 using DJILinker = DJI::OSDK::Linker;
 
@@ -48,6 +49,7 @@ private:
         REGIST_PLUGIN(DJIFlightStatus,      rsdk::collector::FlyingRobotStatusPlugin);
         // REGIST_PLUGIN(DJIWPMController,     rsdk::mission::waypoint::WPMControllerPlugin);
         REGIST_PLUGIN(DJIVideoStream,       rsdk::camera::VideoStreamPlugin);
+        REGIST_PLUGIN(DJIWPMInstance,       rsdk::mission::waypoint::WPMInstancePlugin);
     }
 
     SystemImpl(DJIVehicleSystem* owner)

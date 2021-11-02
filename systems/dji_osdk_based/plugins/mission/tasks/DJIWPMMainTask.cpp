@@ -21,7 +21,7 @@ public:
 
     std::mutex                  _wait_finished_mutex;
     std::condition_variable     _wait_finished_cv;
-    rsdk::mission::StageRst     _finished_rst;
+    rsdk::mission::StageRst     _finished_rst{rsdk::mission::StageRstType::UNEXECUTE};
 
     static std::string djiRet2String(DJI::OSDK::ErrorCode::ErrorCodeType code)
     {
@@ -37,7 +37,7 @@ public:
         auto    _system                     = instance->system();
         auto    _dji_mission_operator       = _system->vehicle()->waypointV2Mission;
 
-        if(DJIWPMission::convertFromStandard(instance->waypointItems(), _dji_mission))
+        if(!DJIWPMission::convertFromStandard(instance->waypointItems(), _dji_mission))
         {
             rst.type = rsdk::mission::StageRstType::FAILED;
             rst.detail = "Can not convert waypoint from standard waypoint items";
@@ -119,7 +119,7 @@ void DJIWPMMainTask::notifyExecutingStageFinished(const rsdk::mission::StageRst&
 }
 
 DJIWPMMainTask::DJIWPMMainTask(DJIWPMInstance* instance)
-: _impl(new Impl(instance))
+: MainMissionTask("DJI WAYPOINT MAIN TASK"), _impl(new Impl(instance))
 {
 
 }
