@@ -82,6 +82,7 @@ namespace rsdk::mission
 
             MissionInfo mission_info;
             mission_info.instance_name  = _id;
+            mission_info.detail = rst.detail;
 
             auto event = rsdk::event::REventPtr();
             // main task 成功开始
@@ -123,6 +124,7 @@ namespace rsdk::mission
 
             MissionInfo mission_info;
             mission_info.instance_name  = _id;
+            mission_info.detail = rst.detail;
 
             if( rst.type == StageRstType::SUCCESS or 
                 rst.type == StageRstType::INTERRUPTTED)

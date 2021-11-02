@@ -23,6 +23,7 @@ namespace rsdk::event::mission
     struct MissionInfo
     {
         std::string instance_name;
+        std::string detail;
         bool        is_interrupted;
     };
 
