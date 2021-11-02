@@ -26,6 +26,8 @@ namespace rsdk::mission::waypoint
 
         WaypointItems& setItems(const std::vector<WPMItem>& items);
 
+        void clear();
+
         const std::vector<WPMItem>& getItems() const;
     
     private:

@@ -66,4 +66,9 @@ namespace rsdk::mission::waypoint
     {
         return  _impl->_items;
     }
+
+    void WaypointItems::clear()
+    {
+        _impl->_items.clear();
+    }
 }
