@@ -85,12 +85,21 @@ bool DJIWPMInstance::revent(::rsdk::event::REventParam _event)
         return waypoint::WPMInstancePlugin::revent(_event);
     }
     if( _event->type() == mission::WPMTakenPhotoEvent::event_type)
-    {   // 新建下载任务，如果已有下载任务在执行，则设置相应标志位
+    {   
         auto event = rsdk::event::REventCast<mission::WPMTakenPhotoEvent>(_event);
+        // 记录事件
+        sharedInfo().photo_time_item_index_list.push_back( 
+            {_event->hostTime(), event->payload().item_index}
+        );
 
+        // 新建下载任务，如果已有下载任务在执行，则设置相应标志位
         auto add_rst = runSubtask( std::make_unique<DJIDownloadPhotoTask>(this) );
-
         _impl->_photo_event_not_handle = (add_rst != RunSubtaskRst::SUCCESS);
+
+        if(_impl->_photo_event_not_handle)
+        {
+            system()->warning("There is photo download task already exist");
+        }
     }
     else if(_event->type() == mission::TaskEvent::event_type)
     {

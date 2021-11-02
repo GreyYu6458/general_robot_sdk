@@ -90,6 +90,7 @@ add_library(
     plugins/mission/DJIEventWrapper.cpp
     plugins/mission/DJIWPMInstance.cpp
     plugins/mission/DJIWPMission.cpp
+    plugins/mission/exif.cpp
 
     plugins/collector/DJIBattery.cpp
     plugins/collector/DJIGPSTime.cpp
