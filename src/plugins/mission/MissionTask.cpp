@@ -76,7 +76,10 @@ namespace rsdk::mission
                     this->_impl->listener->OnStartStageFinished(this, _impl->start_stage_rst);
 
                 if(_impl->start_stage_rst.type != StageRstType::SUCCESS)
+                {
+                    _impl->is_running = false;
                     return;
+                }
 
                 _impl->executing_stage_rst = this->executing_stage();
 
