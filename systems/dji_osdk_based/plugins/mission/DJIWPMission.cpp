@@ -210,6 +210,11 @@ bool DJIWPMission::convertFromStandard(const rmw::WaypointItems& standard_missio
     dji_mission._impl->_is_valid = true;
     auto& standard_items = standard_mission.getItems();
 
+    if(standard_items.size() <= 2)
+    {
+        return false;
+    }
+    
     if( // 最后一个航点为 NAV_RETURN_TO_LAUNCH 则置位返航标志位
         standard_items.back().get<rmw::ItemParam::COMMAND>() 
         == rmw::MavMissionItems::NAV_RETURN_TO_LAUNCH
