@@ -104,7 +104,7 @@ template <> void process<DJIMissionEvent::MissionFinished>
     event_wrapper.instance()->system()->info("[mission]: Mission Finished:" + std::to_string(ack));
     rsdk::mission::StageRst rst;
 
-    if(mission_shared_info.current_repeated_times = mission_shared_info.total_repeated_times + 1)
+    if(mission_shared_info.current_repeated_times < mission_shared_info.total_repeated_times + 1)
     {
         rst.type    = rsdk::mission::StageRstType::INTERRUPTTED;
         rst.detail  = "mission interruptted";

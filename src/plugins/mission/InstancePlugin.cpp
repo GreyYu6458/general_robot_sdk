@@ -144,15 +144,19 @@ namespace rsdk::mission
             _system->postEvent(_owner, event);
         }
 
+        /**
+         * @brief 不管subtask有没有成功，都将其移除
+         * 
+         * @param task 
+         * @param rst 
+         */
         void subtaskExecutingHandle(MissionTask* task, StageRst rst)
         {
-            if(rst.type != StageRstType::SUCCESS)
-            {
-                _end_sub_task_list.push_back( 
-                    std::move(_sub_task_map[task->taskName()]) 
-                );
-                _sub_task_map.erase(task->taskName());
-            }
+            _end_sub_task_list.push_back( 
+                std::move(_sub_task_map[task->taskName()]) 
+            );
+
+            _sub_task_map.erase(task->taskName());
         }
 
         bool __run_task(std::unique_ptr<MissionTask> task)

@@ -181,11 +181,8 @@ public:
                     instance->system()->warning("can not match photo:" + file_ptr->name);
                     continue;
                 }
-                else
-                {
-                    instance->system()->warning(file_ptr->name + " matched item index:" + std::to_string(index));
-                    info.item_index = index;
-                }
+                instance->system()->warning(file_ptr->name + " matched item index:" + std::to_string(index));
+                info.item_index = index;
 
                 // post event
                 instance->system()->postEvent(
