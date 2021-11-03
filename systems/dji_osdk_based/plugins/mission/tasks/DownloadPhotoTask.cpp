@@ -183,7 +183,8 @@ public:
                 }
                 else
                 {
-                    instance->system()->warning(file_ptr->name + "matched item index:" + std::to_string(index));
+                    instance->system()->warning(file_ptr->name + " matched item index:" + std::to_string(index));
+                    info.item_index = index;
                 }
 
                 // post event
