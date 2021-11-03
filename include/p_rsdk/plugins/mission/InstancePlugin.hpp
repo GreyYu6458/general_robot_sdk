@@ -83,6 +83,12 @@ namespace rsdk::mission
          */
         void OnExecutingStageFinished(MissionTask*,StageRst rst) override;
 
+        /**
+         * @brief 
+         * 
+         */
+        void resetState();
+
     protected:
 
         /**

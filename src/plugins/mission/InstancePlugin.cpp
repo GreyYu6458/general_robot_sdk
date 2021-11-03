@@ -195,6 +195,12 @@ namespace rsdk::mission
         _impl->_main_task->execute(this);
     }
 
+    void InstancePlugin::resetState()
+    {
+        _impl->_state = InstanceState::WAITTING;
+        _impl->_last_state = InstanceState::WAITTING;
+    } 
+
     void InstancePlugin::setStateChangedCallback(const std::function<void (InstanceState)>& cb)
     {
         _impl->_state_changed_cb = 
