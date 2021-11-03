@@ -65,6 +65,11 @@ namespace rsdk::mission
         if(_impl->is_running)
             return; // TODO 返回正在运行警告
 
+        else if(!_impl->is_running && _impl->task_thread.joinable())
+        {
+            _impl->task_thread.join();
+        }
+
         _impl->is_running = true;
         this->_impl->listener = listerner;
         std::thread(
