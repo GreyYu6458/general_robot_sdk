@@ -26,8 +26,8 @@ namespace rsdk::mission
         return plugin<InstancePlugin>()->id();
     }
 
-    void MissionInstance::resetState()
+    bool MissionInstance::resetState()
     {
-        plugin<InstancePlugin>()->resetState();
+        return plugin<InstancePlugin>()->resetState();
     }
 }

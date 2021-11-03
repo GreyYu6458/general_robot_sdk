@@ -17,7 +17,7 @@ namespace rsdk::mission
 
         void setId(const std::string&);
 
-        void resetState();
+        bool resetState();
 
         const std::string& id();
     };

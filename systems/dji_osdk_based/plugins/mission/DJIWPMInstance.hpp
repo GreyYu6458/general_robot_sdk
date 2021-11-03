@@ -99,6 +99,14 @@ public:
      */
     bool isStarted() override;
 
+    /**
+     * @brief 
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool resetState();
+
 protected:
     /**
      * @brief 

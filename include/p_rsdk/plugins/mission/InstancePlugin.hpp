@@ -87,7 +87,7 @@ namespace rsdk::mission
          * @brief 
          * 
          */
-        void resetState();
+        virtual bool resetState();
 
     protected:
 

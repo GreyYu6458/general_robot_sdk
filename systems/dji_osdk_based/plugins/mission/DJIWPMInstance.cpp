@@ -121,6 +121,16 @@ DJIMissionSharedInfo& DJIWPMInstance::sharedInfo()
     return _impl->_shared_info;
 }
 
+bool DJIWPMInstance::resetState()
+{
+    if(rsdk::mission::is_end_state(state()))
+    {
+        setMainTask( std::make_unique<DJIWPMMainTask>(this) );
+    }
+
+    rsdk::mission::InstancePlugin::resetState();
+}
+
 /**
  * @brief 
  * 
