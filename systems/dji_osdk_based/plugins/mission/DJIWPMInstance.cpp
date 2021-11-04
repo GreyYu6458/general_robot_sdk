@@ -128,7 +128,7 @@ bool DJIWPMInstance::resetState()
         setMainTask( std::make_unique<DJIWPMMainTask>(this) );
     }
 
-    rsdk::mission::InstancePlugin::resetState();
+    return rsdk::mission::InstancePlugin::resetState();
 }
 
 /**
