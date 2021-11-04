@@ -105,7 +105,7 @@ public:
      * @return true 
      * @return false 
      */
-    bool resetState();
+    virtual bool resetState();
 
 protected:
     /**
