@@ -57,7 +57,8 @@ public:
 
         initialize_io_context();
 
-        out_codec       = avcodec_find_encoder(AV_CODEC_ID_H264);
+        out_codec       = avcodec_find_encoder_by_name("h264_vaapi");
+        // out_codec       = avcodec_find_encoder(AV_CODEC_ID_H264);
 
         out_stream      = avformat_new_stream(ofmt_ctx, out_codec);
 

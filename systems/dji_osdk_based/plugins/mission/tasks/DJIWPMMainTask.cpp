@@ -4,6 +4,7 @@
 
 #include <dji_vehicle.hpp>
 #include <dji_waypoint_v2.hpp>
+#include <thread>
 #include <condition_variable>
 #include <mutex>
 #include <atomic>
@@ -69,8 +70,16 @@ public:
             rst.detail = djiRet2String(ret);
             return;
         }
-
-        ret = _dji_mission_operator->uploadMission(10);
+        
+        for(int i = 0 ; i < 20 ; i++)
+        {
+            ret = _dji_mission_operator->uploadMission(30);
+            if(ret == ErrorCode::SysCommonErr::Success)
+            {
+                break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
         if (ret != ErrorCode::SysCommonErr::Success)
         {
             rst.type = rsdk::mission::StageRstType::FAILED;
@@ -78,7 +87,7 @@ public:
             return;
         }
 
-        ret = _dji_mission_operator->uploadAction(_dji_mission.djiActions(), 10);
+        ret = _dji_mission_operator->uploadAction(_dji_mission.djiActions(), 30);
         if (ret != ErrorCode::SysCommonErr::Success)
         {
             rst.type = rsdk::mission::StageRstType::FAILED;
