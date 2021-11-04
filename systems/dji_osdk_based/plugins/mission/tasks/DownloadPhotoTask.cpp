@@ -99,7 +99,7 @@ public:
             return UINT32_MAX;
         }
 
-        uint64_t time_stamp = mktime(&t) * 1e6;
+        int64_t  time_stamp = mktime(&t) * 1e6;
         uint64_t min = UINT64_MAX;
         uint64_t event_time = UINT64_MAX;
         uint32_t item_index = UINT32_MAX;
@@ -107,7 +107,7 @@ public:
         // START MATCH
         for(const auto event : instance->sharedInfo().photo_time_item_index_list)
         {
-            auto diff_time = event.first - time_stamp;
+            int64_t diff_time = event.first - time_stamp;
             diff_time = diff_time < 0 ? -diff_time : diff_time;
             if(min > diff_time)
             {
@@ -117,9 +117,13 @@ public:
             }
         }
 
-        instance->system()->info(photo_path + " DateTime :" + result.DateTime);
-        instance->system()->info(photo_path + " UNIXTIME :" + std::to_string(time_stamp));
-        instance->system()->info(photo_path + " EVENTTIME:" + std::to_string(event_time));
+        instance->system()->info(
+            photo_path      + 
+            " DateTime :"   + result.DateTime +
+            " UNIXTIME :"   + std::to_string(time_stamp) + 
+            " EVENTTIME:"   + std::to_string(event_time) +
+            " DIFFERENCE:"  + std::to_string(min)
+        );
 
         return item_index;
     }

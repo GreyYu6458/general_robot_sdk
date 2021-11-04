@@ -12,7 +12,7 @@ struct DJIMissionSharedInfo
 
     uint32_t                                    total_repeated_times{0};       // 总共重复次数
 
-    std::vector<std::pair<uint64_t, uint32_t>>  photo_time_item_index_list;     // 照片事件时间和item_index的表
+    std::vector<std::pair<int64_t, uint32_t>>   photo_time_item_index_list;     // 照片事件时间和item_index的表
 
     DJIMissionSharedInfo() = default;
 
