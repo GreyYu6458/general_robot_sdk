@@ -47,7 +47,6 @@ private:
         REGIST_PLUGIN(DJIGNSSReceiver,      rsdk::collector::GNSSReceiverPlugin);
         REGIST_PLUGIN(DJIGNSSUncertain,     rsdk::collector::GNSSUncertainInfoPlugin);
         REGIST_PLUGIN(DJIFlightStatus,      rsdk::collector::FlyingRobotStatusPlugin);
-        // REGIST_PLUGIN(DJIWPMController,     rsdk::mission::waypoint::WPMControllerPlugin);
         REGIST_PLUGIN(DJIVideoStream,       rsdk::camera::VideoStreamPlugin);
         REGIST_PLUGIN(DJIWPMInstance,       rsdk::mission::waypoint::WPMInstancePlugin);
     }
@@ -89,13 +88,20 @@ public:
 
         if (!usb_port_opt.has_value())
         {   
-            _owner->error( (formater % __FILE__ % __LINE__ % "config value is empty, system config has no correct key : \"usb\"").str());
+            _owner->error( 
+                (formater % __FILE__ % __LINE__ 
+                % "config value is empty, system config has no correct key : \"usb\""
+                ).str()
+            );
             return false;
         }
 
         if (!acm_port_opt.has_value())
         {
-            _owner->error( (formater % __FILE__ % __LINE__ % "config value is empty, system config has no correct key : \"acm\"").str());
+            _owner->error(
+                 (formater % __FILE__ % __LINE__ 
+                 % "config value is empty, system config has no correct key : \"acm\""
+                 ).str());
             return false;
         }
 

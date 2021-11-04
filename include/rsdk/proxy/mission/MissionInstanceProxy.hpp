@@ -20,6 +20,10 @@ namespace rsdk::mission
         bool resetState();
 
         const std::string& id();
+
+    private:
+        class Impl;
+        Impl* _impl;
     };
 } // namespace rsdk::mission
 

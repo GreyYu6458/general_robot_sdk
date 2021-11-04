@@ -85,7 +85,7 @@ public:
 
         if(ret != ErrorCode::SysCommonErr::Success)
         {
-            _system->warning("[system]:Obtaining download right failed!");
+            _system->info("[system]:Obtaining download right failed!");
         }
         else
         {
@@ -104,7 +104,7 @@ public:
         }
         else
         {
-            _system->warning("[system]:Setting camera mode success");
+            _system->info("[system]:Setting camera mode success");
         }
 
         std::promise<bool> _file_sync_promise;
