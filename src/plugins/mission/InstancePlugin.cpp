@@ -129,14 +129,14 @@ namespace rsdk::mission
             if( rst.type == StageRstType::SUCCESS or 
                 rst.type == StageRstType::INTERRUPTTED)
             {
-                event = std::make_shared<MissionFinishedEvent>(mission_info);
                 _state = InstanceState::FINISHED;
                 mission_info.is_interrupted = (rst.type == StageRstType::INTERRUPTTED);
+                event = std::make_shared<MissionFinishedEvent>(mission_info);
             }
             else
             {
-                event = std::make_shared<MissionFailedEvent>(mission_info);
                 _state = InstanceState::FAILED;
+                event = std::make_shared<MissionFailedEvent>(mission_info);
             }
             _system->postEvent(_owner, event);
         }
