@@ -201,7 +201,7 @@ public:
             }
             else
             {
-                instance->system()->info(
+                instance->system()->error(
                     "Download File :" + file_ptr->name + " Failed"
                 );
             }

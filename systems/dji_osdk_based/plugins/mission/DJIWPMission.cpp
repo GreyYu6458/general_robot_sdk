@@ -67,6 +67,7 @@ template<> bool DJIWPMission::Impl::_convert_item
     DJI::OSDK::WaypointV2 dji_wp;
     wp_common_set(dji_wp);
 
+    auto item_seq           = item.get<rmw::ItemParam::SEQUENCE>();
     auto wait_time          = item.get<rmw::ItemParam::PARAM_1>();
     auto yaw_degree         = item.get<rmw::ItemParam::PARAM_4>();
     auto item_x             = item.get<rmw::ItemParam::PARAM_5>();
@@ -95,8 +96,8 @@ template<> bool DJIWPMission::Impl::_convert_item
         // add paused action
         DJIActionEvent event;
         event.type = DJIActionEventEnum::Paused;
-        event.item_index = dji_wps.size();
-        event.adjoint_wp = dji_wps.size();
+        event.item_index = item_seq;
+        event.adjoint_wp = item_seq;
         mission._impl->_action_map[ dji_actions.size() ] = event;
 
         DJIWaypointV2SampleReachPointTriggerParam reached_trigger;
@@ -125,8 +126,8 @@ template<> bool DJIWPMission::Impl::_convert_item
 
         // add resume action
         event.type = DJIActionEventEnum::Resumed;
-        event.item_index = dji_wps.size();
-        event.adjoint_wp = dji_wps.size();
+        event.item_index = item_seq;
+        event.adjoint_wp = item_seq;
         mission._impl->_action_map[ dji_actions.size() ] = event;
 
         DJIWaypointV2AssociateTriggerParam action_associated_trigger;
