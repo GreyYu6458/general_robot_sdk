@@ -43,7 +43,7 @@ namespace rsdk::mission::waypoint
     WaypointItems& WaypointItems::addItem(const WPMItem& item)
     {
         _impl->_items.push_back(item);
-        _impl->_items.back().set_sequance(_impl->_items.size());
+        _impl->_items.back().set_sequance(_impl->_items.size() - 1);
         return *this;
     }
 
