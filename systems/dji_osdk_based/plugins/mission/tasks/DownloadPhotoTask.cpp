@@ -99,15 +99,25 @@ public:
             return UINT32_MAX;
         }
 
+        int64_t  diff_time;
         int64_t  time_stamp = mktime(&t) * 1e6;
         uint64_t min = UINT64_MAX;
         uint64_t event_time = UINT64_MAX;
         uint32_t item_index = UINT32_MAX;
 
+        auto& shared_info = instance->sharedInfo();
+
         // START MATCH
         for(const auto event : instance->sharedInfo().photo_time_item_index_list)
         {
-            int64_t diff_time = event.first - time_stamp;
+            diff_time = event.first - time_stamp;
+
+            if(!shared_info.get_first_photo)
+            {
+                shared_info.photo_bias_time = diff_time;
+                shared_info.get_first_photo = true;
+            }
+            diff_time -= shared_info.photo_bias_time;
             diff_time = diff_time < 0 ? -diff_time : diff_time;
             if(min > diff_time)
             {
@@ -161,6 +171,7 @@ public:
             bool download_rst{false};
 
             FileDownloadBlock download_block{this, _file_download_promise};
+
             {
                 std::lock_guard<std::mutex>  lck(instance->system()->DJIAPIMutex());
                 info.file_path = save_path + file_ptr->name;
