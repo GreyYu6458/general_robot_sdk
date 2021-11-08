@@ -30,4 +30,9 @@ namespace rsdk::mission
     {
         return plugin<InstancePlugin>()->resetState();
     }
+
+    InstanceState MissionInstance::state()
+    {
+        return plugin<InstancePlugin>()->state();
+    }
 }
