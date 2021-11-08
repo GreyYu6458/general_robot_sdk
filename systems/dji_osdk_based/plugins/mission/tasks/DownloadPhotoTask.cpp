@@ -111,13 +111,10 @@ public:
         for(const auto event : instance->sharedInfo().photo_time_item_index_list)
         {
             diff_time = event.first - time_stamp;
-
-            // if(!shared_info.get_first_photo)
-            // {
-                shared_info.photo_bias_time = diff_time;
-                shared_info.get_first_photo = true;
-            // }
-            // diff_time = diff_time - shared_info.photo_bias_time;
+            if(shared_info.get_first_photo)
+            {
+                diff_time = diff_time - shared_info.photo_bias_time;
+            }
             diff_time = diff_time < 0 ? -diff_time : diff_time;  // abs
             if(min > diff_time)
             {
@@ -125,6 +122,12 @@ public:
                 event_time = event.first;
                 item_index = event.second;
             }
+        }
+
+        if(!shared_info.get_first_photo)
+        {
+            shared_info.photo_bias_time = min;
+            shared_info.get_first_photo = true;
         }
 
         instance->system()->info(

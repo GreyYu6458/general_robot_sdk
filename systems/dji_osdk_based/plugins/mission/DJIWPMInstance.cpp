@@ -127,6 +127,7 @@ bool DJIWPMInstance::resetState()
     {
         setMainTask( std::make_unique<DJIWPMMainTask>(this) );
         _impl->_shared_info.get_first_photo = false;
+        _impl->_shared_info.photo_time_item_index_list.clear();
     }
 
     return rsdk::mission::InstancePlugin::resetState();
