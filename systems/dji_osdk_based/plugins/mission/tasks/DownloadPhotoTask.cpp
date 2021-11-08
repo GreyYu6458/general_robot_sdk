@@ -132,7 +132,8 @@ public:
             " DateTime :"   + result.DateTime +
             " UNIXTIME :"   + std::to_string(time_stamp) + 
             " EVENTTIME:"   + std::to_string(event_time) +
-            " DIFFERENCE:"  + std::to_string(min)
+            " DIFFERENCE:"  + std::to_string(min) + 
+            " BIAS:"        + std::to_string(shared_info.photo_bias_time)
         );
 
         return item_index;
