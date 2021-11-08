@@ -8,7 +8,7 @@ SET(DJI_OSDK_INSTALL_DIR ${CMAKE_BINARY_DIR}/dji_osdk)
 ExternalProject_Add(
     dji_osdk
   GIT_REPOSITORY
-    https://gitee.com/insky-cache/insky-dji-osdk.git
+    git@gitee.com:insky-cache/insky-dji-osdk.git
   GIT_TAG           
     "insky_log_callback"
   GIT_PROGRESS
