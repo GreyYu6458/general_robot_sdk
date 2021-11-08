@@ -314,6 +314,11 @@ std::vector< DJI::OSDK::DJIWaypointV2Action>& DJIWPMission::djiActions()
     return _impl->_dji_actions;
 }
 
+void DJIWPMission::clear()
+{
+    _impl->clear();
+}
+
 bool DJIWPMission::eventType(size_t action_id, DJIActionEvent& dji_action_event)
 {
     if(_impl->_action_map.count(action_id))

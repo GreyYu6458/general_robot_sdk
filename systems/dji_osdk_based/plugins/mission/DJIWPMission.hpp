@@ -56,6 +56,12 @@ public:
     bool eventType(size_t action_id, DJIActionEvent& dji_action_event);
 
     /**
+     * @brief 
+     * 
+     */
+    void clear();
+
+    /**
      * @brief 在出发点结束任务
      * 
      * @return true 
