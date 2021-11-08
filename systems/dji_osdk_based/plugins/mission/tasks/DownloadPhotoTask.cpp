@@ -112,12 +112,12 @@ public:
         {
             diff_time = event.first - time_stamp;
 
-            if(!shared_info.get_first_photo)
-            {
-                shared_info.photo_bias_time = diff_time;
-                shared_info.get_first_photo = true;
-            }
-            diff_time -= shared_info.photo_bias_time;
+            // if(!shared_info.get_first_photo)
+            // {
+            //     shared_info.photo_bias_time = diff_time;
+            //     shared_info.get_first_photo = true;
+            // }
+            // diff_time = diff_time - shared_info.photo_bias_time;
             diff_time = diff_time < 0 ? -diff_time : diff_time;
             if(min > diff_time)
             {
