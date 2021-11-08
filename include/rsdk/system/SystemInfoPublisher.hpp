@@ -35,6 +35,11 @@ namespace rsdk
             publishInfo<SystemInfoLevel::ERROR>(msg);
         }
 
+        inline void trace(const std::string& msg)
+        {
+            publishInfo<SystemInfoLevel::TRACE>(msg);
+        }
+
         void subscribeSystemInfo(const SystemInfoCallback& cb);
 
     protected:

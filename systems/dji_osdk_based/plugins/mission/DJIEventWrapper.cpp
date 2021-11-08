@@ -74,7 +74,7 @@ static void process(DJIEventWrapper& event_wrapper, _DJIEventParamType(I) &ack);
 template <> void process<DJIMissionEvent::InterruptReason>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(InterruptReason) &ack)
 {
-    event_wrapper.instance()->system()->info("[mission]: Interrupt Reason:" + std::to_string(ack));
+    event_wrapper.instance()->system()->trace("[mission]: Interrupt Reason:" + std::to_string(ack));
 }
 
 /**
@@ -87,12 +87,12 @@ template <> void process<DJIMissionEvent::InterruptReason>
 template <> void process<DJIMissionEvent::RecoverProcess>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(RecoverProcess) &ack)
 {
-    event_wrapper.instance()->system()->info("[mission]: Recover process:" + std::to_string(ack));
+    event_wrapper.instance()->system()->trace("[mission]: Recover process:" + std::to_string(ack));
 }
 
 /**
  * @brief occurred when mission finished
- * 
+ *
  * @tparam  
  * @param event_wrapper 
  * @param ack
@@ -101,7 +101,7 @@ template <> void process<DJIMissionEvent::MissionFinished>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(MissionFinished) &ack)
 {
     auto& mission_shared_info = event_wrapper.instance()->sharedInfo();
-    event_wrapper.instance()->system()->info("[mission]: Mission Finished:" + std::to_string(ack));
+    event_wrapper.instance()->system()->trace("[mission]: Mission Finished:" + std::to_string(ack));
     rsdk::mission::StageRst rst;
 
     if(mission_shared_info.current_repeated_times < mission_shared_info.total_repeated_times + 1)
@@ -128,7 +128,7 @@ template <> void process<DJIMissionEvent::WaypointIndexUpdate>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(WaypointIndexUpdate) &ack)
 {
     // log date
-    event_wrapper.instance()->system()->info("[mission]: Waypoint update:" + std::to_string(ack));
+    event_wrapper.instance()->system()->trace("[mission]: Waypoint update:" + std::to_string(ack));
 
     rsdk::event::mission::WPMProgressInfo info;
     info.current_wp = ack;
@@ -163,8 +163,8 @@ template <> void process<DJIMissionEvent::AvoidEvent>
 template <> void process<DJIMissionEvent::MissionExecEvent>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(MissionExecEvent) &ack)
 {
-    // event_wrapper.instance()->system()->info("[mission]: Current mission exec num:" + std::to_string(ack.currentMissionExecNum));
-    event_wrapper.instance()->system()->info("[mission]: Finish all exec num:" + std::to_string(ack.finishedAllExecNum));
+    // event_wrapper.instance()->system()->trace("[mission]: Current mission exec num:" + std::to_string(ack.currentMissionExecNum));
+    event_wrapper.instance()->system()->trace("[mission]: Finish all exec num:" + std::to_string(ack.finishedAllExecNum));
     event_wrapper.instance()->sharedInfo().current_repeated_times = ack.finishedAllExecNum;
 }
 
@@ -180,7 +180,7 @@ template <> void process<DJIMissionEvent::ActionExecEvent>
 {
     DJIActionEvent action_event_info;
 
-    event_wrapper.instance()->system()->info(
+    event_wrapper.instance()->system()->trace(
         "[mission]: Action id " + 
         std::to_string(ack.actionId)
     );
@@ -272,9 +272,6 @@ public:
             auto* instance               = dji_event_wrapper_impl-> _instance;
             auto* missionEventPushAck = (DJI::OSDK::MissionEventPushAck *)cmdData;
 
-            instance->system()->info(
-                "[mission],Event Triggerred, Event Type:" + std::to_string(missionEventPushAck->event)
-            );
             switch (missionEventPushAck->event)
             {
             case 0x01:

@@ -20,8 +20,6 @@ namespace rsdk
         delete _impl;
     }
 
-    // 全局存在，系统负责回收
-
     void SystemInfoPublisher::__publish(const SystemInfo& info)
     {
         std::lock_guard<std::mutex> l(_impl->_cb_set_mutex);

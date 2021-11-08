@@ -7,6 +7,7 @@ namespace rsdk
 {
     enum class SystemInfoLevel
     {
+        TRACE,
         INFO,
         WARNING,
         LOWLAYER,
