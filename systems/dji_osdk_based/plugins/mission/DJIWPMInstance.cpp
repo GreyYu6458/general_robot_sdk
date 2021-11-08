@@ -49,7 +49,6 @@ public:
 
     std::shared_ptr<DJIVehicleSystem>               _system;
     DJI::OSDK::WaypointV2MissionOperator*           _dji_mission_operator;
-    DJIWPMission                                    _dji_mission;
     DJIWPMInstance*                                 _owner;
     DJIMissionSharedInfo                            _shared_info;
     DJIEventWrapper*                                _event_wrapper;
@@ -128,7 +127,7 @@ bool DJIWPMInstance::resetState()
     {
         setMainTask( std::make_unique<DJIWPMMainTask>(this) );
         _impl->_shared_info.get_first_photo = false;
-        _impl->_dji_mission.clear();
+        _impl->_shared_info.dji_wp_mission.clear();
         _impl->_shared_info.photo_time_item_index_list.clear();
     }
 
