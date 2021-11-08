@@ -13,7 +13,6 @@ namespace rsdk::mission
         {
             if (task_thread.joinable())
             {
-                std::cout << "start join task thread" << std::endl;
                 task_thread.join();
             }
         }

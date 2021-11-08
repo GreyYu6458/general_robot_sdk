@@ -45,11 +45,6 @@ public:
             return;
         }
 
-        for(const auto& action : _dji_mission.djiActions())
-        {
-            std::cout << "ACTION :" << action.actionId << std::endl;
-        }
-
         WayPointV2InitSettings missionInitSettings;
         missionInitSettings.missionID                   = rand();
         missionInitSettings.repeatTimes                 = 0;
