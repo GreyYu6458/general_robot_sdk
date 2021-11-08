@@ -1,6 +1,7 @@
 #include "DJIWPMission.hpp"
 #include "DJIVehicleSystem.hpp"
 
+#include <iostream>
 #include <cmath>
 #include <unordered_map>
 #include <dji_vehicle.hpp>
@@ -235,6 +236,8 @@ bool DJIWPMission::convertFromStandard(const rmw::WaypointItems& standard_missio
             item_cmd == rmw::MavMissionItems::NAV_LAND     || 
             item_cmd == rmw::MavMissionItems::NAV_RETURN_TO_LAUNCH
         )   continue;
+
+        std::cout << "ITEM COMMAND:" << static_cast<uint32_t>(item_cmd) << std::endl;
         
         bool parse_success_flag = false;
 
