@@ -2,6 +2,7 @@
 
 #include <string>
 #include "rsdk/proxy/BaseProxy.hpp"
+#include "InstanceState.hpp"
 
 namespace rsdk::mission
 {
