@@ -22,6 +22,13 @@ namespace rsdk::mission::waypoint
         virtual ~WPMInstancePlugin();
 
         /**
+         * @brief Get the Photo Download Task object
+         *
+         * @return std::unique_ptr<SubMissionTask>
+         */
+        virtual std::unique_ptr<SubMissionTask> getPhotoDownloadTask() = 0;
+
+        /**
          * @brief 设置航点
          * 
          */

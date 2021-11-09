@@ -30,12 +30,18 @@ namespace rsdk::mission
          */
         explicit InstancePlugin(const std::shared_ptr<RobotSystem>&);
 
-
         /**
          * @brief Destroy the InstancePlugin object
          * 
          */
         virtual ~InstancePlugin();
+
+        /**
+         * @brief Get the Main Task object
+         * 
+         * @return std::unique_ptr<MissionTask> 
+         */
+        virtual std::unique_ptr<MainMissionTask> getMainTask() = 0;
 
         /**
          * @brief Set the Id object
@@ -77,15 +83,15 @@ namespace rsdk::mission
         void OnStartStageFinished(MissionTask*, StageRst rst) override;
 
         /**
-         * @brief 
-         * 
+         * @brief
+         *
          * @param rst 
          */
         void OnExecutingStageFinished(MissionTask*,StageRst rst) override;
 
         /**
-         * @brief 
-         * 
+         * @brief
+         *
          */
         virtual bool resetState();
 

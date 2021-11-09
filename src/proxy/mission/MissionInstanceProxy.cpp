@@ -1,38 +1,245 @@
 #include "rsdk/proxy/mission/MissionInstanceProxy.hpp"
 #include "p_rsdk/plugins/mission/InstancePlugin.hpp"
+#include "rsdk/system/RobotSystem.hpp"
+
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+
+#include <mutex>
 
 namespace rsdk::mission
 {
+    using TaskMap = std::unordered_map< std::string, std::unique_ptr<MissionTask> >;
+
+    class MissionInstance::Impl
+    {
+    public:
+        Impl(MissionInstance* owner)
+        {
+            _owner  = owner;
+            _system = _owner->system();
+            // set default callback
+            _state_changed_cb = std::bind(&Impl::default_state_changed_cb, this, std::placeholders::_1);
+        }
+
+        void default_state_changed_cb(InstanceState state)
+        {
+            _system->info(
+                "Instance Name :"
+                + _id + " State From "
+                + std::to_string(static_cast<uint16_t>(_last_state))
+                + " To "
+                + std::to_string(static_cast<uint16_t>(_state))
+            );
+        }
+
+        MissionInstance*                            _owner;
+        std::string                                 _id;
+        std::unique_ptr<MissionTask>                _main_task;
+        TaskMap                                     _sub_task_map;
+        std::vector<std::unique_ptr<MissionTask>>   _end_sub_task_list;
+        InstanceState                               _last_state;
+        InstanceState                               _state;
+        std::shared_ptr<RobotSystem>                _system;
+        std::function<void (InstanceState)>         _state_changed_cb;
+        std::mutex                                  _state_mutex;
+
+        /**
+         * @brief   对终态进行判断(FAILED和FINISHED)
+         * 
+         * @return InstanceState 
+         */
+        InstanceState real_state()
+        {
+            if(_state == InstanceState::FAILED && _sub_task_map.size())
+            {
+                return InstanceState::FAILED_WITH_SUBTASK;
+            }
+            else if (_state == InstanceState::FINISHED && _sub_task_map.size())
+            {
+                return InstanceState::FINISHED_WITH_SUBTASK;
+            }
+            return _state;
+        }
+
+        /**
+         * @brief main task 启动处理
+         * 
+         * @param rst 
+         */
+        void mainTaskStartHandle(MissionTask* task, StageRst rst)
+        {
+            using namespace rsdk::event::mission;
+
+            MissionInfo mission_info;
+            mission_info.instance_name  = _id;
+            mission_info.detail = rst.detail;
+
+            auto event = rsdk::event::REventPtr();
+            // main task 成功开始
+            
+            if(rst.type == StageRstType::SUCCESS)
+            {
+                event = std::make_shared<MissionStartedEvent>(mission_info);
+                _state = InstanceState::EXECUTING;
+            }
+            else
+            {
+                event = std::make_shared<MissionStartFailedEvent>(mission_info);
+                _state = InstanceState::FAILED;
+            }
+            _system->postEvent(_owner, event);
+        }
+
+        /**
+         * @brief   sub task 启动处理
+         *          如果启动失败，将其移动到失败Task列表中
+         * 
+         * @param rst 
+         */
+        void subtaskStartHandle(MissionTask* task, StageRst rst)
+        {
+            if(rst.type != StageRstType::SUCCESS)
+            {
+                _end_sub_task_list.push_back( 
+                    std::move(_sub_task_map[task->taskName()]) 
+                );
+                _sub_task_map.erase(task->taskName());
+            }
+        }
+
+        void mainTaskExecutingHandle(MissionTask* task, StageRst rst)
+        {
+            using namespace rsdk::event::mission;
+            auto event = rsdk::event::REventPtr();
+
+            MissionInfo mission_info;
+            mission_info.instance_name  = _id;
+            mission_info.detail = rst.detail;
+
+            if( rst.type == StageRstType::SUCCESS or 
+                rst.type == StageRstType::INTERRUPTTED)
+            {
+                _state = InstanceState::FINISHED;
+                mission_info.is_interrupted = (rst.type == StageRstType::INTERRUPTTED);
+                event = std::make_shared<MissionFinishedEvent>(mission_info);
+            }
+            else
+            {
+                _state = InstanceState::FAILED;
+                event = std::make_shared<MissionFailedEvent>(mission_info);
+            }
+            _system->postEvent(_owner, event);
+        }
+
+        /**
+         * @brief 不管subtask有没有成功，都将其移除
+         * 
+         * @param task 
+         * @param rst 
+         */
+        void subtaskExecutingHandle(MissionTask* task, StageRst rst)
+        {
+            _end_sub_task_list.push_back( 
+                std::move(_sub_task_map[task->taskName()]) 
+            );
+
+            _sub_task_map.erase(task->taskName());
+        }
+
+        bool __run_task(std::unique_ptr<MissionTask> task)
+        {
+            const std::string& name = task->taskName();
+            if(_sub_task_map.count(name) && _sub_task_map[name]->isRunning())
+            {
+                return false;
+            }
+            _sub_task_map[name] = std::move(task);
+            _sub_task_map[name]->execute(this->_owner);
+            return true;
+        }
+    };
+
     MissionInstance::MissionInstance(
         const std::shared_ptr<RobotSystem>& system, 
         const std::shared_ptr<BasePlugin>& plugin
     ) : BaseProxy(system, plugin)
     {
-        
+        _impl = new Impl(this);
+
+        boost::uuids::uuid a_uuid   = boost::uuids::random_generator()();
+        _impl->_id                  = boost::uuids::to_string(a_uuid);
+        _impl->_system              = system;
+        _impl->_state               = InstanceState::WAITTING;
+    }
+
+    MissionInstance::~MissionInstance()
+    {
+        delete _impl;
     }
 
     void MissionInstance::startMission()
     {
-        plugin<InstancePlugin>()->startMainTask();
+        _impl->_main_task = plugin<InstancePlugin>()->getMainTask();
+        _impl->_main_task->execute(this);
+    }
+
+    void MissionInstance::OnStartStageFinished(MissionTask* task, StageRst rst)
+    {
+        std::lock_guard<std::mutex> lck(_impl->_state_mutex);
+        // 记录状态
+        _impl->_last_state = _impl->_state;
+
+        if(task->isMain()){
+            _impl->mainTaskStartHandle(task, rst);
+        }else{
+            _impl->subtaskStartHandle(task, rst);
+        }
+
+        _impl->_state = _impl->real_state();
+
+        // 如果状态改变, 调用回调
+        if(_impl->_last_state != _impl->_state && _impl->_state_changed_cb)
+        {
+            _impl->_state_changed_cb(_impl->_state);
+        }
+    }
+
+    void MissionInstance::OnExecutingStageFinished(MissionTask* task, StageRst rst)
+    {
+        std::lock_guard<std::mutex> lck(_impl->_state_mutex);
+        // 记录状态
+        _impl->_last_state = _impl->_state;
+        // 交给状态转移函数处理
+        // TODO 封装状态机
+        if(task->isMain()){
+            _impl->mainTaskExecutingHandle(task, rst);
+        }else{
+            _impl->subtaskExecutingHandle(task, rst);
+        }
+
+        _impl->_state = _impl->real_state();
+
+        // 如果状态改变, 调用回调
+        if(_impl->_last_state != _impl->_state && _impl->_state_changed_cb)
+        {
+            _impl->_state_changed_cb(_impl->_state);
+        }
     }
 
     void MissionInstance::setId(const std::string& id)
     {
-        plugin<InstancePlugin>()->setId(id);
+        _impl->_id = id;
     }
 
     const std::string& MissionInstance::id()
     {
-        return plugin<InstancePlugin>()->id();
-    }
-
-    bool MissionInstance::resetState()
-    {
-        return plugin<InstancePlugin>()->resetState();
+        return _impl->_id;
     }
 
     InstanceState MissionInstance::state()
     {
-        return plugin<InstancePlugin>()->state();
+        return _impl->_state;
     }
 }
