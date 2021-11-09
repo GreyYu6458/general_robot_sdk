@@ -20,6 +20,16 @@ add_executable(
     video_stream_test.cpp
 )
 
+add_executable(
+    dji_camera_test
+    camera_controll_test.cpp
+)
+
+add_executable(
+    dji_gimbal_test
+    gimbal_controll_test.cpp
+)
+
 add_dependencies(
     dji_telemetry_test
     dji_vehicle
@@ -43,6 +53,18 @@ add_dependencies(
     dji_vehicle
 )
 
+add_dependencies(
+    dji_camera_test
+    robot_sdk
+    dji_vehicle
+)
+
+add_dependencies(
+    dji_gimbal_test
+    robot_sdk
+    dji_vehicle
+)
+
 target_link_libraries(
     dji_telemetry_test
     robot_sdk
@@ -63,6 +85,18 @@ target_link_libraries(
 
 target_link_libraries(
     dji_video_stream_test
+    robot_sdk
+    dji_vehicle
+)
+
+target_link_libraries(
+    dji_camera_test
+    robot_sdk
+    dji_vehicle
+)
+
+target_link_libraries(
+    dji_gimbal_test
     robot_sdk
     dji_vehicle
 )

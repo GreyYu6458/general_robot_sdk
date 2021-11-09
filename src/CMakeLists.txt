@@ -24,6 +24,8 @@ add_library(
     plugins/BasePlugin.cpp
     plugins/PluginRegister.cpp
     plugins/camera/VideoStreamPlugin.cpp
+    plugins/camera/CameraControlPlugin.cpp
+    plugins/gimbal/GimbalControlPlugin.cpp
     plugins/mission/InstancePlugin.cpp
     plugins/mission/MissionTask.cpp
     plugins/mission/waypoint/WPMInstancePlugin.cpp
@@ -31,6 +33,10 @@ add_library(
     
     proxy/BaseProxy.cpp
     proxy/camera/VideoStream.cpp
+    proxy/camera/CameraControlProxy.cpp
+
+    proxy/gimbal/GimbalControlProxy.cpp
+    
     proxy/mission/MissionInstanceProxy.cpp
     proxy/mission/waypoint/WaypointItems.cpp
     proxy/mission/waypoint/WPMInstanceProxy.cpp

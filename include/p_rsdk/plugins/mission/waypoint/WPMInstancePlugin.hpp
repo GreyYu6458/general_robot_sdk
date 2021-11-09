@@ -13,7 +13,7 @@ namespace rsdk::mission::waypoint
          * @brief Construct a new WPMInstancePlugin object
          * 
          */
-        WPMInstancePlugin(const std::shared_ptr<RobotSystem>&);
+        explicit WPMInstancePlugin(const std::shared_ptr<RobotSystem>&);
 
         /**
          * @brief Destroy the WPMInstancePlugin object

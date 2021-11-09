@@ -19,7 +19,6 @@ namespace rsdk::camera
     public:
         explicit VideoStreamPlugin(const std::shared_ptr<RobotSystem>& sys);
     };
-
 }
 
 #endif

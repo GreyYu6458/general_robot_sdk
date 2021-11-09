@@ -17,7 +17,10 @@
 #include "plugins/collector/DJIGNSSUncertain.hpp"
 #include "plugins/collector/DJIGPSTime.hpp"
 #include "plugins/camera/DJIVideoStream.hpp"
+#include "plugins/camera/DJICameraControl.hpp"
+#include "plugins/gimbal/DJIGimbalControl.hpp"
 #include "plugins/mission/DJIWPMInstance.hpp"
+
 
 using DJILinker = DJI::OSDK::Linker;
 
@@ -48,6 +51,8 @@ private:
         REGIST_PLUGIN(DJIGNSSUncertain,     rsdk::collector::GNSSUncertainInfoPlugin);
         REGIST_PLUGIN(DJIFlightStatus,      rsdk::collector::FlyingRobotStatusPlugin);
         REGIST_PLUGIN(DJIVideoStream,       rsdk::camera::VideoStreamPlugin);
+        REGIST_PLUGIN(DJICameraControl,     rsdk::camera::CameraControlPlugin);
+        REGIST_PLUGIN(DJIGimbalControl,     rsdk::gimbal::GimbalControlPlugin);
         REGIST_PLUGIN(DJIWPMInstance,       rsdk::mission::waypoint::WPMInstancePlugin);
     }
 

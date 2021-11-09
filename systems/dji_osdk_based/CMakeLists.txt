@@ -84,6 +84,9 @@ add_library(
     dji_linux_helper/osdkosal_linux.c
   
     plugins/camera/DJIVideoStream.cpp
+    plugins/camera/DJICameraControl.cpp
+
+    plugins/gimbal/DJIGimbalControl.cpp
 
     plugins/mission/tasks/DJIWPMMainTask.cpp
     plugins/mission/tasks/DownloadPhotoTask.cpp

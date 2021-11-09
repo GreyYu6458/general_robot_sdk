@@ -16,6 +16,7 @@ public:
 
     void clear()
     {
+        _dji_wps.clear();
         _dji_actions.clear();
         _action_map.clear();
     }
