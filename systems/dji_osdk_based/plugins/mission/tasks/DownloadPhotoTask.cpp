@@ -177,16 +177,26 @@ public:
             FileDownloadBlock download_block{this, _file_download_promise};
 
             {
+                /*
                 std::lock_guard<std::mutex>  lck(instance->system()->DJIAPIMutex());
+                dji_vehicle->cameraManager->setModeSync(
+                    DJI::OSDK::PAYLOAD_INDEX_0,
+                    CameraModule::WorkMode::PLAYBACK,
+                    1
+                );
+                */
+
                 info.file_path = save_path + file_ptr->name;
-                dji_vehicle->cameraManager->startReqFileData(
+                auto ret = dji_vehicle->cameraManager->startReqFileData(
                     DJI::OSDK::PAYLOAD_INDEX_0,
                     file_ptr->index,
                     info.file_path,
                     &Impl::fileDownloadReponse,
                     (void*)&download_block
                 );
-                download_rst = future.get();
+
+                download_rst = (ret == ErrorCode::SysCommonErr::Success) ?
+                    future.get() : false;
             }
             /********************* 下载结束 *********************/
 
@@ -217,7 +227,7 @@ public:
             else
             {
                 instance->system()->error(
-                    "Download File :" + file_ptr->name + " Failed"
+                    "Download File :" + file_ptr->name + " Failed!"
                 );
             }
         }

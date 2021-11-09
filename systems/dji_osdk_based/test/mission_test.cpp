@@ -86,10 +86,9 @@ int main()
                 event->type() == static_cast<uint64_t>(mission::MissionEvent::MISSION_FAILED) 
             )
             {
-                wait_finish_cv.notify_all();
-
                 mission::MissionInfo* info = (mission::MissionInfo*)event->payload_unsafe();
                 std::cout << "is interruptted :" << (info->is_interrupted ? "yes" : "no") << std::endl;
+                wait_finish_cv.notify_all();
             }
             if(event->type() == static_cast<uint64_t>(mission::MissionEvent::MISSION_START_FAILED_EVNET))
             {

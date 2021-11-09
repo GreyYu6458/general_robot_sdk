@@ -54,7 +54,7 @@ namespace rsdk::mission
         return static_cast<uint16_t>(state) & end_mask;
     }
 
-    inline bool id_expectant_end(InstanceState state)
+    inline bool is_expectant_end(InstanceState state)
     {
         return static_cast<uint16_t>(state) & expectant_end_mask;
     }

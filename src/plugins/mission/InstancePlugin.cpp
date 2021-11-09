@@ -26,7 +26,7 @@ namespace rsdk::mission
         void default_state_changed_cb(InstanceState state)
         {
             _system->info(
-                "[instance] Instance Name :" 
+                "Instance Name :" 
                 + _id + " State From "
                 + std::to_string(static_cast<uint16_t>(_last_state))
                 + " To "
@@ -198,7 +198,7 @@ namespace rsdk::mission
 
     bool InstancePlugin::resetState()
     {
-        if( is_end_state(_impl->_state) || id_expectant_end(_impl->_state) )
+        if( is_end_state(_impl->_state) || is_expectant_end(_impl->_state) )
         {
             _impl->_state = InstanceState::WAITTING;
             _impl->_last_state = InstanceState::WAITTING;

@@ -122,9 +122,9 @@ DJIMissionSharedInfo& DJIWPMInstance::sharedInfo()
 
 bool DJIWPMInstance::resetState()
 {
-    _impl->_system->info("DJI MISSION Instance Reset");
-    if(rsdk::mission::is_end_state(state()))
+    if(rsdk::mission::is_end_state(state()) || rsdk::mission::is_expectant_end(state()))
     {
+        _impl->_system->info("DJI MISSION Instance Reset");
         setMainTask( std::make_unique<DJIWPMMainTask>(this) );
         _impl->_shared_info.get_first_photo = false;
         _impl->_shared_info.dji_wp_mission.clear();
