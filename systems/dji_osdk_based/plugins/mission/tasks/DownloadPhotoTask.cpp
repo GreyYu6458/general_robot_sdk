@@ -20,13 +20,20 @@ public:
 
     rsdk::mission::StageRst startSyncFiles()
     {
+        rsdk::mission::StageRst rst;
+
+        if(!instance->system()->cameraManager().isMainCameraEnable())
+        {
+            rst.detail = "DJI Camera Not Enable.";
+            rst.type = rsdk::mission::StageRstType::FAILED;
+            return rst;
+        }
+
         // wait photo totally recorded
         std::this_thread::sleep_for(std::chrono::seconds(2));
 
         auto sync_rst = instance->system()->cameraManager().updateFilesSetSync();
         
-        rsdk::mission::StageRst rst;
-
         if(!sync_rst.second)
         {
             rst.detail = "Sync Files In Camera Failed.";
@@ -142,9 +149,9 @@ public:
         return item_index;
     }
 
-    rsdk::mission::StageRst downloadFiles()
+    rsdk::mission::StageRst downloadFiles(const std::string& path)
     {
-        const auto& save_path = instance->mediaRootPath();
+        const auto& save_path = path;
 
         instance->system()->info("total " + std::to_string(files_ready_to_download.size()) + " new files in camera");
         rsdk::mission::StageRst rst;
@@ -244,7 +251,7 @@ public:
 };
 
 DJIDownloadPhotoTask::DJIDownloadPhotoTask(DJIWPMInstance* instance):
-    rsdk::mission::SubMissionTask("DJI Download Photo Task"),
+    rsdk::mission::waypoint::PhotoDownloadTask("DJI Download Photo Task"),
     _impl(new Impl(instance))
 {
     
@@ -274,5 +281,5 @@ rsdk::mission::StageRst DJIDownloadPhotoTask::start_stage()
  */
 rsdk::mission::StageRst DJIDownloadPhotoTask::executing_stage()
 {
-    return _impl->downloadFiles();
+    return _impl->downloadFiles(mediaDownloadPath());
 }

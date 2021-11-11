@@ -1,15 +1,23 @@
 #ifndef _DOWNLOAD_PHOTO_TASK_HPP_
 #define _DOWNLOAD_PHOTO_TASK_HPP_
-#include "p_rsdk/plugins/mission/MissionTask.hpp"
+#include "p_rsdk/plugins/mission/waypoint/WPMInstancePlugin.hpp"
 
 class DJIWPMInstance;
 
-class DJIDownloadPhotoTask : public rsdk::mission::SubMissionTask
+class DJIDownloadPhotoTask : public rsdk::mission::waypoint::PhotoDownloadTask
 {
 public:
-    DJIDownloadPhotoTask(DJIWPMInstance*);
+    /**
+     * @brief Construct a new DJIDownloadPhotoTask object
+     * 
+     */
+    explicit DJIDownloadPhotoTask(DJIWPMInstance*);
 
-    virtual ~DJIDownloadPhotoTask();
+    /**
+     * @brief Destroy the DJIDownloadPhotoTask object
+     * 
+     */
+    virtual ~DJIDownloadPhotoTask();    
 
 protected:
     /**

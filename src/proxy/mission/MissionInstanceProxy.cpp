@@ -242,4 +242,14 @@ namespace rsdk::mission
     {
         return _impl->_state;
     }
+
+    void MissionInstance::setStateChangedCallback(const std::function<void (InstanceState)>& cb)
+    {
+        _impl->_state_changed_cb = 
+        [this, cb](InstanceState state)
+        {
+            this->_impl->default_state_changed_cb(state);
+            cb(state);
+        };
+    }
 }

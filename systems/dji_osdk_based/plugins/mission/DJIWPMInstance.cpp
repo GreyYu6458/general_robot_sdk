@@ -79,10 +79,6 @@ bool DJIWPMInstance::revent(::rsdk::event::REventParam _event)
     using namespace rsdk::event;
     using namespace rsdk::mission;
     
-    if(!system()->cameraManager().isMainCameraEnable())
-    {   // 如果相机没有使能，直接跳过
-        return waypoint::WPMInstancePlugin::revent(_event);
-    }
     if( _event->type() == mission::WPMTakenPhotoEvent::event_type)
     {
         auto event = rsdk::event::REventCast<mission::WPMTakenPhotoEvent>(_event);
@@ -118,20 +114,6 @@ bool DJIWPMInstance::revent(::rsdk::event::REventParam _event)
 DJIMissionSharedInfo& DJIWPMInstance::sharedInfo()
 {
     return _impl->_shared_info;
-}
-
-bool DJIWPMInstance::resetState()
-{
-    if(rsdk::mission::is_end_state(state()) || rsdk::mission::is_expectant_end(state()))
-    {
-        _impl->_system->info("DJI MISSION Instance Reset");
-        setMainTask( std::make_unique<DJIWPMMainTask>(this) );
-        _impl->_shared_info.get_first_photo = false;
-        _impl->_shared_info.dji_wp_mission.clear();
-        _impl->_shared_info.photo_time_item_index_list.clear();
-    }
-
-    return rsdk::mission::InstancePlugin::resetState();
 }
 
 /**
@@ -204,9 +186,8 @@ DJIVehicleModels DJIWPMInstance::supportModel()
 
 void DJIWPMInstance::exec()
 {
-    startMainTask(); 
-}
 
+}
 
 bool DJIWPMInstance::start()
 {

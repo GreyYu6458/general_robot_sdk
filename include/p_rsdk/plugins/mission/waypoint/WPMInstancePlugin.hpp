@@ -2,9 +2,51 @@
 #include "../InstancePlugin.hpp"
 #include "rsdk/proxy/mission/waypoint/WaypointItems.hpp"
 #include "rsdk/proxy/mission/ControllableInstance.hpp"
+#include <string>
 
 namespace rsdk::mission::waypoint
 {
+    class PhotoDownloadTask : public rsdk::mission::SubMissionTask
+    {
+    public:
+        /**
+         * @brief set default task name "PHOTO_DOWNLOAD_TASK"
+         */
+        PhotoDownloadTask();
+
+        /**
+         * @brief Construct a new Photo Download Task object
+         * 
+         * @param task_name 
+         */
+        explicit PhotoDownloadTask(const std::string& task_name);
+
+        /**
+         * @brief Destroy the Photo Download Task object
+         * 
+         */
+        virtual ~PhotoDownloadTask();
+
+        /**
+         * @brief Set the Media Download Path object
+         * 
+         * @param path 
+         */
+        void setMediaDownloadPath(const std::string& path);
+
+        /**
+         * @brief 
+         * 
+         * @return const std::string& 
+         */
+        const std::string& mediaDownloadPath();
+
+    protected:
+
+        class Impl;
+        Impl* _impl;
+    };
+
     class WPMInstancePlugin :   public rsdk::mission::InstancePlugin,
                                 public rsdk::mission::Controllable
     {
@@ -23,14 +65,14 @@ namespace rsdk::mission::waypoint
 
         /**
          * @brief Get the Photo Download Task object
+         *        如果不支持图像的下载，返回空指针
          *
-         * @return std::unique_ptr<SubMissionTask>
+         * @return std::unique_ptr<PhotoDownloadTask>
          */
-        virtual std::unique_ptr<SubMissionTask> getPhotoDownloadTask() = 0;
+        virtual std::unique_ptr<PhotoDownloadTask> getPhotoDownloadTask() = 0;
 
         /**
          * @brief 设置航点
-         * 
          */
         void setWaypointItems(const WaypointItems&);
 
@@ -41,19 +83,6 @@ namespace rsdk::mission::waypoint
          */
         const WaypointItems& waypointItems();
 
-        /**
-         * @brief 设置媒体保存的目录
-         * 
-         * @param path 
-         */
-        void setMediaRootPath(const std::string& path);
-
-        /**
-         * @brief 获取保存媒体的根目录,如果未设置,返回空字符串
-         * 
-         * @return const std::string& 
-         */
-        const std::string& mediaRootPath();
 
     protected:
         bool revent(::rsdk::event::REventParam) override;

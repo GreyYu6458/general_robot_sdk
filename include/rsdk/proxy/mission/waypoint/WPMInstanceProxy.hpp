@@ -12,11 +12,11 @@ namespace rsdk::mission::waypoint
     public:
         WPMInstanceProxy(const std::shared_ptr<RobotSystem>&);
 
+        virtual ~WPMInstanceProxy();
+
         void setWaypointItems(const WaypointItems&);
 
         const WaypointItems& waypointItems();
-
-        void setStateChangedCallback(const std::function<void (InstanceState)>&);
 
         void setMediaRootPath(const std::string& path);
 
@@ -27,6 +27,14 @@ namespace rsdk::mission::waypoint
         void stop(const ControlCallback&);
 
         void return2home(const ControlCallback&);
+
+    protected:
+    
+        bool eventFilter(RObject*, ::rsdk::event::REventParam) override;
+
+    private:
+        class Impl;
+        Impl* _impl;
     };
 }
 

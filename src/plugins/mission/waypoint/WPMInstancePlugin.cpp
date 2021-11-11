@@ -4,6 +4,40 @@
 
 namespace rsdk::mission::waypoint
 {
+    class PhotoDownloadTask::Impl
+    {
+    public:
+        std::string _media_download_path{""};
+    };
+
+    PhotoDownloadTask::PhotoDownloadTask():
+        SubMissionTask("PHOTO_DOWNLOAD_TASK")
+    {
+        _impl = new Impl();
+    }
+
+    PhotoDownloadTask::PhotoDownloadTask(const std::string& task_name):
+        SubMissionTask(task_name)
+    {
+        _impl = new Impl();
+    }
+
+    PhotoDownloadTask::~PhotoDownloadTask()
+    {
+        delete _impl;
+    } 
+
+    void PhotoDownloadTask::setMediaDownloadPath(const std::string& path)
+    {
+        _impl->_media_download_path = path;
+    }
+
+    const std::string& PhotoDownloadTask::mediaDownloadPath()
+    {
+        return _impl->_media_download_path;
+    }
+
+
     RegistBasePlugin(WPMInstancePlugin);
 
     class WPMInstancePlugin::Impl
@@ -33,16 +67,6 @@ namespace rsdk::mission::waypoint
     const WaypointItems& WPMInstancePlugin::waypointItems()
     {
         return _impl->_items;
-    }
-
-    void WPMInstancePlugin::setMediaRootPath(const std::string& path)
-    {
-        _impl->_media_path = path;
-    }
-
-    const std::string& WPMInstancePlugin::mediaRootPath()
-    {
-        return _impl->_media_path;
     }
 
     bool WPMInstancePlugin::revent(::rsdk::event::REventParam event)

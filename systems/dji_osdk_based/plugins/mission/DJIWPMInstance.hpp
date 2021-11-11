@@ -75,12 +75,6 @@ public:
      */
     DJIVehicleModels supportModel() override;
 
-    /**
-     * @brief   
-     *          调用顺序 
-     *          exec() -> Instance::startMainTask() -> task::execute(instance*);
-     * 
-     */
     void exec() override;
 
     /**
@@ -98,14 +92,6 @@ public:
      * @return false 
      */
     bool isStarted() override;
-
-    /**
-     * @brief 
-     * 
-     * @return true 
-     * @return false 
-     */
-    bool resetState() override;
 
 protected:
     /**

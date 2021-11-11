@@ -75,8 +75,11 @@ public:
 
     DJICameraManager::SyncRst updateFilesSetSync()
     {
+        std::lock_guard<std::mutex> lck(_system->DJIAPIMutex());
+
         _system->info("[system]:M300 Detected, Start Camera File Synchronizating");
         _system->info("[system]:Start obtaining download right");
+        
         auto ret = _system->vehicle()->cameraManager->obtainDownloadRightSync(
             PAYLOAD_INDEX_0,
             true,
@@ -112,7 +115,6 @@ public:
         auto future = _file_sync_promise.get_future();
 
         FileSyncBlock sync_block{this, _file_sync_promise};
-        std::lock_guard<std::mutex> lck(_system->DJIAPIMutex());
         _system->warning("[system]:Start Downloading File Descriptions In Camera");
         _system->vehicle()->cameraManager->startReqFileList(
             PAYLOAD_INDEX_0,
