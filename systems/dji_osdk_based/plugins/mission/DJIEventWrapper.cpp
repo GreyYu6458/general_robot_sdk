@@ -102,19 +102,17 @@ template <> void process<DJIMissionEvent::MissionFinished>
 {
     auto& mission_shared_info = event_wrapper.instance()->sharedInfo();
     event_wrapper.instance()->system()->trace("[mission]: Mission Finished:" + std::to_string(ack));
-    rsdk::mission::StageRst rst;
 
-    if(mission_shared_info.current_repeated_times < mission_shared_info.total_repeated_times + 1)
-    {
-        rst.type    = rsdk::mission::StageRstType::INTERRUPTTED;
-        rst.detail  = "mission interruptted";
-    }
-    else
-    {
-        rst.type    = rsdk::mission::StageRstType::SUCCESS;
-        rst.detail  = "mission finish success";
-    }
-    event_wrapper.instance()->notifyMissionFinished(rst);
+    rsdk::event::mission::MissionInfo info;
+    info.instance_name  = "Unknown";
+    info.is_interrupted = 
+        mission_shared_info.current_repeated_times < mission_shared_info.total_repeated_times + 1;
+    info.detail         = info.is_interrupted ? "Mission Interrupted" : "Mission Finished";
+
+    event_wrapper.instance()->system()->postEvent(
+        event_wrapper.instance(),
+        std::make_shared<rsdk::event::mission::TaskEvent>(info)
+    );
 }
 
 /**

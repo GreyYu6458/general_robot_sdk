@@ -36,7 +36,7 @@ namespace rsdk::mission
 
         MissionInstance*                            _owner;
         std::string                                 _id;
-        std::unique_ptr<MissionTask>                _main_task;
+        std::unique_ptr<MainMissionTask>            _main_task;
         TaskMap                                     _sub_task_map;
         std::vector<std::unique_ptr<MissionTask>>   _end_sub_task_list;
         InstanceState                               _last_state;
@@ -245,11 +245,26 @@ namespace rsdk::mission
 
     void MissionInstance::setStateChangedCallback(const std::function<void (InstanceState)>& cb)
     {
-        _impl->_state_changed_cb = 
+        _impl->_state_changed_cb =
         [this, cb](InstanceState state)
         {
             this->_impl->default_state_changed_cb(state);
             cb(state);
         };
+    }
+
+    bool MissionInstance::runSubTask(std::unique_ptr<SubMissionTask> task)
+    {
+        return _impl->__run_task(std::move(task));
+    }
+
+    bool MissionInstance::hasSubTask(const std::string& task_name)
+    {
+        return _impl->_sub_task_map.count(task_name);
+    }
+
+    std::unique_ptr<MainMissionTask>& MissionInstance::mainTask()
+    {
+        return _impl->_main_task;
     }
 }

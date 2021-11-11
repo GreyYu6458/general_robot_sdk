@@ -1,9 +1,11 @@
 #include "rsdk/proxy/mission/waypoint/WPMInstanceProxy.hpp"
 #include "p_rsdk/plugins/mission/waypoint/WPMInstancePlugin.hpp"
 #include "rsdk/system/RobotSystem.hpp"
+#include "rsdk/event/MissionEvents.hpp"
 
 namespace rsdk::mission::waypoint
 {
+    #define PLUGIN plugin<WPMInstancePlugin>()
 
     class WPMInstanceProxy::Impl
     {
@@ -21,20 +23,21 @@ namespace rsdk::mission::waypoint
         void handleSubtaskEvent(std::shared_ptr<rsdk::event::mission::TaskEvent>& event)
         {
             // 目前只有下载任务,这里处理下载任务完成的事件
-            if(_photo_event_not_handle)
+            if(_photo_event_not_handle && !_owner->hasSubTask(PhotoDownloadTask::task_name()))
             { // 如果有拍照事件没有处理，则新建一个下载任务
-                _owner->runSubtask( std::make_unique<DJIDownloadPhotoTask>(this->_owner) );
+                auto task = _owner->PLUGIN->getPhotoDownloadTask();
+                task->setMediaDownloadPath(_media_download_path);
+                task->setSharedInfo(&_shared_info);
+                _owner->runSubTask(std::move(task));
             }
         }
 
-
-        WPMInstanceProxy    _owner;
+        WPMInstanceProxy*   _owner;
+        WPMSharedInfo       _shared_info;
         std::string         _media_download_path{""};
         bool                _photo_event_not_handle{false};
     };
 
-
-#define PLUGIN plugin<WPMInstancePlugin>()
 
     WPMInstanceProxy::WPMInstanceProxy(const std::shared_ptr<RobotSystem>& system)
     :MissionInstance(system, system->BasePluginImpl<WPMInstancePlugin>())
@@ -50,7 +53,7 @@ namespace rsdk::mission::waypoint
     void WPMInstanceProxy::setWaypointItems(const WaypointItems& waypoints)
     {
         PLUGIN->setWaypointItems(waypoints);
-    } 
+    }
 
     const WaypointItems& WPMInstanceProxy::waypointItems()
     {
@@ -61,6 +64,11 @@ namespace rsdk::mission::waypoint
     {
         _impl->_media_download_path = path;
     }
+
+    const std::string& WPMInstanceProxy::mediaRootPath()
+    {
+        return _impl->_media_download_path;
+    } 
 
     void WPMInstanceProxy::pause(const ControlCallback& f)
     {
@@ -82,8 +90,53 @@ namespace rsdk::mission::waypoint
         PLUGIN->return2home(f);
     }
 
-    bool WPMInstanceProxy::eventFilter(RObject* obj, ::rsdk::event::REventParam event)
+    /**
+     * @brief type of obj is WPMInstancePlugin
+     * 
+     * @param obj 
+     * @param _event 
+     * @return true 
+     * @return false 
+     */
+    bool WPMInstanceProxy::eventFilter(RObject* obj, ::rsdk::event::REventParam _event)
     {
-        return MissionInstance::eventFilter(obj, event);
+        // 相机拍照尝试下载照片
+        if(_event->type() == rsdk::event::mission::WPMTakenPhotoEvent::event_type)
+        {
+            // 检测是否还存在拍照任务在运行
+            if(!hasSubTask(PhotoDownloadTask::task_name()))
+            {
+                auto task = PLUGIN->getPhotoDownloadTask();
+                task->setMediaDownloadPath(_impl->_media_download_path);
+                task->setSharedInfo(&_impl->_shared_info);
+                runSubTask(std::move(task));
+                _impl->_photo_event_not_handle = false;
+            }
+            else
+            {
+                system()->warning("There is photo download task already exist");
+                _impl->_photo_event_not_handle = true;
+            }
+        }
+        else if(_event->type() == rsdk::event::mission::TaskEvent::event_type)
+        {
+            auto event = rsdk::event::REventCast<rsdk::event::mission::TaskEvent>(_event);
+            // 处理主task事件
+            if(event->payload().is_main_task)
+                _impl->handleMainTaskEvent(event);
+            else
+                _impl->handleSubtaskEvent(event);
+        }
+        else if(_event->type() == rsdk::event::mission::MissionFinishedEvent::event_type)
+        {
+            auto event = rsdk::event::REventCast<rsdk::event::mission::MissionFinishedEvent>(_event);
+
+            rsdk::mission::StageRst rst;
+            rst.type = event->payload().
+
+            mainTask()->notifyMissionFinish();
+        }
+
+        return MissionInstance::eventFilter(obj, _event);
     }
 }

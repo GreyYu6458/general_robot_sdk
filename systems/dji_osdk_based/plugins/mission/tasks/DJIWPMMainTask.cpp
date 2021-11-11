@@ -119,7 +119,7 @@ public:
     }
 };
 
-void DJIWPMMainTask::notifyExecutingStageFinished(const rsdk::mission::StageRst& rst)
+void DJIWPMMainTask::notifyMissionFinish(const rsdk::mission::StageRst& rst)
 {
     std::lock_guard<std::mutex> lck(_impl->_wait_finished_mutex);
 

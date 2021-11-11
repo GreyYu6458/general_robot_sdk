@@ -68,6 +68,29 @@ namespace rsdk::mission
          */
         void OnExecutingStageFinished(MissionTask* task, StageRst rst) override;
 
+        /**
+         * @brief
+         *
+         * @return true
+         * @return false
+         */
+        bool runSubTask(std::unique_ptr<SubMissionTask> task);
+
+        /**
+         * @brief 
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool hasSubTask(const std::string&);
+
+        /**
+         * @brief 
+         * 
+         * @return std::unique_ptr<SubMissionTask> 
+         */
+        std::unique_ptr<MainMissionTask>& mainTask();
+
     private:
         class Impl;
         Impl* _impl;

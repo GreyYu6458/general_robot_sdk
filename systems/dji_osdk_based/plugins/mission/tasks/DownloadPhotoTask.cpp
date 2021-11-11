@@ -12,15 +12,29 @@
 class DJIDownloadPhotoTask::Impl
 {
 public:
-    Impl(DJIWPMInstance* instance)
+    Impl(DJIDownloadPhotoTask* owner, DJIWPMInstance* instance)
     : instance(instance)
     {
-
+        _owner = owner;
     }
 
     rsdk::mission::StageRst startSyncFiles()
     {
         rsdk::mission::StageRst rst;
+
+        if( !_owner->sharedInfo() )
+        {
+            rst.detail = "Shared Info Not Set";
+            rst.type = rsdk::mission::StageRstType::FAILED;
+            return rst;
+        }
+
+        if( _owner->mediaDownloadPath().empty() )
+        {
+            rst.detail = "Media Path Not Set";
+            rst.type = rsdk::mission::StageRstType::FAILED;
+            return rst;
+        }
 
         if(!instance->system()->cameraManager().isMainCameraEnable())
         {
@@ -112,15 +126,15 @@ public:
         uint64_t event_time = UINT64_MAX;
         uint32_t item_index = UINT32_MAX;
 
-        auto& shared_info = instance->sharedInfo();
+        auto shared_info = _owner->sharedInfo();
 
         // START MATCH
-        for(const auto event : instance->sharedInfo().photo_time_item_index_list)
+        for(const auto event : shared_info->photo_time_item_index_list)
         {
             diff_time = event.first - time_stamp;
-            if(shared_info.get_first_photo)
+            if(shared_info->get_first_photo)
             {
-                diff_time = diff_time - shared_info.photo_bias_time;
+                diff_time = diff_time - shared_info->photo_bias_time;
             }
             diff_time = diff_time < 0 ? -diff_time : diff_time;  // abs
             if(min > diff_time)
@@ -131,10 +145,10 @@ public:
             }
         }
 
-        if(!shared_info.get_first_photo)
+        if(!shared_info->get_first_photo)
         {
-            shared_info.photo_bias_time = min;
-            shared_info.get_first_photo = true;
+            shared_info->photo_bias_time = min;
+            shared_info->get_first_photo = true;
         }
 
         instance->system()->info(
@@ -143,7 +157,7 @@ public:
             " UNIXTIME :"   + std::to_string(time_stamp) + 
             " EVENTTIME:"   + std::to_string(event_time) +
             " DIFFERENCE:"  + std::to_string(min) + 
-            " BIAS:"        + std::to_string(shared_info.photo_bias_time)
+            " BIAS:"        + std::to_string(shared_info->photo_bias_time)
         );
 
         return item_index;
@@ -206,7 +220,6 @@ public:
                     future.get() : false;
             }
             /********************* 下载结束 *********************/
-
             if(download_rst)
             {
                 // match the photo with item index
@@ -245,16 +258,15 @@ public:
     }
 
     std::mutex                          _file_download_mutex;
+    DJIDownloadPhotoTask*               _owner;
     std::condition_variable             _file_download_cv;
     std::vector<const DJIMediaFile *>   files_ready_to_download;
     DJIWPMInstance*                     instance;
 };
 
-DJIDownloadPhotoTask::DJIDownloadPhotoTask(DJIWPMInstance* instance):
-    rsdk::mission::waypoint::PhotoDownloadTask("DJI Download Photo Task"),
-    _impl(new Impl(instance))
+DJIDownloadPhotoTask::DJIDownloadPhotoTask(DJIWPMInstance* instance)
 {
-    
+    _impl = new Impl(this, instance);
 }
 
 DJIDownloadPhotoTask::~DJIDownloadPhotoTask()

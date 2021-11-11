@@ -106,6 +106,8 @@ namespace rsdk::mission
         MainMissionTask(
             const std::string& _task_name
         ) : MissionTask(_task_name, true){}
+
+        virtual void notifyMissionFinish(const StageRst& rst) = 0;
     };
 
     class SubMissionTask : public MissionTask

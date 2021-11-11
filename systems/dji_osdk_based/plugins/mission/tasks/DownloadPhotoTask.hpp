@@ -17,7 +17,7 @@ public:
      * @brief Destroy the DJIDownloadPhotoTask object
      * 
      */
-    virtual ~DJIDownloadPhotoTask();    
+    virtual ~DJIDownloadPhotoTask();
 
 protected:
     /**

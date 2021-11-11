@@ -14,7 +14,7 @@ public:
      * @brief 提示该task,任务终止
      * 
      */
-    void notifyExecutingStageFinished(const rsdk::mission::StageRst&);
+    void notifyMissionFinish(const rsdk::mission::StageRst&) override;
 
 protected:
     /**

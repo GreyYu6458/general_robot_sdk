@@ -7,17 +7,18 @@ namespace rsdk::mission::waypoint
     class PhotoDownloadTask::Impl
     {
     public:
-        std::string _media_download_path{""};
+        std::string     _media_download_path{""};
+        WPMSharedInfo*  _shared_info{nullptr};
     };
 
-    PhotoDownloadTask::PhotoDownloadTask():
-        SubMissionTask("PHOTO_DOWNLOAD_TASK")
+    const char* PhotoDownloadTask::task_name()
     {
-        _impl = new Impl();
+        static const char* name = "PHOTO_DOWNLOAD_TASK";
+        return name;
     }
 
-    PhotoDownloadTask::PhotoDownloadTask(const std::string& task_name):
-        SubMissionTask(task_name)
+    PhotoDownloadTask::PhotoDownloadTask():
+        SubMissionTask(PhotoDownloadTask::task_name())
     {
         _impl = new Impl();
     }
@@ -32,11 +33,20 @@ namespace rsdk::mission::waypoint
         _impl->_media_download_path = path;
     }
 
+    void PhotoDownloadTask::setSharedInfo(WPMSharedInfo* info)
+    {
+        _impl->_shared_info = info;
+    }
+
     const std::string& PhotoDownloadTask::mediaDownloadPath()
     {
         return _impl->_media_download_path;
     }
 
+    WPMSharedInfo* const PhotoDownloadTask::sharedInfo()
+    {
+        return _impl->_shared_info;
+    }
 
     RegistBasePlugin(WPMInstancePlugin);
 
@@ -46,7 +56,6 @@ namespace rsdk::mission::waypoint
         WaypointItems   _items;
         std::string     _media_path;
     };
-
 
     WPMInstancePlugin::WPMInstancePlugin(const std::shared_ptr<RobotSystem>& system)
         :InstancePlugin(system)

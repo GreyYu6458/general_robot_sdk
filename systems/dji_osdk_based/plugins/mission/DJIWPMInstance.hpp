@@ -8,7 +8,7 @@
 class DJIWPMInstance : 
     public  rsdk::mission::waypoint::WPMInstancePlugin, 
             DJIPluginBase
-{   
+{
 public:
     /**
      * @brief Construct a new DJIWPMInstance object
@@ -27,7 +27,24 @@ public:
      */
     virtual ~DJIWPMInstance();
 
-    // TODO 如下三个接口是同步实现，以后可以尝试异步
+    /**
+     * @brief Get the Photo Download Task object
+     * 
+     * @return std::unique_ptr<rsdk::mission::waypoint::PhotoDownloadTask> 
+     */
+    std::unique_ptr<rsdk::mission::waypoint::PhotoDownloadTask> getPhotoDownloadTask() override;
+    
+    /**
+     * @brief Get the Main Task object
+     * 
+     * @return std::unique_ptr<rsdk::mission::MainMissionTask> 
+     */
+    std::unique_ptr<rsdk::mission::MainMissionTask> getMainTask() override;
+
+    /**
+     * @brief 
+     * 
+     */
     void pause(const  rsdk::mission::ControlCallback&) override;
 
     /**
@@ -61,12 +78,6 @@ public:
      * @return DJIMissionSharedInfo& 
      */
     DJIMissionSharedInfo& sharedInfo();
-
-    /**
-     * @brief 
-     * 
-     */
-    void notifyMissionFinished(const rsdk::mission::StageRst&);
 
     /**
      * @brief 只有M300支持该任务模块, 因为使用的是DJI MISSION V2

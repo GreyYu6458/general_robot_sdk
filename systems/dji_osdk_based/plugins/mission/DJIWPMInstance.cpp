@@ -33,20 +33,6 @@ public:
         return std::string("ErrorMsg:") + msg.errorMsg + ";ModuleMsg:" + msg.moduleMsg + ";SolutionMsg:" + msg.solutionMsg;
     }
 
-    void handleMainTaskEvent(std::shared_ptr<rsdk::event::mission::TaskEvent>& event)
-    {
-
-    }
-
-    void handleSubtaskEvent(std::shared_ptr<rsdk::event::mission::TaskEvent>& event)
-    {
-        // 目前只有下载任务,这里处理下载任务完成的事件
-        if(_photo_event_not_handle)
-        { // 如果有拍照事件没有处理，则新建一个下载任务
-            _owner->runSubtask( std::make_unique<DJIDownloadPhotoTask>(this->_owner) );
-        }
-    }
-
     std::shared_ptr<DJIVehicleSystem>               _system;
     DJI::OSDK::WaypointV2MissionOperator*           _dji_mission_operator;
     DJIWPMInstance*                                 _owner;
@@ -63,8 +49,6 @@ DJIWPMInstance::DJIWPMInstance(
     _impl = new Impl(this, system);
     _impl->_event_wrapper = new DJIEventWrapper(this);
     _impl->_event_wrapper->startListeningDJILowLayerEvent();
-
-    setMainTask( std::make_unique<DJIWPMMainTask>(this) );
 }
 
 DJIWPMInstance::~DJIWPMInstance()
@@ -78,35 +62,6 @@ bool DJIWPMInstance::revent(::rsdk::event::REventParam _event)
 {
     using namespace rsdk::event;
     using namespace rsdk::mission;
-    
-    if( _event->type() == mission::WPMTakenPhotoEvent::event_type)
-    {
-        auto event = rsdk::event::REventCast<mission::WPMTakenPhotoEvent>(_event);
-        // 记录事件
-        sharedInfo().photo_time_item_index_list.push_back( 
-            {_event->hostTime(), event->payload().item_index}
-        );
-
-        // 新建下载任务，如果已有下载任务在执行，则设置相应标志位
-        auto add_rst = runSubtask( std::make_unique<DJIDownloadPhotoTask>(this) );
-        _impl->_photo_event_not_handle = (add_rst != RunSubtaskRst::SUCCESS);
-
-        if(_impl->_photo_event_not_handle)
-        {
-            system()->warning("There is photo download task already exist");
-        }
-    }
-    else if(_event->type() == mission::TaskEvent::event_type)
-    {
-        auto event = rsdk::event::REventCast<mission::TaskEvent>(_event);
-        // 处理主task事件
-        if(event->payload().is_main_task)
-            _impl->handleMainTaskEvent(event);
-        else
-            _impl->handleSubtaskEvent(event);
-    }
-    // TODO 还有一种情况没有考虑到，
-    // TODO 任务结束，上一次下载任务还在继续，但是在上一次下载任务后,任务结束前，有新的照片产生。这个时候人会有遗漏的照片
 
     return waypoint::WPMInstancePlugin::revent(_event);
 }
@@ -116,14 +71,14 @@ DJIMissionSharedInfo& DJIWPMInstance::sharedInfo()
     return _impl->_shared_info;
 }
 
-/**
- * @brief 
- * 
- * @param rst 
- */
-void DJIWPMInstance::notifyMissionFinished(const rsdk::mission::StageRst& rst)
+std::unique_ptr<rsdk::mission::waypoint::PhotoDownloadTask> DJIWPMInstance::getPhotoDownloadTask()
 {
-    static_cast<DJIWPMMainTask*>(mainTask().get())->notifyExecutingStageFinished(rst);
+    return std::make_unique<DJIDownloadPhotoTask>(this);
+}
+
+std::unique_ptr<rsdk::mission::MainMissionTask> DJIWPMInstance::getMainTask()
+{
+    return std::make_unique<DJIWPMMainTask>(this);
 }
 
 void DJIWPMInstance::pause(const rsdk::mission::ControlCallback& cb)
