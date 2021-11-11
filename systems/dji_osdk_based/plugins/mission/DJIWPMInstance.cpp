@@ -127,6 +127,7 @@ bool DJIWPMInstance::resetState()
         _impl->_system->info("DJI MISSION Instance Reset");
         setMainTask( std::make_unique<DJIWPMMainTask>(this) );
         _impl->_shared_info.get_first_photo = false;
+        _impl->_shared_info.current_repeated_times = 0;
         _impl->_shared_info.dji_wp_mission.clear();
         _impl->_shared_info.photo_time_item_index_list.clear();
     }

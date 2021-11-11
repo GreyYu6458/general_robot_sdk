@@ -20,6 +20,7 @@ public:
     void clear()
     {
         _dji_wps.clear();
+        _wp_index_seq_list.clear();
         _dji_actions.clear();
         _action_map.clear();
     }
