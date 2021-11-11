@@ -50,6 +50,7 @@ namespace rsdk::event::mission
 
     struct WPMProgressInfo
     {
+        uint32_t item_index;
         uint32_t current_wp;
         uint32_t total_wp;
     };

@@ -56,6 +56,14 @@ public:
     bool eventType(size_t action_id, DJIActionEvent& dji_action_event);
 
     /**
+     * @brief 将DJI航点序号改为序号
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool wpIndex2Sequence(uint32_t wp_index, uint32_t& sequence);
+
+    /**
      * @brief 
      * 
      */

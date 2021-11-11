@@ -132,6 +132,7 @@ template <> void process<DJIMissionEvent::WaypointIndexUpdate>
 
     rsdk::event::mission::WPMProgressInfo info;
     info.current_wp = ack;
+    event_wrapper.instance()->sharedInfo().dji_wp_mission.wpIndex2Sequence(ack, info.item_index);
     info.total_wp   = event_wrapper.instance()->sharedInfo().total_wp;
 
     auto wp_update_event = std::make_shared<rsdk::event::mission::WPMProgressUpdatedEvent>(info);
