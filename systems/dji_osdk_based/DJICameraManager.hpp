@@ -2,6 +2,7 @@
 #define _DJI_CAMERA_INFO_HPP_
 #include <vector>
 #include <unordered_set>
+#include <string>
 
 class DJIVehicleSystem;
 
