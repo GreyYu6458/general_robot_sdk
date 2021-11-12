@@ -295,3 +295,9 @@ rsdk::mission::StageRst DJIDownloadPhotoTask::executing_stage()
 {
     return _impl->downloadFiles(mediaDownloadPath());
 }
+
+
+void DJIDownloadPhotoTask::notifyMissionFinish(const rsdk::mission::StageRst& rst)
+{
+
+}

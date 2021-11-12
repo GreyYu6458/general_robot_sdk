@@ -46,7 +46,7 @@ int main(int argc, char const *argv[])
     while(true)
     {
         std::cout << "Wait for input" << std::endl;
-        scanf("%f", &factor);
+        auto data = scanf("%f", &factor);
 
         if(factor == 0)
         {

@@ -103,6 +103,12 @@ namespace rsdk::mission::waypoint
         // 相机拍照尝试下载照片
         if(_event->type() == rsdk::event::mission::WPMTakenPhotoEvent::event_type)
         {
+            auto event = rsdk::event::REventCast<rsdk::event::mission::WPMTakenPhotoEvent>(_event);
+            // 记录事件
+            _impl->_shared_info.photo_time_item_index_list.push_back( 
+                {_event->hostTime(), event->payload().item_index}
+            );
+
             // 检测是否还存在拍照任务在运行
             if(!hasSubTask(PhotoDownloadTask::task_name()))
             {
@@ -129,12 +135,13 @@ namespace rsdk::mission::waypoint
         }
         else if(_event->type() == rsdk::event::mission::MissionFinishedEvent::event_type)
         {
-            auto event = rsdk::event::REventCast<rsdk::event::mission::MissionFinishedEvent>(_event);
-
-            rsdk::mission::StageRst rst;
-            rst.type = event->payload().
-
-            mainTask()->notifyMissionFinish();
+            using namespace rsdk::event;
+            auto event = REventCast<rsdk::event::mission::MissionFinishedEvent>(_event);
+            StageRst rst;
+            rst.type = event->payload().is_interrupted ? StageRstType::INTERRUPTTED : StageRstType::SUCCESS;
+            rst.detail = event->payload().detail;
+            mainTask()->notifyMissionFinish(rst);
+            return true;
         }
 
         return MissionInstance::eventFilter(obj, _event);

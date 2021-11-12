@@ -7,6 +7,9 @@
 
 namespace rsdk::mission
 {
+    class MainMissionTask;
+    class SubMissionTask;
+
     class MissionInstance : public BaseProxy,
                             protected TaskListener
     {
@@ -69,7 +72,7 @@ namespace rsdk::mission
         void OnExecutingStageFinished(MissionTask* task, StageRst rst) override;
 
         /**
-         * @brief
+         * @brief 运行子任务
          *
          * @return true
          * @return false
@@ -77,7 +80,7 @@ namespace rsdk::mission
         bool runSubTask(std::unique_ptr<SubMissionTask> task);
 
         /**
-         * @brief 
+         * @brief 是否拥有指定名称的子任务
          * 
          * @return true 
          * @return false 
@@ -85,7 +88,7 @@ namespace rsdk::mission
         bool hasSubTask(const std::string&);
 
         /**
-         * @brief 
+         * @brief 获取主任务
          * 
          * @return std::unique_ptr<SubMissionTask> 
          */

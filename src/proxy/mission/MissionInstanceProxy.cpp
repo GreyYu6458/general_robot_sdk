@@ -1,5 +1,6 @@
 #include "rsdk/proxy/mission/MissionInstanceProxy.hpp"
 #include "p_rsdk/plugins/mission/InstancePlugin.hpp"
+#include "p_rsdk/plugins/mission/MissionTask.hpp"
 #include "rsdk/system/RobotSystem.hpp"
 
 #include <boost/uuid/uuid.hpp>
@@ -148,9 +149,17 @@ namespace rsdk::mission
             _sub_task_map.erase(task->taskName());
         }
 
+        /**
+         * @brief 
+         * 
+         * @param task 
+         * @return true 
+         * @return false 
+         */
         bool __run_task(std::unique_ptr<MissionTask> task)
         {
             const std::string& name = task->taskName();
+            
             if(_sub_task_map.count(name) && _sub_task_map[name]->isRunning())
             {
                 return false;

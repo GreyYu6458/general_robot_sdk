@@ -59,6 +59,9 @@ namespace rsdk
 
         bool eventFilter(RObject*, ::rsdk::event::REventParam) override;
 
+
+        bool revent( ::rsdk::event::REventParam ) override;
+
     private:
         std::shared_ptr<BasePlugin> _plugin();
 

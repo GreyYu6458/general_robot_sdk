@@ -24,13 +24,6 @@ namespace callbacks{
         longitude = static_cast<uint32_t>( msg.longitude * 1e7 );
         latitude  = static_cast<uint32_t>( msg.latitude * 1e7 );
         altitude  = msg.altitude;
-        /*
-        std::cout   << "coordinate data "
-                    << " altitude:"  << altitude
-                    << " latitude:"  << latitude
-                    << " longitude:" << longitude << " " << msg.longitude
-                    << std::endl;
-        */
     }
 }
 
@@ -51,6 +44,7 @@ int main()
 
     auto dji_system = std::make_shared<DJIVehicleSystem>();
 
+    /*
     dji_system->subscribeSystemInfo(
         [](const rsdk::SystemInfo& msg)
         {
@@ -60,6 +54,7 @@ int main()
                         << msg.data << std::endl;
         }
     );
+    */
     
     dji_system->link(config);
 

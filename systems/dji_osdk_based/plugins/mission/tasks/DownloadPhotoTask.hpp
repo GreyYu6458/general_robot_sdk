@@ -19,6 +19,9 @@ public:
      */
     virtual ~DJIDownloadPhotoTask();
 
+
+    void notifyMissionFinish(const rsdk::mission::StageRst& rst) override;
+
 protected:
     /**
      * @brief 启动阶段

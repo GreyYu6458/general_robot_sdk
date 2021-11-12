@@ -111,7 +111,7 @@ template <> void process<DJIMissionEvent::MissionFinished>
 
     event_wrapper.instance()->system()->postEvent(
         event_wrapper.instance(),
-        std::make_shared<rsdk::event::mission::TaskEvent>(info)
+        std::make_shared<rsdk::event::mission::MissionFinishedEvent>(info)
     );
 }
 
@@ -125,9 +125,7 @@ template <> void process<DJIMissionEvent::MissionFinished>
 template <> void process<DJIMissionEvent::WaypointIndexUpdate>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(WaypointIndexUpdate) &ack)
 {
-    // log date
     event_wrapper.instance()->system()->trace("[mission]: Waypoint update:" + std::to_string(ack));
-
     rsdk::event::mission::WPMProgressInfo info;
     info.current_wp = ack;
     info.total_wp   = event_wrapper.instance()->sharedInfo().total_wp;

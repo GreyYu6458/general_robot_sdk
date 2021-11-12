@@ -3,6 +3,7 @@
 #include <any>
 #include <optional>
 #include <cstdint>
+#include <string>
 
 namespace rsdk
 {
@@ -32,9 +33,7 @@ namespace rsdk
         template<class T>
         std::optional<const T> getPameter(const std::string& key) const
         {
-            if( isExist(key) == 0 )
-                return std::nullopt;
-            
+            if( isExist(key) == 0 ) return std::nullopt;
             return std::any_cast<T>(getValue(key));
         }
 

@@ -72,7 +72,7 @@ int main(int argc, char const *argv[])
     while(true)
     {
         std::cout << "Wait for input" << std::endl;
-        scanf("%f %f %f", &yaw, &roll, &pitch);
+        auto data = scanf("%f %f %f", &yaw, &roll, &pitch);
 
         if(yaw == -1 && roll == -1 && pitch == -1)
         {
