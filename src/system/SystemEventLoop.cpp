@@ -52,11 +52,10 @@ namespace rsdk
             }
         }
 
-        void pushEvent(REventWrapper& event_wrapper)
+        inline void pushEvent(REventWrapper& event_wrapper)
         {
             // use std::try_to_lock because Push action may invoked in the same thread
-            std::unique_lock<std::mutex> ulck(_queue_wait_mutex, std::try_to_lock);
-            _event_queue.push(std::move(event_wrapper));
+            _event_queue.emplace(std::move(event_wrapper));
             _cv.notify_all();
         }
 
@@ -89,6 +88,7 @@ namespace rsdk
 
     void EventLoop::pushEvent(REventWrapper event_wrapper)
     {
+        std::unique_lock<std::mutex> ulck(_impl->_queue_wait_mutex, std::try_to_lock);
         _impl->pushEvent(event_wrapper);
     }
 
