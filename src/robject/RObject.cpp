@@ -1,24 +1,42 @@
 #include "rsdk/robject/RObject.hpp"
 #include <mutex>
+#include <vector>
 
 namespace rsdk
 {
     class RObject::Impl
     {
     public:
+        RObject*                    _parent;
+        RObject*                    _root;
         RObject*                    _watcher_bare;
-        ::std::weak_ptr<RObject>    _watcher;
-        ::rsdk::event::REventCBType _cb;
-        ::std::mutex                _set_watcher_mutex;
+        std::vector<RObject*>       _children;
+        std::weak_ptr<RObject>      _watcher;
+        std::mutex                  _set_watcher_mutex;
     };
 
     RObject::RObject()
-    : _impl(new Impl()){
+    : _impl(new Impl())
+    {
+        _impl->_parent = nullptr;
+        _impl->_root = this;
+    }
 
+    RObject::RObject(RObject* robject)
+    : _impl(new Impl())
+    {
+        // set parent
+        _impl->_parent = robject;
+        _impl->_root   = robject->_impl->_root;
+        robject->_impl->_children.push_back(this);
     }
 
     RObject::~RObject()
     {
+        for(auto object : _impl->_children)
+        {
+            delete object;
+        }
         delete _impl;
     }
 
@@ -63,5 +81,15 @@ namespace rsdk
     bool RObject::eventFilter(RObject* r_obj, ::rsdk::event::REventParam)
     {
         return true;
+    }
+
+    RObject* RObject::rootObject()
+    {
+        return _impl->_root;
+    }
+
+    RObject* RObject::parent()
+    {
+        return _impl->_parent;
     }
 }

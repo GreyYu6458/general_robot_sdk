@@ -9,10 +9,16 @@ namespace rsdk
         friend class RobotSystem;
     public:
         /**
-         * @brief Construct a new RObject
+         * @brief Construct a new RObject, This will create a root object
          * 
          */
         RObject();
+
+        /**
+         * @brief Construct a new RObject With parent
+         * 
+        */
+        RObject(RObject* robject);
 
         /**
          * @brief Destroy the RObject
@@ -32,8 +38,24 @@ namespace rsdk
          */
         void installEventFilter(RObject*);
 
-
+        /**
+         * @brief remove event filter
+         * 
+        */
         void removeEventFilter();
+
+        /**
+         * @brief get root object
+         * 
+        */
+        RObject* rootObject();
+
+        /**
+         * @brief get parent object
+         * 
+        */
+        RObject* parent();
+
 
     protected:
 

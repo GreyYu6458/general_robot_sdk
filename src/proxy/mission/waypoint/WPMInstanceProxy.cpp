@@ -141,7 +141,7 @@ namespace rsdk::mission::waypoint
             rst.type = event->payload().is_interrupted ? StageRstType::INTERRUPTTED : StageRstType::SUCCESS;
             rst.detail = event->payload().detail;
             mainTask()->notifyMissionFinish(rst);
-            return true;
+            return true; // 不向下传递
         }
 
         return MissionInstance::eventFilter(obj, _event);

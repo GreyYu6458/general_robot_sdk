@@ -21,6 +21,12 @@ public:
 
    DJIVehicleModels supportModel() override;
 
+   rsdk::camera::EncodeType encodeType() override;
+
+   bool startStream() override;
+
+   bool stopStream() override;
+
    void exec() override;
 
 private:

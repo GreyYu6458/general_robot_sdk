@@ -15,7 +15,6 @@ public:
         _message.each_cell = {{},{}};
     }
 
-
     BatteryWholeInfo batteryWholeInfo;
     uint16_t    _freq{1};
     std::thread _bg_thread;

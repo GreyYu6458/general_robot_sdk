@@ -5,12 +5,9 @@
 #include <unordered_set>
 #include <mutex>
 
-namespace DJI
+namespace DJI::OSDK
 {
-    namespace OSDK
-    {
-        class Vehicle;
-    }
+    class Vehicle;
 }
 
 enum class DJIVehicleModels : int8_t
@@ -78,9 +75,9 @@ private:
         );
         // not support this model of dji
 
-        int8_t vehicle_model = static_cast<int8_t>(model());
-        int8_t plugin_model  = static_cast<int8_t>(impl->supportModel());
-        int8_t is_support_plugin = vehicle_model & plugin_model;
+        int8_t vehicle_model        = static_cast<int8_t>(model());
+        int8_t plugin_model         = static_cast<int8_t>(impl->supportModel());
+        int8_t is_support_plugin    = vehicle_model & plugin_model;
 
         if(!is_support_plugin)
         {

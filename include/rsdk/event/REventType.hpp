@@ -11,9 +11,9 @@ namespace rsdk::event
     enum class EventCategory : uint64_t
     {
         SYSTEM      = 0x0000000000000000,
-        MISSION     = 0x1000000000000000,
-        COLLECTOR   = 0x2000000000000000,
-        PAYLOAD     = 0x3000000000000000
+        MISSION     = 0x0100000000000000,
+        COLLECTOR   = 0x0200000000000000,
+        PAYLOAD     = 0x0300000000000000
     };
 
     template<EventCategory I>

@@ -43,10 +43,10 @@ namespace rsdk::mission::waypoint
         void setMediaRootPath(const std::string& path);
 
         /**
-         * @brief 
-         * 
-         * @return const std::string& 
-         */ 
+         * @brief
+         *
+         * @return const std::string&
+         */
         const std::string& mediaRootPath();
 
         /**

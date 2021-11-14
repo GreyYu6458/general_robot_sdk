@@ -14,6 +14,11 @@ namespace rsdk::event
     public:
         BaseREvent(uint64_t type);
 
+        /**
+         * @brief 析构
+         * 
+         * @return EventType
+        */
         virtual ~BaseREvent();
 
         /**

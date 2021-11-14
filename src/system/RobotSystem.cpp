@@ -81,48 +81,48 @@ namespace rsdk
 #endif
     }
 
-    bool RobotSystem::sendEvent(const ::std::shared_ptr<RObject>& robject, ::rsdk::event::REventParam _event)
+    bool RobotSystem::sendEvent(const ::std::shared_ptr<RObject>& robject, ::rsdk::event::REventParam event)
     {
-        _event->setSystemTime( systemTime() );
-        return notify(robject, _event);
+        event->setSystemTime( systemTime() );
+        return notify(robject, event);
     }
 
-    void RobotSystem::postEvent(const ::std::shared_ptr<RObject>& r_s_obj, ::rsdk::event::REventParam _event)
+    void RobotSystem::postEvent(const ::std::shared_ptr<RObject>& robject, ::rsdk::event::REventParam event)
     {
-        _event->setSystemTime( systemTime() );
+        event->setSystemTime( systemTime() );
         _impl->event_loop.pushEvent(
             {
-                .event  = _event,
-                .object = { .is_shared_ptr = true , .target = r_s_obj}
+                .event  = event,
+                .object = { .is_shared_ptr = true , .target = robject}
             }
         );
     }
 
-    bool RobotSystem::sendEvent(RObject* robject, ::rsdk::event::REventParam _event)
+    bool RobotSystem::sendEvent(RObject* robject, ::rsdk::event::REventParam event)
     {
-        _event->setSystemTime( systemTime() );
-        return notify(robject, _event);
+        event->setSystemTime( systemTime() );
+        return notify(robject, event);
     }
 
-    void RobotSystem::postEvent(RObject* r_obj, ::rsdk::event::REventParam _event)
+    void RobotSystem::postEvent(RObject* robject, ::rsdk::event::REventParam event)
     {
-        _event->setSystemTime( systemTime() );
+        event->setSystemTime( systemTime() );
         _impl->event_loop.pushEvent(
             {
-                .event  = _event,
-                .object = { .is_shared_ptr = false , .target = r_obj}
+                .event  = event,
+                .object = { .is_shared_ptr = false , .target = robject}
             }
         );
     }
 
-    bool RobotSystem::notify(const ::std::shared_ptr<RObject>& r_obj, ::rsdk::event::REventParam event)
+    bool RobotSystem::notify(const ::std::shared_ptr<RObject>& robject, ::rsdk::event::REventParam event)
     {
-        return r_obj->notifyied(event);
+        return robject->notifyied(event);
     }
 
-    bool RobotSystem::notify(RObject* r_obj, ::rsdk::event::REventParam event)
+    bool RobotSystem::notify(RObject* robject, ::rsdk::event::REventParam event)
     {
-        return r_obj->notifyied(event);
+        return robject->notifyied(event);
     }
 
     bool RobotSystem::link(const SystemConfig& config)
