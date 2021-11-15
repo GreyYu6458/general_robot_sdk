@@ -267,7 +267,7 @@ public:
             auto* dji_event_wrapper_impl = (Impl*)(userData);
             auto* owner                  = dji_event_wrapper_impl->_owner;
             auto* instance               = dji_event_wrapper_impl-> _instance;
-            auto* missionEventPushAck = (DJI::OSDK::MissionEventPushAck *)cmdData;
+            auto* missionEventPushAck    = (DJI::OSDK::MissionEventPushAck *)cmdData;
 
             switch (missionEventPushAck->event)
             {

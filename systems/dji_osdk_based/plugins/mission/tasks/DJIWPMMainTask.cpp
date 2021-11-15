@@ -34,6 +34,8 @@ public:
     {
         using namespace DJI::OSDK;
 
+        instance->sharedInfo().init();
+
         auto&   _dji_mission                = instance->sharedInfo().dji_wp_mission;
         auto    _system                     = instance->system();
         auto    _dji_mission_operator       = _system->vehicle()->waypointV2Mission;

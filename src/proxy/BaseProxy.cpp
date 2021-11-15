@@ -55,7 +55,7 @@ namespace rsdk
         return _impl->_plugin;
     }
 
-    bool BaseProxy::eventFilter(RObject* obj, ::rsdk::event::REventParam event)
+    bool BaseProxy::eventFilter(RObject* obj, rsdk::event::REventParam event)
     {
         std::lock_guard<std::mutex> lck(_impl->_sub_mutex);
         if(_impl->_callbacks)

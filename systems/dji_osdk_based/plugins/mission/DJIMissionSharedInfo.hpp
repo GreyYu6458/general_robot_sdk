@@ -16,6 +16,14 @@ struct DJIMissionSharedInfo
     // 总共重复次数
     uint32_t                                    total_repeated_times{0};
 
+    void init()
+    {
+        dji_wp_mission.clear();
+        total_wp = 0;
+        current_repeated_times = 0;
+        total_repeated_times = 0;
+    }
+
     DJIMissionSharedInfo() = default;
 
     DJIMissionSharedInfo(const DJIMissionSharedInfo&) = delete;
