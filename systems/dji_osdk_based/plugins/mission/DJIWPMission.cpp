@@ -2,6 +2,7 @@
 #include "DJIVehicleSystem.hpp"
 
 #include <cmath>
+#include <vector>
 #include <unordered_map>
 #include <dji_vehicle.hpp>
 
@@ -11,12 +12,15 @@ public:
     std::vector<DJI::OSDK::WaypointV2>          _dji_wps;
     std::vector<DJI::OSDK::DJIWaypointV2Action> _dji_actions;
     std::unordered_map<size_t, DJIActionEvent>  _action_map;
+    // 航点序号和item_index的表
+    std::vector<uint32_t>                       _wp_index_seq_list;
     bool                                        _is_valid{true};
     bool                                        _autoReturnHome{false};
 
     void clear()
     {
         _dji_wps.clear();
+        _wp_index_seq_list.clear();
         _dji_actions.clear();
         _action_map.clear();
     }
@@ -83,6 +87,7 @@ template<> bool DJIWPMission::Impl::_convert_item
 
     auto& dji_wps           = mission._impl->_dji_wps;
     auto& dji_actions       = mission._impl->_dji_actions;
+    mission._impl->_wp_index_seq_list.push_back(item_seq);
 
     if(wait_time > 25.5) 
     {
@@ -323,6 +328,16 @@ bool DJIWPMission::eventType(size_t action_id, DJIActionEvent& dji_action_event)
     {
         dji_action_event = _impl->_action_map[action_id];
         return true;
+    }
+    return false;
+}
+
+bool DJIWPMission::wpIndex2Sequence(uint32_t wp_index, uint32_t& sequence)
+{
+    if(_impl->_wp_index_seq_list.size() > wp_index)
+    {
+        sequence = _impl->_wp_index_seq_list[wp_index];
+        return true;;
     }
     return false;
 }
