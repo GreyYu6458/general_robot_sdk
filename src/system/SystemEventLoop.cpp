@@ -44,8 +44,9 @@ namespace rsdk
                 {
                     auto& event_wrapper = _event_queue.front();
 
-                    if(_on_event_cb)
-                        _on_event_cb(event_wrapper);
+                    ulck.unlock();
+                    if(_on_event_cb) _on_event_cb(event_wrapper);
+                    ulck.lock();
 
                     _event_queue.pop();
                 }
