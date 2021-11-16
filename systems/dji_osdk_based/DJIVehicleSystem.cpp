@@ -215,7 +215,18 @@ bool DJIVehicleSystem::tryLink(const rsdk::SystemConfig &config)
     if(rst == false)
         return rst;
 
-    if(!_impl->_camera_manager.initization())
+    bool camera_init_ret{false};
+
+    for(int i = 0 ; i < 3; i++)
+    {
+        camera_init_ret = _impl->_camera_manager.initization();
+        if(camera_init_ret) break;
+        error(
+            "Init Camera module DJI CAMERA INDEX 0 failed. Retry times:" + std::to_string(i)
+        );
+    }
+
+    if(!camera_init_ret)
     {
         error(
             "Init Camera module DJI CAMERA INDEX 0 failed. Camera Related Function Will Disable"
