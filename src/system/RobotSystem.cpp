@@ -22,6 +22,7 @@ namespace rsdk
         }
 
     private:
+        bool            is_linked{false};
         uint32_t        system_time{0};
         std::mutex      plugin_regist_mutex;
         EventLoop       event_loop;
@@ -128,9 +129,18 @@ namespace rsdk
     bool RobotSystem::link(const SystemConfig& config)
     {
         if(!tryLink(config))
+        {
+            _impl->is_linked = false;
             return false;
-
+        }
+            
         SystemManager::instance().manageSystem(shared_from_this());
+        _impl->is_linked = true;
         return true;
+    }
+
+    bool RobotSystem::isLink()
+    {
+        return _impl->is_linked;
     }
 }

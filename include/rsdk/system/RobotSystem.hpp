@@ -26,7 +26,7 @@ namespace rsdk
         bool link(const SystemConfig& config);
 
         // 是否连接
-        virtual bool isLink() = 0;
+        bool isLink();
 
         // 设备的生产商信息
         virtual const std::string &manufacturer() = 0;

@@ -30,6 +30,7 @@ namespace rsdk::mission::waypoint
                 task->setSharedInfo(&_shared_info);
                 _owner->runSubTask(std::move(task));
             }
+            _photo_event_not_handle = false;
         }
 
         WPMInstanceProxy*   _owner;
@@ -118,7 +119,7 @@ namespace rsdk::mission::waypoint
                 runSubTask(std::move(task));
                 _impl->_photo_event_not_handle = false;
             }
-            else
+            else 
             {
                 system()->warning("There is photo download task already exist");
                 _impl->_photo_event_not_handle = true;

@@ -31,9 +31,6 @@ public:
 
     ~DJIVehicleSystem();
 
-    // 飞机是否连接
-    bool isLink() override;
-
     // 设备的生产商信息
     const std::string &manufacturer() override;
 

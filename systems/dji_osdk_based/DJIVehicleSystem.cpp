@@ -255,12 +255,6 @@ DJICameraManager &DJIVehicleSystem::cameraManager()
     return _impl->_camera_manager;
 }
 
-// 飞机是否连接
-bool DJIVehicleSystem::isLink()
-{
-    return _impl->_dji_linker->isUartPlugged() && _impl->_dji_linker->isUSBPlugged();
-}
-
 // 设备的生产商信息
 const std::string &DJIVehicleSystem::manufacturer()
 {
