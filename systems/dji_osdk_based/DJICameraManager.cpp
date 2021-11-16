@@ -88,11 +88,11 @@ public:
 
         if(ret != ErrorCode::SysCommonErr::Success)
         {
-            _system->info("[system]:Obtaining download right failed!");
+            _system->error("[system]:Obtaining download right failed!");
         }
         else
         {
-            _system->warning("[system]:Obtaining download right success");
+            _system->info("[system]:Obtaining download right success");
         }
 
         _system->info("[system]:Start Setting camera mode");

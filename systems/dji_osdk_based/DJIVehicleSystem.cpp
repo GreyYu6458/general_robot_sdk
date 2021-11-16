@@ -217,7 +217,7 @@ bool DJIVehicleSystem::tryLink(const rsdk::SystemConfig &config)
 
     if(!_impl->_camera_manager.initization())
     {
-        warning(
+        error(
             "Init Camera module DJI CAMERA INDEX 0 failed. Camera Related Function Will Disable"
         );
     }else{
