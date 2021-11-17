@@ -212,8 +212,8 @@ public:
                     1
                 );
                 */
-
                 info.file_path = save_path + file_ptr->name;
+                instance->system()->info("Start Downloading" + info.file_path);
                 auto ret = dji_vehicle->cameraManager->startReqFileData(
                     DJI::OSDK::PAYLOAD_INDEX_0,
                     file_ptr->index,
@@ -230,6 +230,7 @@ public:
                 }
 
                 download_rst = future.get();
+                instance->system()->info("Stop Downloading" + info.file_path);
             }
             /********************* 下载结束 *********************/
             if(download_rst)
@@ -262,6 +263,8 @@ public:
                     "Download File :" + file_ptr->name + " Failed!"
                 );
             }
+
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
 
         rst.detail = "media download success";
