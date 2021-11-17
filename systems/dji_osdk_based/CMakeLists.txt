@@ -4,17 +4,18 @@ set(CMAKE_CXX_STANDARD 17)
 include(ExternalProject)
 
 SET(DJI_OSDK_INSTALL_DIR ${CMAKE_BINARY_DIR}/dji_osdk)
+SET(DJI_OSDK_TAG "insky_log_callback")
 
 ExternalProject_Add(
     dji_osdk
   GIT_REPOSITORY
     git@gitee.com:insky-cache/insky-dji-osdk.git
   GIT_TAG           
-    "insky_log_callback"
+    ${DJI_OSDK_TAG}
   GIT_PROGRESS
     1
   UPDATE_COMMAND 
-    ""
+    git pull origin ${DJI_OSDK_TAG} && git checkout ${DJI_OSDK_TAG} && git submodule update
   CMAKE_ARGS
     "-DCMAKE_INSTALL_PREFIX:PATH=${DJI_OSDK_INSTALL_DIR}"
 )
