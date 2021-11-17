@@ -199,13 +199,24 @@ public:
             rsdk::event::mission::SavedPhotoInfo info;
             bool download_rst{false};
                 
-                /*
-                dji_vehicle->cameraManager->setModeSync(
-                    DJI::OSDK::PAYLOAD_INDEX_0,
-                    CameraModule::WorkMode::PLAYBACK,
-                    1
-                );
-                */
+            dji_vehicle->cameraManager->setModeSync(
+                DJI::OSDK::PAYLOAD_INDEX_0,
+                CameraModule::WorkMode::PLAYBACK,
+                1
+            );
+            auto ret = instance->system()->vehicle()->cameraManager->obtainDownloadRightSync(
+                PAYLOAD_INDEX_0,
+                true,
+                10
+            );
+            if(ret != ErrorCode::SysCommonErr::Success)
+            {
+                instance->system()->error("[system]:Obtaining download right failed!");
+            }
+            else
+            {
+                instance->system()->info("[system]:Obtaining download right success");
+            }
 
             std::promise<bool> _file_download_promise;
             auto future = _file_download_promise.get_future();
@@ -213,7 +224,7 @@ public:
 
             info.file_path = save_path + file_ptr->name;
             instance->system()->info("Start Downloading" + info.file_path);
-            auto ret = dji_vehicle->cameraManager->startReqFileData(
+            ret = dji_vehicle->cameraManager->startReqFileData(
                 DJI::OSDK::PAYLOAD_INDEX_0,
                 file_ptr->index,
                 info.file_path,

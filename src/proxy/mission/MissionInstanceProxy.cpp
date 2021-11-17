@@ -6,7 +6,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-
+#include <unordered_map>
 #include <mutex>
 
 namespace rsdk::mission
@@ -45,6 +45,7 @@ namespace rsdk::mission
         std::shared_ptr<RobotSystem>                _system;
         std::function<void (InstanceState)>         _state_changed_cb;
         std::mutex                                  _state_mutex;
+        std::mutex                                  _task_map_mutex;
 
         /**
          * @brief   对终态进行判断(FAILED和FINISHED)
@@ -103,6 +104,7 @@ namespace rsdk::mission
         {
             if(rst.type != StageRstType::SUCCESS)
             {
+                std::lock_guard<std::mutex> lck(_task_map_mutex);
                 _end_sub_task_list.push_back( 
                     std::move(_sub_task_map[task->taskName()]) 
                 );
@@ -142,6 +144,7 @@ namespace rsdk::mission
          */
         void subtaskExecutingHandle(MissionTask* task, StageRst rst)
         {
+            std::lock_guard<std::mutex> lck(_task_map_mutex);
             _end_sub_task_list.push_back( 
                 std::move(_sub_task_map[task->taskName()]) 
             );
@@ -164,8 +167,12 @@ namespace rsdk::mission
             {
                 return false;
             }
-            _sub_task_map[name] = std::move(task);
-            _sub_task_map[name]->execute(this->_owner);
+            _owner->system()->info("Start Run mission:" + task->taskName());
+            {
+                std::lock_guard<std::mutex> lck(_task_map_mutex);
+                _sub_task_map[name] = std::move(task);
+                _sub_task_map[name]->execute(this->_owner);
+            }
             return true;
         }
     };
@@ -269,6 +276,7 @@ namespace rsdk::mission
 
     bool MissionInstance::hasSubTask(const std::string& task_name)
     {
+        std::lock_guard<std::mutex> lck(_impl->_task_map_mutex);
         return _impl->_sub_task_map.count(task_name);
     }
 
