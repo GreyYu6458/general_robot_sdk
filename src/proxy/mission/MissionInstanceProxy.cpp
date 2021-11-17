@@ -85,11 +85,13 @@ namespace rsdk::mission
             {
                 event = std::make_shared<MissionStartedEvent>(mission_info);
                 _state = InstanceState::EXECUTING;
+                _owner->system()->info("Main Task Start Success:" + task->taskName());
             }
             else
             {
                 event = std::make_shared<MissionStartFailedEvent>(mission_info);
                 _state = InstanceState::FAILED;
+                _owner->system()->info("Main Task Start Failed:" + task->taskName());
             }
             _system->postEvent(_owner, event);
         }
@@ -105,11 +107,13 @@ namespace rsdk::mission
             if(rst.type != StageRstType::SUCCESS)
             {
                 std::lock_guard<std::mutex> lck(_task_map_mutex);
+                _owner->system()->info("Subtask Start Failed:" + task->taskName());
                 _end_sub_task_list.push_back( 
                     std::move(_sub_task_map[task->taskName()]) 
                 );
                 _sub_task_map.erase(task->taskName());
             }
+            _owner->system()->info("Subtask Start Success:" + task->taskName());
         }
 
         void mainTaskExecutingHandle(MissionTask* task, StageRst rst)
@@ -127,11 +131,13 @@ namespace rsdk::mission
                 _state = InstanceState::FINISHED;
                 mission_info.is_interrupted = (rst.type == StageRstType::INTERRUPTTED);
                 event = std::make_shared<MissionFinishedEvent>(mission_info);
+                _owner->system()->info("MainTask Executing Success/Interrupted:" + task->taskName());
             }
             else
             {
                 _state = InstanceState::FAILED;
                 event = std::make_shared<MissionFailedEvent>(mission_info);
+                _owner->system()->info("MainTask Executing Failed:" + task->taskName());
             }
             _system->postEvent(_owner, event);
         }
@@ -145,6 +151,7 @@ namespace rsdk::mission
         void subtaskExecutingHandle(MissionTask* task, StageRst rst)
         {
             std::lock_guard<std::mutex> lck(_task_map_mutex);
+            _owner->system()->info("Subtask Executing Over:" + task->taskName());
             _end_sub_task_list.push_back( 
                 std::move(_sub_task_map[task->taskName()]) 
             );
@@ -167,9 +174,9 @@ namespace rsdk::mission
             {
                 return false;
             }
-            _owner->system()->info("Start Run mission:" + task->taskName());
             {
                 std::lock_guard<std::mutex> lck(_task_map_mutex);
+                _owner->system()->info("Start Run Task:" + task->taskName());
                 _sub_task_map[name] = std::move(task);
                 _sub_task_map[name]->execute(this->_owner);
             }
