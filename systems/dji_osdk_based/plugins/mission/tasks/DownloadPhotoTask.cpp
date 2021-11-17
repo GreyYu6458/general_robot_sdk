@@ -204,8 +204,9 @@ public:
             FileDownloadBlock download_block{this, _file_download_promise};
 
             {
-                /*
+                
                 std::lock_guard<std::mutex>  lck(instance->system()->DJIAPIMutex());
+                /*
                 dji_vehicle->cameraManager->setModeSync(
                     DJI::OSDK::PAYLOAD_INDEX_0,
                     CameraModule::WorkMode::PLAYBACK,
