@@ -199,13 +199,11 @@ public:
             rsdk::event::mission::SavedPhotoInfo info;
             bool download_rst{false};
                 
-            /*
             dji_vehicle->cameraManager->setModeSync(
                 DJI::OSDK::PAYLOAD_INDEX_0,
                 CameraModule::WorkMode::PLAYBACK,
                 1
             );
-            */
             auto ret = instance->system()->vehicle()->cameraManager->obtainDownloadRightSync(
                 PAYLOAD_INDEX_0,
                 true,
