@@ -71,8 +71,14 @@ public:
     static void fileDownloadReponse(E_OsdkStat ret_code, void* userData)
     {
         FileDownloadBlock* block = (FileDownloadBlock*)(userData);
-
-        block->_success_promise.set_value(ret_code == ErrorCode::SysCommonErr::Success);
+        try
+        {
+            block->_success_promise.set_value(ret_code == ErrorCode::SysCommonErr::Success);
+        }
+        catch(const std::exception& e)
+        {
+            block->_impl->instance->system()->error(e.what());
+        }
     }
 
     /**

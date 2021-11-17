@@ -59,6 +59,7 @@ bool DJIBatteryWrapper::isStarted()
     return _impl->_c;
 }
 
+// TODO move thread from lambda to this method
 void DJIBatteryWrapper::collect()
 {
     

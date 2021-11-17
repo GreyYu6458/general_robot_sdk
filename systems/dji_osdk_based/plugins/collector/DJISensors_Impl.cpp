@@ -12,15 +12,15 @@
     bool class_name::start() { this->exec(); return true; } \
     bool class_name::isStarted() { return this->_is_started; } 
 
-DJITelemetryDefine(DJIAttitude, AttitudePlugin, attitude)
+DJITelemetryDefine(DJIAttitude,         AttitudePlugin,             attitude)
 
-DJITelemetryDefine(DJIAvoid, AvoidancePlugin, avoid)
+DJITelemetryDefine(DJIAvoid,            AvoidancePlugin,            avoid)
 
-DJITelemetryDefine(DJIGNSSReceiver, GNSSReceiverPlugin, gnss)
+DJITelemetryDefine(DJIGNSSReceiver,     GNSSReceiverPlugin,         gnss)
 
-DJITelemetryDefine(DJIGNSSUncertain, GNSSUncertainInfoPlugin, gnss_uncertain)
+DJITelemetryDefine(DJIGNSSUncertain,    GNSSUncertainInfoPlugin,    gnss_uncertain)
 
-DJITelemetryDefine(DJIFlightStatus, FlyingRobotStatusPlugin, flight_status)
+DJITelemetryDefine(DJIFlightStatus,     FlyingRobotStatusPlugin,    flight_status)
 
 void DJIAttitude::convert(const DJIAttitude::pkg_msg_type& data)
 {

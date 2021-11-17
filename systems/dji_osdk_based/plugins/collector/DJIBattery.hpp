@@ -13,7 +13,7 @@ public:
 
     void setFreqency(uint16_t freq);
 
-    void collect(); // TODO move thread from lambda to this method
+    void collect();
 
     DJIVehicleModels supportModel() override;
 

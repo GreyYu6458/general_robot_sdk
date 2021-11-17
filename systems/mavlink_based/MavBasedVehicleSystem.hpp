@@ -4,7 +4,8 @@
 
 namespace mavsdk
 {
-    class System;   
+    class System;
+    class Telemetry;
 }
 
 class MavBasedVehicleSystem : public rsdk::RobotSystem
@@ -41,6 +42,9 @@ public:
      * @return std::shared_ptr<mavsdk::System> 
      */
     std::shared_ptr<mavsdk::System> mavSystem();
+
+
+
 
 protected:
     bool tryLink(const rsdk::SystemConfig& config) override;
