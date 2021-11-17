@@ -186,6 +186,7 @@ public:
 
         for(auto file_ptr: files_ready_to_download)
         {
+            std::lock_guard<std::mutex>  lck(instance->system()->DJIAPIMutex());
             // 不是照片格式
             if(file_ptr->type != DJIFileType::JPG)
             {
@@ -195,16 +196,9 @@ public:
 
             /********************* 开始下载 *********************/
             instance->system()->info("Start Downloading File :" + file_ptr->name);
-            std::promise<bool> _file_download_promise;
-
-            auto future = _file_download_promise.get_future();
             rsdk::event::mission::SavedPhotoInfo info;
             bool download_rst{false};
-
-            FileDownloadBlock download_block{this, _file_download_promise};
-
-            {
-                std::lock_guard<std::mutex>  lck(instance->system()->DJIAPIMutex());
+                
                 /*
                 dji_vehicle->cameraManager->setModeSync(
                     DJI::OSDK::PAYLOAD_INDEX_0,
@@ -212,26 +206,30 @@ public:
                     1
                 );
                 */
-                info.file_path = save_path + file_ptr->name;
-                instance->system()->info("Start Downloading" + info.file_path);
-                auto ret = dji_vehicle->cameraManager->startReqFileData(
-                    DJI::OSDK::PAYLOAD_INDEX_0,
-                    file_ptr->index,
-                    info.file_path,
-                    &Impl::fileDownloadReponse,
-                    (void*)&download_block
-                );
-                
-                auto status = future.wait_for(std::chrono::seconds(10));
-                if(status == std::future_status::timeout)
-                {
-                    _file_download_promise.set_value(10);
-                    std::this_thread::sleep_for(std::chrono::seconds(3));
-                }
 
-                download_rst = future.get();
-                instance->system()->info("Stop Downloading" + info.file_path);
+            std::promise<bool> _file_download_promise;
+            auto future = _file_download_promise.get_future();
+            FileDownloadBlock download_block{this, _file_download_promise};
+
+            info.file_path = save_path + file_ptr->name;
+            instance->system()->info("Start Downloading" + info.file_path);
+            auto ret = dji_vehicle->cameraManager->startReqFileData(
+                DJI::OSDK::PAYLOAD_INDEX_0,
+                file_ptr->index,
+                info.file_path,
+                &Impl::fileDownloadReponse,
+                (void*)&download_block
+            );
+                
+            auto status = future.wait_for(std::chrono::seconds(10));
+            if(status == std::future_status::timeout)
+            {
+                _file_download_promise.set_value(10);
+                std::this_thread::sleep_for(std::chrono::seconds(3));
             }
+
+            download_rst = future.get();
+            instance->system()->info("Stop Downloading" + info.file_path);
             /********************* 下载结束 *********************/
             if(download_rst)
             {
