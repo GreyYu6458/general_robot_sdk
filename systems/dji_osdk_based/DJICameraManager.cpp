@@ -115,7 +115,7 @@ public:
         auto future = _file_sync_promise.get_future();
 
         FileSyncBlock sync_block{this, _file_sync_promise};
-        _system->warning("[system]:Start Downloading File Descriptions In Camera");
+        _system->info("[system]:Start Downloading File Descriptions In Camera");
         _system->vehicle()->cameraManager->startReqFileList(
             PAYLOAD_INDEX_0,
             &Impl::cameraFileReponse,

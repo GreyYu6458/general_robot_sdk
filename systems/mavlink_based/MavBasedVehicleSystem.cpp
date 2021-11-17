@@ -61,9 +61,9 @@ public:
             return false;
         }
 
-        _system = fut.get();
+        _mavsdk_system = fut.get();
 
-        auto system_info = mavsdk::Info(_system);
+        auto system_info = mavsdk::Info(_mavsdk_system);
         system_info.get_identification();
 
         return true;
@@ -71,7 +71,7 @@ public:
 
     static std::unique_ptr<mavsdk::Mavsdk>  _mavsdk;
     MavBasedVehicleSystem*                  _owner;
-    std::shared_ptr<mavsdk::System>         _system;
+    std::shared_ptr<mavsdk::System>         _mavsdk_system;
     rsdk::SystemConfig                      _config;
     std::string                             _unique_code{""};
 };
@@ -114,7 +114,7 @@ bool MavBasedVehicleSystem::tryLink(const rsdk::SystemConfig &config)
     return _impl->link(config);
 }
 
-std::shared_ptr<mavsdk::System> MavBasedVehicleSystem::mavSystem()
+std::shared_ptr<mavsdk::System> MavBasedVehicleSystem::mavsdkLowLayerSystem()
 {
-    return _impl->_system;
+    return _impl->_mavsdk_system;
 }

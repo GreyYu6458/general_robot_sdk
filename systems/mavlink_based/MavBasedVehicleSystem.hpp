@@ -11,8 +11,16 @@ namespace mavsdk
 class MavBasedVehicleSystem : public rsdk::RobotSystem
 {
 public:
+    /**
+     * @brief Construct a new Mav Based Vehicle System object
+     * 
+     */
     MavBasedVehicleSystem();
 
+    /**
+     * @brief Destroy the Mav Based Vehicle System object
+     * 
+     */
     ~MavBasedVehicleSystem();
 
     /**
@@ -41,10 +49,7 @@ public:
      * 
      * @return std::shared_ptr<mavsdk::System> 
      */
-    std::shared_ptr<mavsdk::System> mavSystem();
-
-
-
+    std::shared_ptr<mavsdk::System> mavsdkLowLayerSystem();
 
 protected:
     bool tryLink(const rsdk::SystemConfig& config) override;

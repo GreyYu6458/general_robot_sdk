@@ -222,8 +222,13 @@ public:
                     (void*)&download_block
                 );
 
-                download_rst = (ret == ErrorCode::SysCommonErr::Success) ?
-                    future.get() : false;
+                if (future.wait_for(std::chrono::seconds(10)) == std::future_status::timeout) {
+                    instance->system()->error("Find System Time Out");
+                    download_rst = false;
+                }else{
+                    download_rst = (ret == ErrorCode::SysCommonErr::Success) ?
+                        future.get() : false;
+                }
             }
             /********************* 下载结束 *********************/
             if(download_rst)

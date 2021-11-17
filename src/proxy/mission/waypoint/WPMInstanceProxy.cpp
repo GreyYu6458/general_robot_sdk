@@ -121,7 +121,7 @@ namespace rsdk::mission::waypoint
             }
             else 
             {
-                system()->warning("There is photo download task already exist");
+                system()->warning("There is a photo download task already exist");
                 _impl->_photo_event_not_handle = true;
             }
         }
