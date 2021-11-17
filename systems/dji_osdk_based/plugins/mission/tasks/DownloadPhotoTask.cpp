@@ -224,7 +224,7 @@ public:
 
             info.file_path = save_path + file_ptr->name;
             instance->system()->info("Start Downloading" + info.file_path);
-            auto ret = dji_vehicle->cameraManager->startReqFileData(
+            ret = dji_vehicle->cameraManager->startReqFileData(
                 DJI::OSDK::PAYLOAD_INDEX_0,
                 file_ptr->index,
                 info.file_path,
