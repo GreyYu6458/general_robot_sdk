@@ -204,8 +204,8 @@ public:
             FileDownloadBlock download_block{this, _file_download_promise};
 
             {
-                std::lock_guard<std::mutex>  lck(instance->system()->DJIAPIMutex());
                 /*
+                std::lock_guard<std::mutex>  lck(instance->system()->DJIAPIMutex());
                 dji_vehicle->cameraManager->setModeSync(
                     DJI::OSDK::PAYLOAD_INDEX_0,
                     CameraModule::WorkMode::PLAYBACK,
@@ -221,15 +221,12 @@ public:
                     &Impl::fileDownloadReponse,
                     (void*)&download_block
                 );
-
-                if (future.wait_for(std::chrono::seconds(10)) == std::future_status::timeout) {
-                    instance->system()->error("Find System Time Out");
-                    _file_download_promise.set_value(false);
-                }
-
-                if(ret != ErrorCode::SysCommonErr::Success)
+                
+                auto status = future.wait_for(std::chrono::seconds(10));
+                if(status == std::future_status::timeout)
                 {
-                    _file_download_promise.set_value(false);
+                    _file_download_promise.set_value(10);
+                    std::this_thread::sleep_for(std::chrono::seconds(3));
                 }
 
                 download_rst = future.get();
