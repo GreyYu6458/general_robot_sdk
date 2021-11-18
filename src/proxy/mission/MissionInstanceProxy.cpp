@@ -168,18 +168,15 @@ namespace rsdk::mission
          */
         bool __run_task(std::unique_ptr<MissionTask> task)
         {
+            std::lock_guard<std::mutex> lck(_task_map_mutex);
             const std::string& name = task->taskName();
-            
             if(_sub_task_map.count(name) && _sub_task_map[name]->isRunning())
             {
                 return false;
             }
-            {
-                std::lock_guard<std::mutex> lck(_task_map_mutex);
-                _owner->system()->info("Start Run Task:" + task->taskName());
-                _sub_task_map[name] = std::move(task);
-                _sub_task_map[name]->execute(this->_owner);
-            }
+            _owner->system()->info("Start Run Task:" + task->taskName());
+            _sub_task_map[name] = std::move(task);
+            _sub_task_map[name]->execute(this->_owner);
             return true;
         }
     };

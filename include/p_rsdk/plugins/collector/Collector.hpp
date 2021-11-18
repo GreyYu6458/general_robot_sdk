@@ -30,7 +30,18 @@ namespace rsdk::collector
             _callbacks.push_back(cb);
         }
 
+        void setUpdateRate(float rate)
+        {
+            _rate = rate;
+        }
+
     protected:
+
+        float updateRate()
+        {
+            return _rate;
+        }
+
         void onUpdate(MessageType& message)
         {
             std::lock_guard<std::mutex> l(_sub_mutex);
@@ -41,6 +52,7 @@ namespace rsdk::collector
         }
 
     private:
+        float                  _rate{1};
         std::mutex             _sub_mutex;
         std::vector<cb_type>   _callbacks;
     };
