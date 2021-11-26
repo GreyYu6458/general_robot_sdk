@@ -17,6 +17,10 @@
     { \
         plugin<x ## Plugin>()->subscribe(cb); \
     } \
+    const x ## Proxy::msg_type& x ## Proxy::lastData()\
+    {\
+        return plugin<x ## Plugin>()->lastMessage();\
+    }
 
 namespace rsdk::collector
 {    

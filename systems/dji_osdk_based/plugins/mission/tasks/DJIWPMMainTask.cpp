@@ -1,6 +1,7 @@
 #include "DJIWPMMainTask.hpp"
 #include "plugins/mission/DJIWPMInstance.hpp"
 #include "plugins/mission/DJIWPMission.hpp"
+#include "rsdk/proxy/collector/GNSSReceiver.hpp"
 
 #include <dji_vehicle.hpp>
 #include <dji_waypoint_v2.hpp>
@@ -39,6 +40,7 @@ public:
         auto&   _dji_mission                = instance->sharedInfo().dji_wp_mission;
         auto    _system                     = instance->system();
         auto    _dji_mission_operator       = _system->vehicle()->waypointV2Mission;
+        rsdk::collector::GNSSReceiverProxy gnss_receiver_proxy(instance->system());
 
         if(!DJIWPMission::convertFromStandard(instance->waypointItems(), _dji_mission))
         {
@@ -50,9 +52,9 @@ public:
         WayPointV2InitSettings missionInitSettings;
         missionInitSettings.missionID                   = rand();
         missionInitSettings.repeatTimes                 = 0;
-        missionInitSettings.finishedAction              = _dji_mission.autoReturnHome() ? 
-                                                        DJIWaypointV2MissionFinishedGoHome : 
-                                                        DJIWaypointV2MissionFinishedAutoLanding;
+        missionInitSettings.finishedAction              =   _dji_mission.autoReturnHome() ? 
+                                                            DJIWaypointV2MissionFinishedGoHome : 
+                                                            DJIWaypointV2MissionFinishedAutoLanding;
         missionInitSettings.maxFlightSpeed              = 5;
         missionInitSettings.autoFlightSpeed             = 2;
         missionInitSettings.exitMissionOnRCSignalLost   = 1;
@@ -62,6 +64,7 @@ public:
 
         instance->sharedInfo().total_wp                 = missionInitSettings.missTotalLen;
         instance->sharedInfo().total_repeated_times     = missionInitSettings.repeatTimes;
+        instance->sharedInfo().takeoff_altitude         = gnss_receiver_proxy.lastData().altitude;
 
         std::lock_guard<std::mutex> lck(_system->DJIAPIMutex());
 

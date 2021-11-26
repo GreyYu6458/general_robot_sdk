@@ -39,7 +39,7 @@ void onAvoidanceDataUpdata(const AvoidanceProxy::msg_type& msg)
                 << " back:"  << msg.back.lenght
                 << " down:"  << msg.down.lenght
                 << " front:" << msg.front.lenght
-                << " left"  << msg.left.lenght
+                << " left"   << msg.left.lenght
                 << " right:" << msg.right.lenght
                 << " up:"    << msg.up.lenght
                 << std::endl;
@@ -67,9 +67,10 @@ void onBatteryDataUpdata(const BatteryProxy::msg_type& msg)
 void onGNSSDataUpdate(const GNSSReceiverProxy::msg_type& msg)
 {
     std::cout   << "coordinate data "
-                << " altitude:"  << msg.altitude
-                << " longitude:"  << msg.longitude
-                << " latitude:" << msg.latitude
+                << " altitude:"     << msg.altitude
+                << " longitude:"    << msg.longitude
+                << " latitude:"     << msg.latitude
+                << " ret_height:"   << msg.related_altitude
                 << std::endl;
 }
 

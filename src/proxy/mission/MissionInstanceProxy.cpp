@@ -107,13 +107,16 @@ namespace rsdk::mission
             if(rst.type != StageRstType::SUCCESS)
             {
                 std::lock_guard<std::mutex> lck(_task_map_mutex);
-                _owner->system()->info("Subtask Start Failed:" + task->taskName());
+                _owner->system()->info("Subtask Start Failed:" + task->taskName() + " Retail:" + rst.detail);
                 _end_sub_task_list.push_back( 
                     std::move(_sub_task_map[task->taskName()]) 
                 );
                 _sub_task_map.erase(task->taskName());
             }
-            _owner->system()->info("Subtask Start Success:" + task->taskName());
+            else
+            {
+                _owner->system()->info("Subtask Start Success:" + task->taskName());
+            }
         }
 
         void mainTaskExecutingHandle(MissionTask* task, StageRst rst)

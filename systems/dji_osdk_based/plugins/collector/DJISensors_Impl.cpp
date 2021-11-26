@@ -83,10 +83,11 @@ void DJIFlightStatus::convert(const DJIFlightStatus::pkg_msg_type& data)
 
 void DJIGNSSReceiver::convert(const DJIGNSSReceiver::pkg_msg_type& data)
 {
-    auto &raw_gps = std::get<0>(data);
-    auto &raw_fused_altitude = std::get<1>(data);
-    auto &raw_rtk_status = std::get<2>(data);
-    auto &raw_rtk = std::get<3>(data);
+    auto &fused_gps             = std::get<0>(data);
+    auto &raw_fused_altitude    = std::get<1>(data);
+    auto &ret_height            = std::get<2>(data);
+    auto &raw_rtk_status        = std::get<3>(data);
+    auto &raw_rtk               = std::get<4>(data);
 
     if (!raw_rtk_status.rtkConnected)
     {
@@ -95,11 +96,12 @@ void DJIGNSSReceiver::convert(const DJIGNSSReceiver::pkg_msg_type& data)
     }
     else
     {
-        _COLLECTOR_msg.latitude    = raw_gps.latitude  * 180 / M_PI;
-        _COLLECTOR_msg.longitude   = raw_gps.longitude * 180 / M_PI;
+        _COLLECTOR_msg.latitude    = fused_gps.latitude  * 180 / M_PI;
+        _COLLECTOR_msg.longitude   = fused_gps.longitude * 180 / M_PI;
     }
 
-    _COLLECTOR_msg.altitude = raw_fused_altitude;
+    _COLLECTOR_msg.altitude         = fused_gps.altitude;
+    _COLLECTOR_msg.related_altitude = ret_height;
     onUpdate(_COLLECTOR_msg);
 }
 

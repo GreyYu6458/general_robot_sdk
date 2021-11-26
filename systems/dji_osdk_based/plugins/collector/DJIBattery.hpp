@@ -11,8 +11,6 @@ public:
 
     ~DJIBatteryWrapper() override;
 
-    void setFreqency(uint16_t freq);
-
     void collect();
 
     DJIVehicleModels supportModel() override;

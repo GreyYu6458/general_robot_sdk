@@ -1,4 +1,5 @@
 #include "DJIVehicleSystem.hpp"
+#include "SystemHardSync.hpp"
 #include "dji_linux_helper/DJIInitializationTool.hpp"
 
 #include <dji_vehicle.hpp>
@@ -15,7 +16,6 @@
 #include "plugins/collector/DJIAttitude.hpp"
 #include "plugins/collector/DJIGNSS.hpp"
 #include "plugins/collector/DJIGNSSUncertain.hpp"
-#include "plugins/collector/DJIGPSTime.hpp"
 #include "plugins/camera/DJIVideoStream.hpp"
 #include "plugins/camera/DJICameraControl.hpp"
 #include "plugins/gimbal/DJIGimbalControl.hpp"
@@ -184,7 +184,7 @@ private:
     DJICameraManager                    _camera_manager;
     std::shared_ptr<DJIVehicle>         _dji_vehicle;
     std::unique_ptr<DJILinker>          _dji_linker;
-    std::unique_ptr<DJIGPSTime>         _gps_time_sysc_plugin;
+    std::unique_ptr<SystemHardSync>     _hard_time_sync;
     std::mutex                          _dji_api_mutex;
 
     DJIVehicleModels                    _model{DJIVehicleModels::UNKNOWN};
@@ -239,15 +239,9 @@ bool DJIVehicleSystem::tryLink(const rsdk::SystemConfig &config)
         );
     }
 
-    // start time sync
-    _impl->_gps_time_sysc_plugin = 
-        std::make_unique<DJIGPSTime>(
-            shared_from_this()
-        );
-    _impl->_gps_time_sysc_plugin->setFreqency(5);
-    _impl->_gps_time_sysc_plugin->exec();
+    // _impl->_hard_time_sync = std::make_unique<SystemHardSync>(this);
+    // _impl->_hard_time_sync->startSync();
     _impl->registALLPlugin();
-
     return rst;
 }
 

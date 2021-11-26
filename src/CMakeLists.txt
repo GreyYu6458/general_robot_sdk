@@ -6,8 +6,6 @@ else()
     message("can not find boost library")
 endif()
 
-option(_USE_SIM_ENV "BUILD FOR SIM ENVIRONMENT" OFF)
-
 add_library(
     robot_sdk
     SHARED
@@ -17,6 +15,7 @@ add_library(
     system/SystemInfoPublisher.cpp
     system/SystemEventLoop.cpp
     system/SystemManager.cpp
+    tools/math/haversine.cpp
 
     event/REvent.cpp
     robject/RObject.cpp

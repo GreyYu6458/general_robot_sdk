@@ -8,7 +8,8 @@ namespace sensor_msg
     {
         unit::degree longitude;
         unit::degree latitude;
-        unit::degree altitude;
+        unit::meter  altitude;
+        unit::meter  related_altitude;
     };
 }
 

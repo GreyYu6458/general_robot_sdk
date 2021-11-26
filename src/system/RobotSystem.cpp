@@ -8,6 +8,7 @@
 #include "p_rsdk/tools/platfrom/timestamp.hpp"
 
 #include <mutex>
+#include <atomic>
 #include <iostream>
 
 namespace rsdk
@@ -22,10 +23,10 @@ namespace rsdk
         }
 
     private:
-        bool            is_linked{false};
-        uint32_t        system_time{0};
-        std::mutex      plugin_regist_mutex;
-        EventLoop       event_loop;
+        bool                    is_linked{false};
+        std::atomic<int64_t>    time_bias{0};
+        std::mutex              plugin_regist_mutex;
+        EventLoop               event_loop;
     };
 
     RobotSystem::RobotSystem()
@@ -68,27 +69,30 @@ namespace rsdk
         delete _impl;
     }
 
-    void RobotSystem::updateSystemTime(uint32_t system_time)
+    void RobotSystem::updateSystemBias(int64_t bias)
     {
-        _impl->system_time = system_time;
+        _impl->time_bias = bias;
+    }
+
+    int64_t RobotSystem::systemTimeBias()
+    {
+        return _impl->time_bias;
     }
 
     int64_t RobotSystem::systemTime()
     {
-#if defined(_USE_SIM_ENV)
-        return mirco_timestamp();
-#else
-        return _impl->system_time;
-#endif
+        return mirco_timestamp() - _impl->time_bias;
     }
 
-    bool RobotSystem::sendEvent(const ::std::shared_ptr<RObject>& robject, ::rsdk::event::REventParam event)
+    using namespace rsdk::event;
+
+    bool RobotSystem::sendEvent(const ::std::shared_ptr<RObject>& robject, REventParam event)
     {
         event->setSystemTime( systemTime() );
         return notify(robject, event);
     }
 
-    void RobotSystem::postEvent(const ::std::shared_ptr<RObject>& robject, ::rsdk::event::REventParam event)
+    void RobotSystem::postEvent(const ::std::shared_ptr<RObject>& robject, REventParam event)
     {
         event->setSystemTime( systemTime() );
         _impl->event_loop.pushEvent(
@@ -99,13 +103,13 @@ namespace rsdk
         );
     }
 
-    bool RobotSystem::sendEvent(RObject* robject, ::rsdk::event::REventParam event)
+    bool RobotSystem::sendEvent(RObject* robject, REventParam event)
     {
         event->setSystemTime( systemTime() );
         return notify(robject, event);
     }
 
-    void RobotSystem::postEvent(RObject* robject, ::rsdk::event::REventParam event)
+    void RobotSystem::postEvent(RObject* robject, REventParam event)
     {
         event->setSystemTime( systemTime() );
         _impl->event_loop.pushEvent(
@@ -116,27 +120,20 @@ namespace rsdk
         );
     }
 
-    bool RobotSystem::notify(const ::std::shared_ptr<RObject>& robject, ::rsdk::event::REventParam event)
+    bool RobotSystem::notify(const std::shared_ptr<RObject>& robject, REventParam event)
     {
         return robject->notifyied(event);
     }
 
-    bool RobotSystem::notify(RObject* robject, ::rsdk::event::REventParam event)
+    bool RobotSystem::notify(RObject* robject, REventParam event)
     {
         return robject->notifyied(event);
     }
 
     bool RobotSystem::link(const SystemConfig& config)
     {
-        if(!tryLink(config))
-        {
-            _impl->is_linked = false;
-            return false;
-        }
-            
-        SystemManager::instance().manageSystem(shared_from_this());
-        _impl->is_linked = true;
-        return true;
+        _impl->is_linked = tryLink(config);
+        return _impl->is_linked;
     }
 
     bool RobotSystem::isLink()

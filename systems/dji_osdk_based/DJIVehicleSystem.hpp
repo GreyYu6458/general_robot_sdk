@@ -27,29 +27,65 @@ class DJIPluginBase;
 class DJIVehicleSystem : public rsdk::RobotSystem
 {
 public:
+    /**
+     * @brief Construct a new DJIVehicleSystem object
+     * 
+     */
     DJIVehicleSystem();
 
+    /**
+     * @brief Destroy the DJIVehicleSystem object
+     * 
+     */
     ~DJIVehicleSystem();
 
-    // 设备的生产商信息
+    /**
+     * @brief 设备的生产商信息
+     * 
+     * @return const std::string& 
+     */
     const std::string &manufacturer() override;
 
-    // 设备序列号，或者其他唯一绑定飞机的字符序列
+    /**
+     * @brief 设备序列号，或者其他唯一绑定飞机的字符序列
+     * 
+     * @return const std::string& 
+     */
     const std::string &uniqueCode() override;
 
-    // 机器人的名字
+    /**
+     * @brief 机器人的名字
+     * 
+     * @return const std::string& 
+     */
     const std::string &robotName() override;
 
-    // 获取相机管理器
+    /**
+     * @brief 获取相机管理器
+     * 
+     * @return DJICameraManager& 
+     */
     DJICameraManager &cameraManager();
 
-    // 大疆API MUTEX
+    /**
+     * @brief 大疆API MUTEX
+     * 
+     * @return std::mutex& 
+     */
     std::mutex& DJIAPIMutex();
 
-    // 返回大疆底层指针
+    /**
+     * @brief 返回大疆底层指针
+     * 
+     * @return DJIVehiclePtr 
+     */
     DJIVehiclePtr vehicle();
 
-    // 返回大疆类型
+    /**
+     * @brief 返回大疆飞机类型
+     * 
+     * @return DJIVehicleModels 
+     */
     DJIVehicleModels model();
 
 protected:

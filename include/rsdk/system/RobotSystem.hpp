@@ -25,16 +25,33 @@ namespace rsdk
 
         bool link(const SystemConfig& config);
 
-        // 是否连接
+        /**
+         * @brief 是否连接
+         * 
+         * @return true 
+         * @return false 
+         */
         bool isLink();
 
-        // 设备的生产商信息
+        /**
+         * @brief 设备的生产商信息
+         * 
+         * @return const std::string& 
+         */
         virtual const std::string &manufacturer() = 0;
 
-        // 设备序列号，或者其他唯一绑定飞机的字符序列
+        /**
+         * @brief 设备序列号，或者其他唯一绑定飞机的字符序列
+         * 
+         * @return const std::string& 
+         */
         virtual const std::string &uniqueCode() = 0;
 
-        // 机器人的名字
+        /**
+         * @brief 机器人的名字
+         * 
+         * @return const std::string& 
+         */
         virtual const std::string &robotName() = 0;
 
         bool sendEvent(const std::shared_ptr<RObject>&, ::rsdk::event::REventParam);
@@ -45,10 +62,17 @@ namespace rsdk
 
         void postEvent(RObject*, ::rsdk::event::REventParam);
 
-        // 更新SystemTime
-        void updateSystemTime(uint32_t);
+        // 更新系统时间的偏差
+        void updateSystemBias(int64_t);
 
-        // 如果无效返回0
+        /**
+         * @brief 
+         * 
+         * @return int64_t 
+         */
+        int64_t systemTimeBias();
+
+        // 返回系统时间
         int64_t systemTime();
 
     protected:

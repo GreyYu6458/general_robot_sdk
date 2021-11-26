@@ -5,6 +5,21 @@
 #include <vector>
 #include <unordered_map>
 #include <dji_vehicle.hpp>
+#include <iostream>
+
+using StandardWaypointItems = std::vector<rsdk::mission::waypoint::WPMItem>;
+
+struct WaitTimeInfo
+{
+    uint32_t    pause_item_index{0};
+    float       wait_time{0};
+};
+
+struct InterpreterContext
+{
+    bool            should_wait_time{false};
+    WaitTimeInfo    wait_time_info;
+};
 
 class DJIWPMission::Impl
 {
@@ -36,11 +51,11 @@ public:
         dji_wp_item.turnMode = DJIWaypointV2TurnModeClockwise;
 
         /**
-    *  Property is used when ``DJIWaypointV2_headingMode`` is
-    *  ``DJIWaypointV2_DJIWaypointV2HeadingMode_TowardPointOfInterest``.
-    *  Aircraft will always be heading to point while executing mission. Default is
-    *  "kCLLocationCoordinate2DInvalid".
-    */
+        *  Property is used when ``DJIWaypointV2_headingMode`` is
+        *  ``DJIWaypointV2_DJIWaypointV2HeadingMode_TowardPointOfInterest``.
+        *  Aircraft will always be heading to point while executing mission. Default is
+        *  "kCLLocationCoordinate2DInvalid".
+        */
         dji_wp_item.pointOfInterest.positionX = 0;
         dji_wp_item.pointOfInterest.positionY = 0;
         dji_wp_item.pointOfInterest.positionZ = 0;
@@ -58,7 +73,59 @@ public:
         return yaw > 180 ? yaw - 360 : yaw;
     }
 
-    template<rmw::MavMissionItems> static bool _convert_item(const rmw::WPMItem& item, DJIWPMission& mission)
+    static DJIWaypointV2Trigger createReachedTrigger(uint16_t waypoint_index)
+    {
+        DJIWaypointV2SampleReachPointTriggerParam reached_trigger;
+        reached_trigger.waypointIndex = waypoint_index;
+        reached_trigger.terminateNum  = 0;
+        return DJIWaypointV2Trigger(
+            DJIWaypointV2ActionTriggerTypeSampleReachPoint, 
+            &reached_trigger
+        );
+    }
+
+    static DJIWaypointV2Trigger createAssociateTrigger(float wait_time /* unit:s */, uint16_t associate_action_index)
+    {
+        DJIWaypointV2AssociateTriggerParam action_associated_trigger_param;
+        action_associated_trigger_param.actionAssociatedType = DJIWaypointV2TriggerAssociatedTimingTypeAfterFinised;
+        action_associated_trigger_param.actionIdAssociated   = associate_action_index;
+        // sadly dji waiting time's unit is not second said in document, it is 0.1 second
+        action_associated_trigger_param.waitingTime          = static_cast<uint8_t>(wait_time * 10);
+        // trigger
+        return DJIWaypointV2Trigger(
+            DJIWaypointV2ActionTriggerTypeActionAssociated, 
+            &action_associated_trigger_param
+        );
+    }
+
+    static DJIWaypointV2Actuator createAircraftControlActuator(bool isStartFlying)
+    {
+        DJIWaypointV2AircraftControlFlyingParam control_flying_param;
+        control_flying_param.isStartFlying = isStartFlying ? 1 : 0;
+        // actuator parameter
+        DJIWaypointV2AircraftControlParam uav_control_param(
+            DJIWaypointV2ActionActuatorAircraftControlOperationTypeFlyingControl,
+            &control_flying_param
+        );
+        // actuator
+        return DJIWaypointV2Actuator(
+            DJIWaypointV2ActionActuatorTypeAircraftControl,
+            0, &uav_control_param
+        );
+    }
+
+    static DJIWaypointV2Actuator createCameraControlActuator()
+    {
+        DJIWaypointV2CameraActuatorParam cameraActuatorParam(
+            DJIWaypointV2ActionActuatorCameraOperationTypeTakePhoto, nullptr
+        );
+        return DJIWaypointV2Actuator(
+            DJIWaypointV2ActionActuatorTypeCamera, 0, &cameraActuatorParam
+        );
+    }
+
+    template<rmw::MavMissionItems> static bool 
+    _convert_item(const StandardWaypointItems& items, size_t index, InterpreterContext&, DJIWPMission& mission)
     {
         return false;
     }
@@ -66,9 +133,13 @@ public:
 
 template<> bool DJIWPMission::Impl::_convert_item
 <rmw::MavMissionItems::NAV_WAYPOINT>
-(const rmw::WPMItem& item, DJIWPMission& mission)
+(const StandardWaypointItems& items, size_t index, InterpreterContext& context, DJIWPMission& mission)
 {
     using namespace DJI::OSDK;
+    const auto& item = items[index];
+    auto& dji_wps           = mission._impl->_dji_wps;
+    auto& dji_actions       = mission._impl->_dji_actions;
+
     DJI::OSDK::WaypointV2 dji_wp;
     wp_common_set(dji_wp);
 
@@ -79,85 +150,54 @@ template<> bool DJIWPMission::Impl::_convert_item
     auto item_y             = item.get<rmw::ItemParam::PARAM_6>();
     auto item_z             = item.get<rmw::ItemParam::PARAM_7>();
 
-    // 大疆是弧度制的。为了兼容PX4 经纬度是一个uint32类型的整数
+    // 为了兼容PX4 经纬度是一个uint32类型的整数
     dji_wp.latitude         = item_x / 1e7 * M_PI / 180.0;
     dji_wp.longitude        = item_y / 1e7 * M_PI / 180.0;
     dji_wp.relativeHeight   = item_z;
     dji_wp.heading          = nomoralizeYawAngle(yaw_degree);
-
-    auto& dji_wps           = mission._impl->_dji_wps;
-    auto& dji_actions       = mission._impl->_dji_actions;
     mission._impl->_wp_index_seq_list.push_back(item_seq);
 
-    if(wait_time > 25.5) 
+    if(wait_time > 25.5)
     {
-        // publishInfo<::rsdk::SystemInfoLevel::ERROR>(
-        //     "When Converting Waypoint: Wait Time Bigger Than 25.5"
-        // );
         return false;
     }
+    
+    // 上一个也是航点，添加一个resume动作
+    if(context.should_wait_time)
+    {
+        DJIActionEvent event;
+        event.type          = DJIActionEventEnum::Resumed;
+        event.item_index    = item_seq;
+        event.adjoint_wp    = item_seq;
+        mission._impl->_action_map[ dji_actions.size() ] = event;
 
-    if(wait_time != 0)
+        // trigger parameter
+        auto trigger  = createAssociateTrigger(context.wait_time_info.wait_time, context.wait_time_info.pause_item_index);
+        // actuator
+        auto actuator = createAircraftControlActuator(true);
+        // action
+        auto action   = DJIWaypointV2Action(dji_actions.size(), trigger, actuator);
+
+        dji_actions.push_back(action);
+        context.should_wait_time = false;
+    }
+
+    if(wait_time != 0 && index != items.size() - 2)
     {
         // add paused action
         DJIActionEvent event;
-        event.type = DJIActionEventEnum::Paused;
-        event.item_index = item_seq;
-        event.adjoint_wp = item_seq;
+        event.type          = DJIActionEventEnum::Paused;
+        event.item_index    = item_seq;
+        event.adjoint_wp    = item_seq;
         mission._impl->_action_map[ dji_actions.size() ] = event;
 
-        DJIWaypointV2SampleReachPointTriggerParam reached_trigger;
-        reached_trigger.waypointIndex = dji_wps.size();
-        reached_trigger.terminateNum  = 0;
-        auto trigger = DJIWaypointV2Trigger(
-            DJIWaypointV2ActionTriggerTypeSampleReachPoint, 
-            &reached_trigger
-        );
-        DJIWaypointV2AircraftControlFlyingParam param;
-        param.isStartFlying = 0;
-        DJIWaypointV2AircraftControlParam uav_control_param(
-            DJIWaypointV2ActionActuatorAircraftControlOperationTypeFlyingControl, 
-            &param
-        );
-        DJIWaypointV2Actuator actuator(
-            DJIWaypointV2ActionActuatorTypeAircraftControl, 
-            0, &uav_control_param
-        );
-        auto action = DJIWaypointV2Action(
-            dji_actions.size(), 
-            trigger, actuator
-        );
+        auto trigger        = createReachedTrigger(dji_wps.size());
+        auto actuator       = createAircraftControlActuator(false);
+        auto action         = DJIWaypointV2Action(dji_actions.size(), trigger, actuator);
 
-        dji_actions.push_back(action);
-
-        // add resume action
-        event.type = DJIActionEventEnum::Resumed;
-        event.item_index = item_seq;
-        event.adjoint_wp = item_seq;
-        mission._impl->_action_map[ dji_actions.size() ] = event;
-
-        DJIWaypointV2AssociateTriggerParam action_associated_trigger;
-        action_associated_trigger.actionAssociatedType = DJIWaypointV2TriggerAssociatedTimingTypeAfterFinised;
-        action_associated_trigger.actionIdAssociated = dji_actions.size() - 1;
-        // sadly dji waiting time's unit is not second said in document, it is 0.1 second
-        action_associated_trigger.waitingTime = static_cast<uint8_t>(wait_time * 10);
-        trigger = DJIWaypointV2Trigger(
-            DJIWaypointV2ActionTriggerTypeActionAssociated, 
-            &action_associated_trigger
-        );
-        param.isStartFlying = 1;
-        uav_control_param = DJIWaypointV2AircraftControlParam(
-            DJIWaypointV2ActionActuatorAircraftControlOperationTypeFlyingControl, 
-            &param
-        );
-        actuator = DJIWaypointV2Actuator(
-            DJIWaypointV2ActionActuatorTypeAircraftControl, 
-            0, &uav_control_param
-        );
-        action = DJIWaypointV2Action(
-            dji_actions.size(), 
-            trigger, actuator
-        );
+        context.should_wait_time                = true;
+        context.wait_time_info.pause_item_index = dji_actions.size();
+        context.wait_time_info.wait_time        = wait_time;
 
         dji_actions.push_back(action);
     }
@@ -167,53 +207,71 @@ template<> bool DJIWPMission::Impl::_convert_item
 
 template<> bool DJIWPMission::Impl::_convert_item
 <rmw::MavMissionItems::IMAGE_START_CAPTURE>
-(const rmw::WPMItem& item, DJIWPMission& mission)
+(const StandardWaypointItems& items, size_t index, InterpreterContext& context, DJIWPMission& mission)
 {
     using namespace DJI::OSDK;
+    static constexpr uint8_t default_wait_time = 2; // 2s
+    const auto& item        = items[index];
     auto& dji_wps           = mission._impl->_dji_wps;
     auto& dji_actions       = mission._impl->_dji_actions;
     auto item_seq           = item.get<rmw::ItemParam::SEQUENCE>();
     auto total_image        = item.get<rmw::ItemParam::PARAM_3>();
-
-    DJIWaypointV2SampleReachPointTriggerParam reached_trigger;
-    reached_trigger.waypointIndex = dji_wps.size() - 1;
-    reached_trigger.terminateNum  = 0;
-
-    auto trigger = DJIWaypointV2Trigger(
-        DJIWaypointV2ActionTriggerTypeSampleReachPoint, &reached_trigger
-    );
-
+    
     if(total_image != 1)
     {
         mission._impl->clear();
-        // DJIVehicleSystem::publishInfo<::rsdk::SystemInfoLevel::ERROR>(
-        //     "DJI Not Support Continuous Photo Params"
-        // );
         return false;
     } 
 
-    auto cameraActuatorParam = DJIWaypointV2CameraActuatorParam(
-        DJIWaypointV2ActionActuatorCameraOperationTypeTakePhoto, nullptr
-    );
-
-    auto actuator = DJIWaypointV2Actuator(
-        DJIWaypointV2ActionActuatorTypeCamera, 0, &cameraActuatorParam
-    );
-
-    auto action = DJIWaypointV2Action(dji_actions.size(), trigger, actuator);
-
     DJIActionEvent event;
-    event.type = DJIActionEventEnum::StartRecordVideo;
-    event.item_index = item_seq;
-    event.adjoint_wp = dji_wps.size() - 1;
+    event.type          = DJIActionEventEnum::TakenPhoto;
+    event.item_index    = item_seq;
+    event.adjoint_wp    = dji_wps.size() - 1;
     mission._impl->_action_map[ dji_actions.size() ] = event;
 
-    dji_actions.push_back(action);
+    if(context.should_wait_time)
+    {
+        context.should_wait_time = false;
+        // 关联触发器，关联pause动作，等待1秒钟,然后拍照
+        auto trigger    = createAssociateTrigger(default_wait_time, context.wait_time_info.pause_item_index);
+        auto actuator   = createCameraControlActuator();
+        auto action     = DJIWaypointV2Action(dji_actions.size(), trigger, actuator);
+
+        dji_actions.push_back(action);
+        
+        uint8_t last_wait_time = 
+            context.wait_time_info.wait_time > default_wait_time ? 
+            context.wait_time_info.wait_time - default_wait_time : 0;
+
+        DJIActionEvent event;
+        event.type          = DJIActionEventEnum::Resumed;
+        event.item_index    = item_seq;
+        event.adjoint_wp    = dji_wps.size() - 1;
+        mission._impl->_action_map[ dji_actions.size() ] = event;
+
+        // 创建关联触发器，继续飞行
+        trigger     = createAssociateTrigger(last_wait_time, dji_actions.size() - 1);
+        actuator    = createAircraftControlActuator(true);
+        action      = DJIWaypointV2Action(dji_actions.size(), trigger, actuator);
+        dji_actions.push_back(action);
+    }
+    else
+    {
+        // 关联上一个航点，到达时触发
+        auto trigger     = createReachedTrigger(dji_wps.size() - 1);
+        auto actuator    = createAircraftControlActuator(true);
+        auto action      = DJIWaypointV2Action(dji_actions.size(), trigger, actuator);    
+        dji_actions.push_back(action);
+    }
+
     return true;
 }
 
 bool DJIWPMission::convertFromStandard(const rmw::WaypointItems& standard_mission, DJIWPMission& dji_mission)
 {
+    // 解释器上下文
+    InterpreterContext interpreter_context;
+
     dji_mission._impl->_is_valid = true;
     auto& standard_items = standard_mission.getItems();
 
@@ -230,8 +288,11 @@ bool DJIWPMission::convertFromStandard(const rmw::WaypointItems& standard_missio
         dji_mission._impl->_autoReturnHome = true;
     }
 
-    for( const rmw::WPMItem& item : standard_items )
+    size_t items_size = standard_items.size();
+    for(size_t index = 0; index < items_size; index++)
     {
+        const rmw::WPMItem& item = standard_items[index];
+        
         auto item_cmd = item.get< rmw::ItemParam::COMMAND >();
 
         // the following cmd id will conflict with first point and last point
@@ -249,16 +310,17 @@ bool DJIWPMission::convertFromStandard(const rmw::WaypointItems& standard_missio
         case rmw::MavMissionItems::NAV_WAYPOINT:
                 parse_success_flag = Impl::_convert_item<
                     rmw::MavMissionItems::NAV_WAYPOINT
-                >(item, dji_mission);
+                >(standard_items, index, interpreter_context, dji_mission);
             break;
         case rmw::MavMissionItems::IMAGE_START_CAPTURE:
                 parse_success_flag = Impl::_convert_item<
                     rmw::MavMissionItems::IMAGE_START_CAPTURE
-                >(item, dji_mission);
+                >(standard_items, index, interpreter_context, dji_mission);
             break;
         default:
             break;
         }
+
         if(!parse_success_flag)
             goto fail_flag;
     }
@@ -269,6 +331,8 @@ bool DJIWPMission::convertFromStandard(const rmw::WaypointItems& standard_missio
         dji_mission._impl->_is_valid = false;
         return false;
 }
+
+/******************************* public method *******************************/
 
 DJIWPMission::DJIWPMission()
 {
@@ -324,22 +388,14 @@ void DJIWPMission::clear()
 
 bool DJIWPMission::eventType(size_t action_id, DJIActionEvent& dji_action_event)
 {
-    if(_impl->_action_map.count(action_id))
-    {
-        dji_action_event = _impl->_action_map[action_id];
-        return true;
-    }
-    return false;
+    return _impl->_action_map.count(action_id) ? 
+        dji_action_event = _impl->_action_map[action_id], true : false;
 }
 
 bool DJIWPMission::wpIndex2Sequence(uint32_t wp_index, uint32_t& sequence)
 {
-    if(_impl->_wp_index_seq_list.size() > wp_index)
-    {
-        sequence = _impl->_wp_index_seq_list[wp_index];
-        return true;;
-    }
-    return false;
+    return _impl->_wp_index_seq_list.size() > wp_index ?
+        sequence = _impl->_wp_index_seq_list[wp_index], true : false;
 }
 
 bool DJIWPMission::isValid()

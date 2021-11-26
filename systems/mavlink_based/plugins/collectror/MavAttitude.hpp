@@ -16,4 +16,8 @@ public:
     bool start() override;
 
     bool isStarted() override;
+
+private:
+    class Impl;
+    Impl* _impl;
 };

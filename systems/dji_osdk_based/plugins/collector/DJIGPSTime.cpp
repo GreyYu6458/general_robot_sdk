@@ -1,16 +1,19 @@
 #include "DJIGPSTime.hpp"
+#include <dji_vehicle.hpp>
+#include <regex>
+#include <cmath>
+ 
 
-/*
-void NMEACallback(Vehicle* vehiclePtr,
+void NMEACallback(Vehicle *vehiclePtr,
                   RecvContainer recvFrame,
                   UserData userData)
 {
-  int length = recvFrame.recvInfo.len-OpenProtocol::PackageMin-4;
-  uint8_t rawBuf[length];
-  memcpy(rawBuf, recvFrame.recvData.raw_ack_array, length);
-  DSTATUS("%s\n", std::string((char*)rawBuf, length).c_str());
+    int length = recvFrame.recvInfo.len - OpenProtocol::PackageMin - 4;
+    uint8_t rawBuf[length];
+    memcpy(rawBuf, recvFrame.recvData.raw_ack_array, length);
 }
 
+/*
 void UTCTimeCallback(Vehicle* vehiclePtr,
                      RecvContainer recvFrame,
                      UserData userData)
@@ -40,20 +43,19 @@ void PPSSourceCallback(Vehicle* vehiclePtr,
   std::vector<std::string> stringVec = {"0", "INTERNAL_GPS", "EXTERNAL_GPS", "RTK"};
   DSTATUS("PPS pulse is coming from %s\n", stringVec[recvFrame.recvData.ppsSourceType].c_str());
 }
-
 */
 
-DJIGPSTime::DJIGPSTime(const std::shared_ptr<DJIVehicleSystem>& system)
-: dji::gps_time::BaseType(system)
+DJIGPSTime::DJIGPSTime(const std::shared_ptr<DJIVehicleSystem> &system)
+    : dji::gps_time::BaseType(system)
 {
-  // Note that these CBs share the same thread with serial reading
-  // vehicle()->hardSync->subscribeNMEAMsgs(NMEACallback, nullptr);
-  // vehicle()->hardSync->subscribeUTCTime(UTCTimeCallback, nullptr);
-  // vehicle()->hardSync->subscribeFCTimeInUTCRef(FCTimeInUTCCallback, nullptr);
-  // vehicle()->hardSync->subscribePPSSource(PPSSourceCallback, nullptr);
+    // Note that these CBs share the same thread with serial reading
+    vehicle()->hardSync->subscribeNMEAMsgs(NMEACallback, nullptr);
+    // vehicle()->hardSync->subscribeUTCTime(UTCTimeCallback, nullptr);
+    // vehicle()->hardSync->subscribeFCTimeInUTCRef(FCTimeInUTCCallback, nullptr);
+    // vehicle()->hardSync->subscribePPSSource(PPSSourceCallback, nullptr);
 }
 
-void DJIGPSTime::convert(const DJIGPSTime::pkg_msg_type& date)
+void DJIGPSTime::convert(const DJIGPSTime::pkg_msg_type &date)
 {
-    _dji_system->updateSystemTime(std::get<0>(date));
+    // _dji_system->updateSystemTime(std::get<0>(date));
 }

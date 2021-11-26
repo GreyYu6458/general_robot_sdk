@@ -1,6 +1,7 @@
 #include "DownloadPhotoTask.hpp"
 #include "plugins/mission/DJIWPMInstance.hpp"
 #include "../exif.h"
+#include "p_rsdk/tools/math/haversine.h"
 #include <dji_vehicle.hpp>
 #include <unordered_set>
 #include <future>
@@ -8,6 +9,10 @@
 #include <sstream>
 #include <iomanip>
 #include <cmath>
+#include <regex>
+
+// DJI_20211014173902_0050_WIDE.jpg
+static std::regex photo_name_pettern("DJI_(.*?)_(.*?)_(.*?).jpg");
 
 class DJIDownloadPhotoTask::Impl
 {
@@ -81,19 +86,13 @@ public:
         }
     }
 
-    /**
-     * @brief 匹配照片，如果失败返回uint32_t max
-     * 
-     * @param photo_path 
-     * @return uint32_t 
-     */
-    uint32_t photo_match(const std::string& photo_path)
+    bool loadExif(const std::string& photo_path, easyexif::EXIFInfo& info)
     {
         FILE* fp = fopen(photo_path.c_str(), "rb");
         if(!fp)
         {
             instance->system()->error("could not open photo file:" + photo_path);
-            return UINT32_MAX;
+            return false;
         }
         fseek(fp, 0, SEEK_END);
         unsigned long fsize = ftell(fp);
@@ -103,19 +102,21 @@ public:
         {
             instance->system()->error("could not alloc memory for photo:"+ photo_path);
             delete[] buf;
-            return UINT32_MAX;
+            return false;
         }
         fclose(fp);
-
-        easyexif::EXIFInfo result;
-        int code = result.parseFrom(buf, fsize);
+        int code = info.parseFrom(buf, fsize);
         delete[] buf;
         if(code)
         {
             instance->system()->error("Error parsing EXIF: code " + std::to_string(code));
-            return UINT32_MAX;
+            return false;
         }
+        return true;
+    }
 
+    uint32_t compareByTime(const std::string& photo_path, const easyexif::EXIFInfo& result)
+    {
         // GET TIME STAMP FROM PHOTO
         std::tm t{};
         std::istringstream ss(result.DateTime);
@@ -163,10 +164,36 @@ public:
             " UNIXTIME :"   + std::to_string(time_stamp) + 
             " EVENTTIME:"   + std::to_string(event_time) +
             " DIFFERENCE:"  + std::to_string(min) + 
-            " BIAS:"        + std::to_string(shared_info->photo_bias_time)
+            " FIRST_BIAS:"  + std::to_string(shared_info->photo_bias_time)
         );
 
         return item_index;
+    }
+
+    uint32_t compareByLocation(const std::string& photo_path, const easyexif::EXIFInfo& result)
+    {
+        auto& location = result.GeoLocation;
+
+        auto& shared_info = instance->sharedInfo();
+
+        return 1;
+    }
+
+    /**
+     * @brief 匹配照片，如果失败返回uint32_t max
+     * 
+     * @param photo_path 
+     * @return uint32_t 
+     */
+    uint32_t photo_match(const std::string& photo_path)
+    {
+        easyexif::EXIFInfo result;
+        if(!loadExif(photo_path, result))
+        {
+            return UINT32_MAX;
+        }
+
+        return compareByTime(photo_path, result);
     }
 
     rsdk::mission::StageRst downloadFiles(const std::string& path)
@@ -258,9 +285,7 @@ public:
                 // post event
                 instance->system()->postEvent(
                     instance,
-                    std::make_shared<
-                        rsdk::event::mission::WPMSavedPhotoEvent
-                    >(info)
+                    make_event<rsdk::event::mission::WPMSavedPhotoEvent>(info)
                 );
                 instance->system()->info(
                     "Download File :" + file_ptr->name + " Success"

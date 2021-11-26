@@ -160,8 +160,10 @@ namespace rsdk::event
     class name : public ConcreteEvent< static_cast<uint64_t>(event_type), payload > \
     { \
     public: \
-        name (typename ConcreteEvent::payload_type& payload): \
+        explicit name (typename ConcreteEvent::payload_type& payload): \
             ConcreteEvent(payload){} \
+        explicit name (ConcreteEvent::payload_type&& payload) :\
+            ConcreteEvent(std::move(payload)){} \
         const char* event_name() override{return nameOf<event_type>();} \
     }; \
     template<> struct typeOf<event_type>{ typedef name type; }; \
@@ -178,5 +180,12 @@ namespace rsdk::event
         const char* event_name() override{return nameOf<event_type>();} \
     }; \
     template<> struct typeOf<event_type>{ typedef name type; }; \
+
+template<class T, class... Args> inline
+typename std::enable_if< std::is_base_of<rsdk::event::BaseREvent, T>::value, std::shared_ptr<T> >::type 
+make_event(Args&&... args)
+{
+    return std::make_shared<T>(std::forward<Args>(args)...);
+}
 
 #endif

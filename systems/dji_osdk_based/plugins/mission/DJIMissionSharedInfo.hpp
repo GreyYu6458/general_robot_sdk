@@ -7,6 +7,9 @@ struct DJIMissionSharedInfo
     // DJI 航线任务
     DJIWPMission                                dji_wp_mission;
 
+    // 起飞点海拔高度
+    double                                      takeoff_altitude{0};
+
     // 总共航点
     uint32_t                                    total_wp{0};     
 

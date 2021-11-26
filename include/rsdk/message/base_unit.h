@@ -14,7 +14,7 @@ namespace unit
     typedef double      acceleration;
     typedef double      degree;
     typedef double      radians;
-    typedef double      distance;
+    typedef double      meter;
     typedef double      accuracy;
     typedef double      voltage;
     typedef double      current;

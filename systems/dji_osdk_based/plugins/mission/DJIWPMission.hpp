@@ -26,12 +26,12 @@ public:
 
     /**
      * @brief   将标准航线解释位DJI航线
-     *          TODO 提供更加完善的报错和航点分析
+     *          TODO 分离该功能，作为一个单独的类。提供更加完善的报错和航点分析
      * 
      * @param standard_mission 
-     * @return std::shared_ptr<DJIWPMission> 
+     * @return bool
      */
-    static bool convertFromStandard(const rmw::WaypointItems& standard_mission, DJIWPMission&);
+    static bool convertFromStandard(const rmw::WaypointItems&, DJIWPMission&);
 
     /**
      * @brief 大疆任务的航点

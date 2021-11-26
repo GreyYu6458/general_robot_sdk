@@ -54,6 +54,7 @@ template <>struct DJIMissionEventType<DJIMissionEvent::ActionExecEvent>
 
 #define _DJIEventParamType(x) const typename DJIMissionEventType<x>::type
 #define DJIEventParamType(x) _DJIEventParamType(DJIMissionEvent::x)
+
 /**
  * @brief DJI Event Handle Function
  * 
@@ -111,7 +112,7 @@ template <> void process<DJIMissionEvent::MissionFinished>
 
     event_wrapper.instance()->system()->postEvent(
         event_wrapper.instance(),
-        std::make_shared<rsdk::event::mission::MissionFinishedEvent>(info)
+        make_event<rsdk::event::mission::MissionFinishedEvent>(info)
     );
 }
 
@@ -125,14 +126,19 @@ template <> void process<DJIMissionEvent::MissionFinished>
 template <> void process<DJIMissionEvent::WaypointIndexUpdate>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(WaypointIndexUpdate) &ack)
 {
-    event_wrapper.instance()->system()->trace("[mission]: Waypoint update:" + std::to_string(ack));
-    rsdk::event::mission::WPMProgressInfo info;
-    info.current_wp = ack;
-    event_wrapper.instance()->sharedInfo().dji_wp_mission.wpIndex2Sequence(ack, info.item_index);
-    info.total_wp   = event_wrapper.instance()->sharedInfo().total_wp;
+    auto  instance      = event_wrapper.instance();
+    auto& system        = instance->system();
+    auto& shared_info   = instance->sharedInfo();
 
-    auto wp_update_event = std::make_shared<rsdk::event::mission::WPMProgressUpdatedEvent>(info);
-    event_wrapper.instance()->system()->postEvent(event_wrapper.instance(), wp_update_event);
+    system->trace("[mission]: Waypoint update:" + std::to_string(ack));
+    rsdk::event::mission::WPMProgressInfo info;
+
+    info.current_wp = ack;
+    info.total_wp   = shared_info.total_wp;
+    shared_info.dji_wp_mission.wpIndex2Sequence(ack, info.item_index);
+    
+    auto wp_update_event = make_event<rsdk::event::mission::WPMProgressUpdatedEvent>(info);
+    system->postEvent(instance, wp_update_event);
 }
 
 /**
@@ -145,8 +151,12 @@ template <> void process<DJIMissionEvent::WaypointIndexUpdate>
 template <> void process<DJIMissionEvent::AvoidEvent>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(AvoidEvent) &ack)
 {
-    // auto avoidance_event = std::make_shared<rsdk::mission::AvoidanceEvent>();
-    event_wrapper.instance()->system()->warning("[mission]: Avoidance occurred!");
+    auto  instance      = event_wrapper.instance();
+    auto& system        = instance->system();
+    
+    system->warning("[mission]: Avoidance occurred!");
+    
+    // auto avoidance_event = make_event<rsdk::mission::AvoidanceEvent>();
     // event_wrapper.instance()->system()->postEvent(event_wrapper.instance(), avoidance_event);
 }
 
@@ -160,9 +170,13 @@ template <> void process<DJIMissionEvent::AvoidEvent>
 template <> void process<DJIMissionEvent::MissionExecEvent>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(MissionExecEvent) &ack)
 {
+    auto  instance      = event_wrapper.instance();
+    auto& system        = instance->system();
+    auto& shared_info   = instance->sharedInfo();
+
     // event_wrapper.instance()->system()->trace("[mission]: Current mission exec num:" + std::to_string(ack.currentMissionExecNum));
-    event_wrapper.instance()->system()->trace("[mission]: Finish all exec num:" + std::to_string(ack.finishedAllExecNum));
-    event_wrapper.instance()->sharedInfo().current_repeated_times = ack.finishedAllExecNum;
+    system->trace("[mission]: Finish all exec num:" + std::to_string(ack.finishedAllExecNum));
+    shared_info.current_repeated_times = ack.finishedAllExecNum;
 }
 
 /**
@@ -175,57 +189,60 @@ template <> void process<DJIMissionEvent::MissionExecEvent>
 template <> void process<DJIMissionEvent::ActionExecEvent>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(ActionExecEvent) &ack)
 {
+    using namespace rsdk::event::mission;
+
+    auto  instance      = event_wrapper.instance();
+    auto& system        = instance->system();
+    auto& shared_info   = instance->sharedInfo();
+
     DJIActionEvent action_event_info;
-
-    event_wrapper.instance()->system()->trace(
-        "[mission]: Action id " + 
-        std::to_string(ack.actionId)
-    );
-
-    auto& dji_wp_ref = event_wrapper.instance()->sharedInfo().dji_wp_mission;
-
+    WaypointTaskInfo info;
     DJIActionEvent dji_action_event;
+    auto event = ::rsdk::event::REventPtr();
+
+    instance->system()->trace("[mission]: Action id " + std::to_string(ack.actionId));
+
+    auto& dji_wp_ref = instance->sharedInfo().dji_wp_mission;
+
     // query what type the action is
     if(!dji_wp_ref.eventType(ack.actionId, dji_action_event))
     {
-        event_wrapper.instance()->system()->warning(
+        instance->system()->warning(
             "[mission]: Action id was not registed, action_id:" + 
             std::to_string(ack.actionId)
         );
         return;
     }
 
-    rsdk::event::mission::WaypointTaskInfo info;
     info.followed_waypoint  = dji_action_event.adjoint_wp;
     info.item_index         = dji_action_event.item_index;
 
-    auto event = ::rsdk::event::REventPtr();
     switch(dji_action_event.type)
     {
         case DJIActionEventEnum::Paused:
             {
-                event = std::make_shared<rsdk::event::mission::WPMPausedEvent>(info);
+                event = make_event<WPMPausedEvent>(info);
                 break;
             }
         case DJIActionEventEnum::Resumed:
             {
-                event = std::make_shared<rsdk::event::mission::WPMResumedEvent>(info);
+                event = make_event<WPMResumedEvent>(info);
                 break;
             }
-        case DJIActionEventEnum::StartRecordVideo:
+        case DJIActionEventEnum::TakenPhoto:
             {
-                event = std::make_shared<rsdk::event::mission::WPMTakenPhotoEvent>(info);
+                event = make_event<WPMTakenPhotoEvent>(info);
                 break;
             }
         default:
-            event_wrapper.instance()->system()->warning(
+            system->warning(
                 "[mission]: Unknown type of action, action_id:" + 
                 std::to_string(ack.actionId)
             );
     }
     if(event)
     {
-        event_wrapper.instance()->system()->postEvent(event_wrapper.instance(), event);
+        system->postEvent(event_wrapper.instance(), event);
     }
 }
 

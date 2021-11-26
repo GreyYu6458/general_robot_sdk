@@ -44,7 +44,6 @@ int main()
 
     auto dji_system = std::make_shared<DJIVehicleSystem>();
 
-    /*
     dji_system->subscribeSystemInfo(
         [](const rsdk::SystemInfo& msg)
         {
@@ -54,7 +53,6 @@ int main()
                         << msg.data << std::endl;
         }
     );
-    */
     
     dji_system->link(config);
 
@@ -144,12 +142,13 @@ int main()
     mission.addItem(land);
 
     mission_proxy.setWaypointItems(mission);
-
+    mission_proxy.setMediaRootPath("/home/chenhui/");
     mission_proxy.startMission();
-
 
     std::unique_lock<std::mutex> lck(wait_finish_mutex);
     wait_finish_cv.wait(lck);
+
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
     return 0;
 }

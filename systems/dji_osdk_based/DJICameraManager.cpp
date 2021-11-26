@@ -34,8 +34,8 @@ public:
             // 同步成功
             for (const auto &media_file : file_list.media)
             {
-                DJIMediaFile wrapper_file{ 
-                    .name  = media_file.fileName, 
+                DJIMediaFile wrapper_file{
+                    .name  = media_file.fileName,
                     .index = media_file.fileIndex,
                     .type  = media_file.fileType == MediaFileType::JPEG ? DJIFileType::JPG : DJIFileType::OTHERS
                 };
@@ -55,14 +55,7 @@ public:
     {
         ErrorCode::ErrorCodeType ret;
         ret = _system->vehicle()->cameraManager->initCameraModule(PAYLOAD_INDEX_0,"dji_camera_index_0");
-        if (ret != ErrorCode::SysCommonErr::Success) 
-        {
-            return false;
-        }
-        else
-        {
-            return syncCameraFile();
-        }
+        return ret == ErrorCode::SysCommonErr::Success ? syncCameraFile() : false;
     }
 
     bool syncCameraFile()

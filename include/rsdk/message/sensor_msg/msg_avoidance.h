@@ -7,7 +7,7 @@ namespace sensor_msg
     struct RangeFinder
     {
         bool is_used{false};
-        unit::distance lenght;
+        unit::meter lenght;
     };
 
     struct Avoidance

@@ -15,7 +15,7 @@ ExternalProject_Add(
   GIT_PROGRESS
     1
   UPDATE_COMMAND 
-    git pull origin ${DJI_OSDK_TAG} && git checkout ${DJI_OSDK_TAG} && git submodule update
+    "" # git pull origin ${DJI_OSDK_TAG} && git checkout ${DJI_OSDK_TAG} && git submodule update
   CMAKE_ARGS
     "-DCMAKE_INSTALL_PREFIX:PATH=${DJI_OSDK_INSTALL_DIR}"
 )
@@ -78,6 +78,7 @@ add_library(
     dji_vehicle
     SHARED
     DJIVehicleSystem.cpp
+    SystemHardSync.cpp
     DJICameraManager.cpp
     _regist_dji_message.cpp
     dji_linux_helper/DJIInitializationTool.cpp

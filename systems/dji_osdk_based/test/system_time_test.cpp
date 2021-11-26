@@ -41,8 +41,8 @@ int main(int argc, char const *argv[])
     size_t count = 20;
     while (count--)
     {
-        std::cout << "Current System Time:" << dji_system->systemTime() << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::cout << "Current System Time     :" << dji_system->systemTime() << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     return 0;

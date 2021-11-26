@@ -15,6 +15,8 @@ namespace rsdk::collector
         AvoidanceProxy( const std::shared_ptr<rsdk::RobotSystem>& system );
 
         void subscribe(const cb_type& cb);
+
+        const msg_type& lastData();
     };
 }
 
