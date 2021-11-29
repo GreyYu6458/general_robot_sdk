@@ -3,6 +3,7 @@
 #include "DJIWPMission.hpp"
 #include "rsdk/event/MissionEvents.hpp"
 #include "DJIWPMInstance.hpp"
+#include "DJIDelegateMemory.hpp"
 #include "p_rsdk/plugins/mission/MissionTask.hpp"
 
 #include <dji_vehicle.hpp>
@@ -101,13 +102,13 @@ template <> void process<DJIMissionEvent::RecoverProcess>
 template <> void process<DJIMissionEvent::MissionFinished>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(MissionFinished) &ack)
 {
-    auto& mission_shared_info = event_wrapper.instance()->sharedInfo();
+    auto& current_context     = event_wrapper.instance()->currentDelegateMemory();
     event_wrapper.instance()->system()->trace("[mission]: Mission Finished:" + std::to_string(ack));
 
     rsdk::event::mission::MissionInfo info;
     info.instance_name  = "Unknown";
     info.is_interrupted = 
-        mission_shared_info.current_repeated_times < mission_shared_info.total_repeated_times + 1;
+        current_context->current_repeated_times < current_context->total_repeated_times + 1;
     info.detail         = info.is_interrupted ? "Mission Interrupted" : "Mission Finished";
 
     event_wrapper.instance()->system()->postEvent(
@@ -126,16 +127,16 @@ template <> void process<DJIMissionEvent::MissionFinished>
 template <> void process<DJIMissionEvent::WaypointIndexUpdate>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(WaypointIndexUpdate) &ack)
 {
-    auto  instance      = event_wrapper.instance();
-    auto& system        = instance->system();
-    auto& shared_info   = instance->sharedInfo();
+    auto  instance          = event_wrapper.instance();
+    auto& system            = instance->system();
+    auto& current_context   = event_wrapper.instance()->currentDelegateMemory();
 
     system->trace("[mission]: Waypoint update:" + std::to_string(ack));
     rsdk::event::mission::WPMProgressInfo info;
 
     info.current_wp = ack;
-    info.total_wp   = shared_info.total_wp;
-    shared_info.dji_wp_mission.wpIndex2Sequence(ack, info.item_index);
+    info.total_wp   = current_context->total_wp;
+    current_context->dji_mission.wpIndex2Sequence(ack, info.item_index);
     
     auto wp_update_event = make_event<rsdk::event::mission::WPMProgressUpdatedEvent>(info);
     system->postEvent(instance, wp_update_event);
@@ -170,13 +171,13 @@ template <> void process<DJIMissionEvent::AvoidEvent>
 template <> void process<DJIMissionEvent::MissionExecEvent>
 (DJIEventWrapper& event_wrapper, DJIEventParamType(MissionExecEvent) &ack)
 {
-    auto  instance      = event_wrapper.instance();
-    auto& system        = instance->system();
-    auto& shared_info   = instance->sharedInfo();
+    auto  instance          = event_wrapper.instance();
+    auto& system            = instance->system();
+    auto& current_context   = event_wrapper.instance()->currentDelegateMemory();
 
     // event_wrapper.instance()->system()->trace("[mission]: Current mission exec num:" + std::to_string(ack.currentMissionExecNum));
     system->trace("[mission]: Finish all exec num:" + std::to_string(ack.finishedAllExecNum));
-    shared_info.current_repeated_times = ack.finishedAllExecNum;
+    current_context->current_repeated_times = ack.finishedAllExecNum;
 }
 
 /**
@@ -191,18 +192,17 @@ template <> void process<DJIMissionEvent::ActionExecEvent>
 {
     using namespace rsdk::event::mission;
 
-    auto  instance      = event_wrapper.instance();
-    auto& system        = instance->system();
-    auto& shared_info   = instance->sharedInfo();
-
-    DJIActionEvent action_event_info;
+    auto  instance          = event_wrapper.instance();
+    auto& system            = instance->system();
+    auto& current_context   = event_wrapper.instance()->currentDelegateMemory();
+    
     WaypointTaskInfo info;
     DJIActionEvent dji_action_event;
     auto event = ::rsdk::event::REventPtr();
 
     instance->system()->trace("[mission]: Action id " + std::to_string(ack.actionId));
 
-    auto& dji_wp_ref = instance->sharedInfo().dji_wp_mission;
+    auto& dji_wp_ref = current_context->dji_mission;
 
     // query what type the action is
     if(!dji_wp_ref.eventType(ack.actionId, dji_action_event))

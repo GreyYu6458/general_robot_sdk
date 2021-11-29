@@ -100,6 +100,10 @@ add_library(
     plugins/collector/DJIBattery.cpp
     plugins/collector/DJIGPSTime.cpp
     plugins/collector/DJISensors_Impl.cpp
+
+    plugins/mission/interpreter/parse_common_wp.cpp
+    plugins/mission/interpreter/parse_photo_item.cpp
+    plugins/mission/interpreter/STDWPInterpreter.cpp
 )
 
 add_dependencies(

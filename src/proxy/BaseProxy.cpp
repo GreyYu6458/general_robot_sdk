@@ -15,12 +15,15 @@ namespace rsdk
         Impl(
             const std::shared_ptr<RobotSystem>& system,
             const std::shared_ptr<BasePlugin>& plugin
-        ): _sys(system), _plugin(plugin){}
+        ): _sys(system), _plugin(plugin)
+        {
+            _delegate_memory = _plugin->createDelegateMemory();
+        }
 
     private:
-        std::mutex _sub_mutex;
-
-        ::rsdk::event::REventCBType         _callbacks;
+        std::mutex                          _sub_mutex;
+        event::REventCBType                 _callbacks;
+        std::shared_ptr<DelegateMemory>     _delegate_memory;
         std::shared_ptr<RobotSystem>        _sys;
         std::shared_ptr<BasePlugin>         _plugin;
     };
@@ -50,9 +53,14 @@ namespace rsdk
         _impl->_callbacks = cb;
     }
 
-    std::shared_ptr<BasePlugin>    BaseProxy::_plugin()
+    std::shared_ptr<BasePlugin> BaseProxy::_plugin()
     {
         return _impl->_plugin;
+    }
+
+    std::shared_ptr<DelegateMemory> BaseProxy::delegateMemory()
+    {
+        return _impl->_delegate_memory;
     }
 
     bool BaseProxy::eventFilter(RObject* obj, rsdk::event::REventParam event)

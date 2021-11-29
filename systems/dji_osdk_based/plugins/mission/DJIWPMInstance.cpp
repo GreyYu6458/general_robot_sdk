@@ -4,9 +4,11 @@
 #include <dji_vehicle.hpp>
 #include <dji_waypoint_v2.hpp>
 #include <mutex>
+#include <chrono>
 
 #include "rsdk/proxy/collector/FlyingRbtSt.hpp"
 #include "rsdk/event/MissionEvents.hpp"
+#include "interpreter/STDWPInterpreter.hpp"
 
 #include "tasks/DJIWPMMainTask.hpp"
 #include "tasks/DownloadPhotoTask.hpp"
@@ -25,6 +27,8 @@ public:
     {
         if(_event_wrapper)
             delete _event_wrapper;
+        if(_standard_waypoint_interpreter)
+            delete _standard_waypoint_interpreter;
     }
 
     static std::string djiRet2String(DJI::OSDK::ErrorCode::ErrorCodeType code)
@@ -34,10 +38,13 @@ public:
     }
 
     std::shared_ptr<DJIVehicleSystem>               _system;
+    // _dji_delegate_memory的生命周期跟随proxy,每次新的proxy构造，这个对象就会被刷新
+    // 但是proxy仍旧持有一份
+    std::shared_ptr<DJIDelegateMemory>              _dji_delegate_memory;
     DJI::OSDK::WaypointV2MissionOperator*           _dji_mission_operator;
     DJIWPMInstance*                                 _owner;
-    DJIMissionSharedInfo                            _shared_info;
     DJIEventWrapper*                                _event_wrapper;
+    STDWPInterpreter*                               _standard_waypoint_interpreter;
 
     bool                                            _photo_event_not_handle{false};
 };
@@ -47,6 +54,7 @@ DJIWPMInstance::DJIWPMInstance(
 ) : rsdk::mission::waypoint::WPMInstancePlugin(system), DJIPluginBase(system)
 {
     _impl = new Impl(this, system);
+    _impl->_standard_waypoint_interpreter = new STDWPInterpreter(this);
     _impl->_event_wrapper = new DJIEventWrapper(this);
     _impl->_event_wrapper->startListeningDJILowLayerEvent();
 }
@@ -60,15 +68,19 @@ DJIWPMInstance::~DJIWPMInstance()
 // 应该不存在锁的问题
 bool DJIWPMInstance::revent(::rsdk::event::REventParam _event)
 {
-    using namespace rsdk::event;
-    using namespace rsdk::mission;
-
-    return waypoint::WPMInstancePlugin::revent(_event);
+    using namespace rsdk::mission::waypoint;
+    return WPMInstancePlugin::revent(_event);
 }
 
-DJIMissionSharedInfo& DJIWPMInstance::sharedInfo()
+std::shared_ptr<rsdk::DelegateMemory> DJIWPMInstance::createDelegateMemory()
 {
-    return _impl->_shared_info;
+    _impl->_dji_delegate_memory = std::make_shared<DJIDelegateMemory>();
+    return _impl->_dji_delegate_memory;
+}
+
+std::shared_ptr<DJIDelegateMemory>& DJIWPMInstance::currentDelegateMemory()
+{
+    return _impl->_dji_delegate_memory;
 }
 
 std::unique_ptr<rsdk::mission::waypoint::PhotoDownloadTask> DJIWPMInstance::getPhotoDownloadTask()
@@ -78,7 +90,20 @@ std::unique_ptr<rsdk::mission::waypoint::PhotoDownloadTask> DJIWPMInstance::getP
 
 std::unique_ptr<rsdk::mission::MainMissionTask> DJIWPMInstance::getMainTask()
 {
-    return std::make_unique<DJIWPMMainTask>(this);
+    using namespace std::chrono;
+    auto start = system_clock::now(); // 计算解析时间
+    _impl->_standard_waypoint_interpreter->interpret(waypointItems(), _impl->_dji_delegate_memory->dji_mission);
+    auto end = system_clock::now();
+
+    auto duration = duration_cast<microseconds>(end - start);
+
+    system()->info(
+        "Parse Waypoint Token " + 
+        std::to_string(double(duration.count()) * microseconds::period::num / microseconds::period::den ) + 
+        " s"
+    );
+
+    return std::make_unique<DJIWPMMainTask>(this, &_impl->_dji_delegate_memory->dji_mission);
 }
 
 void DJIWPMInstance::pause(const rsdk::mission::ControlCallback& cb)

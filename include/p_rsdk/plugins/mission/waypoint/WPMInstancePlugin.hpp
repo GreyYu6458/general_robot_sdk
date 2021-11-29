@@ -5,20 +5,7 @@
 #include <string>
 
 namespace rsdk::mission::waypoint
-{
-    using PhotoTimeIndexList =  std::vector<std::pair<int64_t, uint32_t>>;
-
-    struct WPMSharedInfo
-    {
-        PhotoTimeIndexList photo_time_item_index_list;
-
-        // 是否获得了第一个照片
-        bool               get_first_photo{false};
-
-        // 照片的偏移时间,这个是根据第一个照片得出的
-        int64_t            photo_bias_time{0};
-    };
-    
+{    
     class PhotoDownloadTask : public rsdk::mission::SubMissionTask
     {
     public:
@@ -43,13 +30,6 @@ namespace rsdk::mission::waypoint
         void setMediaDownloadPath(const std::string& path);
 
         /**
-         * @brief Set the Shared Info object
-         * 
-         * @param info 
-         */
-        void setSharedInfo(WPMSharedInfo* info);
-
-        /**
          * @brief 
          * 
          * @return const std::string& 
@@ -57,13 +37,6 @@ namespace rsdk::mission::waypoint
         const std::string& mediaDownloadPath();
 
     protected:
-
-        /**
-         * @brief 
-         * 
-         * @return const WPMSharedInfo* const 
-         */
-        WPMSharedInfo* const sharedInfo();
 
         class Impl;
         Impl* _impl;

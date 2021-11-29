@@ -6,8 +6,8 @@ namespace sensor_msg
 {
     struct Coordinate
     {
-        unit::degree longitude;
         unit::degree latitude;
+        unit::degree longitude;
         unit::meter  altitude;
         unit::meter  related_altitude;
     };

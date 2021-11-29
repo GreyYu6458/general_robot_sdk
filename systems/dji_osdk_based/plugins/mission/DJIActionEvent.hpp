@@ -16,8 +16,8 @@ enum DJIActionEventEnum
 struct DJIActionEvent
 {
     DJIActionEventEnum type;
-    size_t adjoint_wp;  // 伴随的航点
-    size_t item_index;  // 本身的序号
+    size_t adjoint_wp;  // 原始航点中，伴随的航点(cmd type == 16)
+    size_t item_index;  // 原始航点中，本身的序号
 };
 
 #endif

@@ -13,14 +13,12 @@
 class DJIWPMMainTask::Impl
 {
 public:
-    Impl(DJIWPMInstance* instance)
-    : instance(instance)
-    {
+    Impl(DJIWPMInstance* instance, DJIWPMission* mission)
+    : instance(instance), _dji_mission(mission)
+    {} 
 
-    }
-
-    DJIWPMInstance* instance;
-
+    DJIWPMInstance*             instance;
+    DJIWPMission*               _dji_mission;
     std::mutex                  _wait_finished_mutex;
     std::condition_variable     _wait_finished_cv;
     rsdk::mission::StageRst     _finished_rst{rsdk::mission::StageRstType::UNEXECUTE};
@@ -34,37 +32,35 @@ public:
     void startLaunch(rsdk::mission::StageRst& rst)
     {
         using namespace DJI::OSDK;
+        auto& current_context = instance->currentDelegateMemory();
 
-        instance->sharedInfo().init();
-
-        auto&   _dji_mission                = instance->sharedInfo().dji_wp_mission;
         auto    _system                     = instance->system();
         auto    _dji_mission_operator       = _system->vehicle()->waypointV2Mission;
         rsdk::collector::GNSSReceiverProxy gnss_receiver_proxy(instance->system());
 
-        if(!DJIWPMission::convertFromStandard(instance->waypointItems(), _dji_mission))
+        if(!_dji_mission->isValid())
         {
             rst.type = rsdk::mission::StageRstType::FAILED;
-            rst.detail = "Can not convert waypoint from standard waypoint items";
+            rst.detail = "DJI MISSION IS NOT VAILD";
             return;
         }
 
         WayPointV2InitSettings missionInitSettings;
         missionInitSettings.missionID                   = rand();
         missionInitSettings.repeatTimes                 = 0;
-        missionInitSettings.finishedAction              =   _dji_mission.autoReturnHome() ? 
+        missionInitSettings.finishedAction              =   _dji_mission->autoReturnHome() ? 
                                                             DJIWaypointV2MissionFinishedGoHome : 
                                                             DJIWaypointV2MissionFinishedAutoLanding;
         missionInitSettings.maxFlightSpeed              = 5;
         missionInitSettings.autoFlightSpeed             = 2;
         missionInitSettings.exitMissionOnRCSignalLost   = 1;
         missionInitSettings.gotoFirstWaypointMode       = DJIWaypointV2MissionGotoFirstWaypointModeSafely;
-        missionInitSettings.mission                     = _dji_mission.djiWayPoints();
+        missionInitSettings.mission                     = _dji_mission->djiWayPoints();
         missionInitSettings.missTotalLen                = missionInitSettings.mission.size();
 
-        instance->sharedInfo().total_wp                 = missionInitSettings.missTotalLen;
-        instance->sharedInfo().total_repeated_times     = missionInitSettings.repeatTimes;
-        instance->sharedInfo().takeoff_altitude         = gnss_receiver_proxy.lastData().altitude;
+        current_context->total_wp                       = missionInitSettings.missTotalLen;
+        current_context->total_repeated_times           = missionInitSettings.repeatTimes;
+        current_context->takeoff_altitude               = gnss_receiver_proxy.lastData().altitude;
 
         std::lock_guard<std::mutex> lck(_system->DJIAPIMutex());
 
@@ -93,7 +89,7 @@ public:
             return;
         }
 
-        ret = _dji_mission_operator->uploadAction(_dji_mission.djiActions(), 30);
+        ret = _dji_mission_operator->uploadAction(_dji_mission->djiActions(), 30);
         if (ret != ErrorCode::SysCommonErr::Success)
         {
             rst.type = rsdk::mission::StageRstType::FAILED;
@@ -133,10 +129,10 @@ void DJIWPMMainTask::notifyMissionFinish(const rsdk::mission::StageRst& rst)
     _impl->_wait_finished_cv.notify_all();
 }
 
-DJIWPMMainTask::DJIWPMMainTask(DJIWPMInstance* instance)
-: MainMissionTask("DJI WAYPOINT MAIN TASK"), _impl(new Impl(instance))
+DJIWPMMainTask::DJIWPMMainTask(DJIWPMInstance* instance, DJIWPMission* mission)
+: MainMissionTask("DJI WAYPOINT MAIN TASK")
 {
-
+    _impl = new Impl(instance, mission);
 }
 
 DJIWPMMainTask::~DJIWPMMainTask()

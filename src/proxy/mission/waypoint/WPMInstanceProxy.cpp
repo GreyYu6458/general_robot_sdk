@@ -27,14 +27,13 @@ namespace rsdk::mission::waypoint
             { // 如果有拍照事件没有处理，则新建一个下载任务
                 auto task = _owner->PLUGIN->getPhotoDownloadTask();
                 task->setMediaDownloadPath(_media_download_path);
-                task->setSharedInfo(&_shared_info);
+                task->setDelegateMemory(_owner->delegateMemory());
                 _owner->runSubTask(std::move(task));
             }
             _photo_event_not_handle = false;
         }
 
         WPMInstanceProxy*   _owner;
-        WPMSharedInfo       _shared_info;
         std::string         _media_download_path{""};
         bool                _photo_event_not_handle{false};
     };
@@ -105,17 +104,13 @@ namespace rsdk::mission::waypoint
         if(_event->type() == rsdk::event::mission::WPMTakenPhotoEvent::event_type)
         {
             auto event = rsdk::event::REventCast<rsdk::event::mission::WPMTakenPhotoEvent>(_event);
-            // 记录事件
-            _impl->_shared_info.photo_time_item_index_list.push_back( 
-                {_event->hostTime(), event->payload().item_index}
-            );
 
             // 检测是否还存在拍照任务在运行
             if(!hasSubTask(PhotoDownloadTask::task_name()))
             {
                 auto task = PLUGIN->getPhotoDownloadTask();
                 task->setMediaDownloadPath(_impl->_media_download_path);
-                task->setSharedInfo(&_impl->_shared_info);
+                task->setDelegateMemory(delegateMemory());
                 runSubTask(std::move(task));
                 _impl->_photo_event_not_handle = false;
             }

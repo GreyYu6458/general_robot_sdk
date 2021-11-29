@@ -2,6 +2,7 @@
 #define _PLUGIN_INTERFACE_HPP_
 #include <memory>
 #include "rsdk/proxy/Startable.hpp"
+#include "rsdk/proxy/StateDelegation.hpp"
 #include "rsdk/event/REvent.hpp"
 #include "rsdk/robject/RObject.hpp"
 
@@ -23,6 +24,15 @@ namespace rsdk
          * 
          */
         virtual ~BasePlugin();
+
+        /**
+         * @brief Create a Delegate Memory object
+         *        这个类是为了将每个Proxy都能拥有其独立的生命周期
+         *        而内存类型由子类决定
+         * 
+         * @return default : nullptr
+         */
+        virtual std::shared_ptr<DelegateMemory> createDelegateMemory();
 
         /**
          * @brief return the shared point of robot system

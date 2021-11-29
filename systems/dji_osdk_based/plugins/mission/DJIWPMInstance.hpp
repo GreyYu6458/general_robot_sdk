@@ -1,9 +1,10 @@
 #pragma once
 #include "DJIVehicleSystem.hpp"
+#include "DJIDelegateMemory.hpp"
 #include "p_rsdk/plugins/mission/waypoint/WPMInstancePlugin.hpp"
-#include "DJIMissionSharedInfo.hpp"
+#include "rsdk/message/sensor_msg/msg_coordinate.h"
 #include "plugins/DJIPluginBase.hpp"
-#include "DJIWPMission.hpp"
+
 
 class DJIWPMInstance : 
     public  rsdk::mission::waypoint::WPMInstancePlugin, 
@@ -42,27 +43,29 @@ public:
     std::unique_ptr<rsdk::mission::MainMissionTask> getMainTask() override;
 
     /**
-     * @brief 
+     * @brief Create a Delegate Memory object
      * 
+     * @return std::shared_ptr<DelegateMemory> 
      */
+    std::shared_ptr<rsdk::DelegateMemory> createDelegateMemory() override;
+
+    /**
+     * @brief 返回当前正在执行任务的Delegate Memory
+     * 
+     * @return std::shared_ptr<rsdk::DelegateMemory> 
+     */
+    std::shared_ptr<DJIDelegateMemory>& currentDelegateMemory();
+
+
     void pause(const  rsdk::mission::ControlCallback&) override;
 
-    /**
-     * @brief 
-     * 
-     */
+    
     void resume(const rsdk::mission::ControlCallback&) override;
 
-    /**
-     * @brief 
-     * 
-     */
+    
     void stop(const   rsdk::mission::ControlCallback&) override;
 
-    /**
-     * @brief 
-     * 
-     */
+    
     void return2home(const rsdk::mission::ControlCallback&) override;
 
     /**
@@ -73,18 +76,12 @@ public:
     const std::shared_ptr<DJIVehicleSystem>& system();
 
     /**
-     * @brief 
-     * 
-     * @return DJIMissionSharedInfo& 
-     */
-    DJIMissionSharedInfo& sharedInfo();
-
-    /**
      * @brief 只有M300支持该任务模块, 因为使用的是DJI MISSION V2
      * 
      * @return DJIVehicleModels 
      */
     DJIVehicleModels supportModel() override;
+
 
     void exec() override;
 

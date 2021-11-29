@@ -100,14 +100,14 @@ int main()
 
     // 1000 most equal 11.1m
     rmw::WaypointItem wp_1;
-    wp_1.set_hold_time(2);
+    wp_1.set_hold_time(5);
     wp_1.set_x(latitude + 1000);
     wp_1.set_y(longitude);
     wp_1.set_z(20);
     mission.addItem(wp_1);
 
     rmw::WaypointItem wp_2;
-    wp_2.set_hold_time(2);
+    wp_2.set_hold_time(5);
     wp_2.set_x(latitude + 1000);
     wp_2.set_y(longitude + 1000);
     wp_2.set_z(20);
@@ -118,7 +118,7 @@ int main()
     mission.addItem(take_photo_item);
 
     rmw::WaypointItem wp_3;
-    wp_3.set_hold_time(2);
+    wp_3.set_hold_time(5);
     wp_3.set_x(latitude);
     wp_3.set_y(longitude + 1000);
     wp_3.set_z(20);
@@ -129,7 +129,7 @@ int main()
     mission.addItem(take_photo_item2);
 
     rmw::WaypointItem wp_4;
-    wp_4.set_hold_time(2);
+    wp_4.set_hold_time(5);
     wp_4.set_x(latitude);
     wp_4.set_y(longitude);
     wp_4.set_z(20);

@@ -3,9 +3,10 @@
 #include <iostream>
 #include <functional>
 #include <memory>
-#include "rsdk/event/MissionEvents.hpp"
-#include "TaskListener.hpp"
 #include "rsdk/robject/RObject.hpp"
+#include "rsdk/event/MissionEvents.hpp"
+#include "rsdk/proxy/StateDelegation.hpp"
+#include "TaskListener.hpp"
 
 namespace rsdk::mission
 {
@@ -21,7 +22,7 @@ namespace rsdk::mission
      * 
      *          listener为Instance时的情况:
      */
-    class MissionTask : public RObject
+    class MissionTask : public RObject, public StateDelegation
     {
     public:
         /**

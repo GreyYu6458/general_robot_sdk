@@ -12,8 +12,8 @@ namespace rsdk
         Impl(const std::shared_ptr<RobotSystem>& sys):
             _system_ptr(sys){}
 
-        ::std::shared_ptr<RobotSystem>              _system_ptr;
-        ::std::mutex                                _cb_mutex;
+        std::shared_ptr<RobotSystem>                _system_ptr;
+        std::mutex                                  _cb_mutex;
         std::vector<::rsdk::event::REventCBType>    _event_filter_cb;
     };
 
@@ -36,5 +36,15 @@ namespace rsdk
     const std::shared_ptr<RobotSystem>& BasePlugin::system() const
     {
         return _impl->_system_ptr;
+    }
+
+    /**
+     * @brief Create a Delegate Memory object
+     * 
+     * @return std::unique_ptr<DelegateMemory> 
+     */
+    std::shared_ptr<DelegateMemory> BasePlugin::createDelegateMemory()
+    {
+        return nullptr;
     }
 }

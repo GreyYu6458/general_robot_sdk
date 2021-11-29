@@ -8,7 +8,6 @@ namespace rsdk::mission::waypoint
     {
     public:
         std::string     _media_download_path{""};
-        WPMSharedInfo*  _shared_info{nullptr};
     };
 
     const char* PhotoDownloadTask::task_name()
@@ -33,19 +32,9 @@ namespace rsdk::mission::waypoint
         _impl->_media_download_path = path;
     }
 
-    void PhotoDownloadTask::setSharedInfo(WPMSharedInfo* info)
-    {
-        _impl->_shared_info = info;
-    }
-
     const std::string& PhotoDownloadTask::mediaDownloadPath()
     {
         return _impl->_media_download_path;
-    }
-
-    WPMSharedInfo* const PhotoDownloadTask::sharedInfo()
-    {
-        return _impl->_shared_info;
     }
 
     RegistBasePlugin(WPMInstancePlugin);

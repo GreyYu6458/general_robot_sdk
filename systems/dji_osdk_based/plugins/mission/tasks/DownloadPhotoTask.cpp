@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <cmath>
 #include <regex>
+#include <limits>
 
 // DJI_20211014173902_0050_WIDE.jpg
 static std::regex photo_name_pettern("DJI_(.*?)_(.*?)_(.*?).jpg");
@@ -27,9 +28,9 @@ public:
     {
         rsdk::mission::StageRst rst;
 
-        if( !_owner->sharedInfo() )
+        if( !_owner->delegateMemory() )
         {
-            rst.detail = "Shared Info Not Set";
+            rst.detail = "delegate memory Not Set";
             rst.type = rsdk::mission::StageRstType::FAILED;
             return rst;
         }
@@ -115,6 +116,7 @@ public:
         return true;
     }
 
+    /*
     uint32_t compareByTime(const std::string& photo_path, const easyexif::EXIFInfo& result)
     {
         // GET TIME STAMP FROM PHOTO
@@ -169,14 +171,45 @@ public:
 
         return item_index;
     }
+    */
 
     uint32_t compareByLocation(const std::string& photo_path, const easyexif::EXIFInfo& result)
     {
-        auto& location = result.GeoLocation;
+        auto& photo_location    = result.GeoLocation;
+        auto& delegate_memory   = instance->currentDelegateMemory();
+        
+        double min_distance     = std::numeric_limits<double>::max();
+        uint32_t item_index     = std::numeric_limits<uint32_t>::max();
+        for(const auto& position_index_pair : delegate_memory->dji_photo_point)
+        {
+            auto&  position     = position_index_pair.first;
+            double lat_long_dis = haversine(
+                position.latitude, position.longitude, 
+                photo_location.Latitude, photo_location.Longitude
+            );
+            double height_dis   = (photo_location.Altitude - delegate_memory->takeoff_altitude) - position.altitude;
+            double cdistance    = std::sqrt( lat_long_dis * lat_long_dis + height_dis * height_dis );
+            instance->system()->trace(
+                "PAIR WAPOINT LOCATION PHOTO LOCATION LAT:" + 
+                std::to_string(position.latitude) + 
+                " LON:" + std::to_string(position.longitude) + 
+                " DIS:" + std::to_string(cdistance)
+            );
+            if(cdistance < min_distance)
+            {
+                min_distance    = cdistance;
+                item_index      = position_index_pair.second;
+            }
+        }
 
-        auto& shared_info = instance->sharedInfo();
+        instance->system()->info(
+            photo_path      + 
+            " PHOTO LOCATION LAT:" + std::to_string(photo_location.Latitude) + " LON:" + std::to_string(photo_location.Longitude) + 
+            " INDEX :"      + std::to_string(item_index) +
+            " DIFFERENCE:"  + std::to_string(min_distance)
+        );
 
-        return 1;
+        return item_index;
     }
 
     /**
@@ -193,7 +226,7 @@ public:
             return UINT32_MAX;
         }
 
-        return compareByTime(photo_path, result);
+        return compareByLocation(photo_path, result);
     }
 
     rsdk::mission::StageRst downloadFiles(const std::string& path)

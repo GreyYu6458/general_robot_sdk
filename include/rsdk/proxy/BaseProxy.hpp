@@ -5,6 +5,7 @@
 #include "rsdk/proxy/Startable.hpp"
 #include "rsdk/robject/RObject.hpp"
 #include "rsdk/event/REvent.hpp"
+#include "StateDelegation.hpp"
 
 namespace rsdk
 {
@@ -48,6 +49,25 @@ namespace rsdk
         std::shared_ptr<RobotSystem> system();
 
     protected:
+
+        /**
+         * @brief proxy 本质上是一个上下文管理器
+         *              其管理的方式就是维护一个DelegateMemory
+         *              DelegateMemory由plugin构造,由proxy维护
+         *              其内容的改变由plugin做出，但是生命周期随DelegateMemory
+         * 
+         * @return std::shared_ptr<DelegateMemory>
+         */
+        std::shared_ptr<DelegateMemory> delegateMemory();
+
+        /**
+         * @brief 获取对应的Plugin
+         * 
+         * @tparam T 
+         * @return std::enable_if<
+         * std::is_base_of<BasePlugin, T>::value, std::shared_ptr<T>
+         * >::type 
+         */
         template<class T> 
         inline typename std::enable_if<
             std::is_base_of<BasePlugin, T>::value, std::shared_ptr<T>
@@ -57,10 +77,21 @@ namespace rsdk
             return std::dynamic_pointer_cast<T>(_plugin());
         }
 
+        /**
+         * @brief 事件过滤器
+         * 
+         * @return true 
+         * @return false 
+         */
         bool eventFilter(RObject*, ::rsdk::event::REventParam) override;
 
-
-        bool revent( ::rsdk::event::REventParam ) override;
+        /**
+         * @brief 默认的消息处理函数
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool revent( rsdk::event::REventParam ) override;
 
     private:
         std::shared_ptr<BasePlugin> _plugin();

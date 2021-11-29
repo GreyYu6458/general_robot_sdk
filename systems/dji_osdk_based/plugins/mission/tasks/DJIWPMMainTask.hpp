@@ -1,12 +1,13 @@
 #pragma once
 #include "p_rsdk/plugins/mission/MissionTask.hpp"
+#include "plugins/mission/DJIWPMission.hpp"
 
 class DJIWPMInstance;
 
 class DJIWPMMainTask : public rsdk::mission::MainMissionTask
 {
 public:
-    DJIWPMMainTask(DJIWPMInstance*);
+    DJIWPMMainTask(DJIWPMInstance*, DJIWPMission* mission);
 
     virtual ~DJIWPMMainTask();
 

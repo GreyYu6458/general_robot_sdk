@@ -2,6 +2,7 @@
 #define _DJI_WAYPOINT_MISSION_CONVERTER_HPP_
 
 #include "rsdk/proxy/mission/waypoint/WaypointItems.hpp"
+#include "rsdk/message/sensor_msg/msg_coordinate.h"
 #include "DJIActionEvent.hpp"
 #include <dji_waypoint_v2.hpp>
 #include <dji_waypoint_v2_action.hpp>
@@ -23,15 +24,6 @@ public:
     DJIWPMission& operator=(DJIWPMission&&);
 
     virtual ~DJIWPMission();
-
-    /**
-     * @brief   将标准航线解释位DJI航线
-     *          TODO 分离该功能，作为一个单独的类。提供更加完善的报错和航点分析
-     * 
-     * @param standard_mission 
-     * @return bool
-     */
-    static bool convertFromStandard(const rmw::WaypointItems&, DJIWPMission&);
 
     /**
      * @brief 大疆任务的航点
@@ -84,6 +76,32 @@ public:
      * @return false 
      */
     bool isValid();
+
+    /**
+     * @brief 
+     * 
+     * @return std::vector<uint32_t>& 
+     */
+    std::vector<uint32_t>& wpIndexSeqList();
+
+    /**
+     * @brief 
+     * 
+     * @param event 
+     */
+    void addActionEvent(size_t, const DJIActionEvent& event);
+
+
+    
+
+    /**
+     * @brief Set the Auto Return object
+     * 
+     */
+    void setAutoReturn(bool);
+
+
+    void setIsVaild(bool);
 
 private:
 
