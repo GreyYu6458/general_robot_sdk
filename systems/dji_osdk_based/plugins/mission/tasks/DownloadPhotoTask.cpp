@@ -190,9 +190,10 @@ public:
             double height_dis   = (photo_location.Altitude - delegate_memory->takeoff_altitude) - position.altitude;
             double cdistance    = std::sqrt( lat_long_dis * lat_long_dis + height_dis * height_dis );
             instance->system()->trace(
-                "PAIR WAPOINT LOCATION PHOTO LOCATION LAT:" + 
-                std::to_string(position.latitude) + 
-                " LON:" + std::to_string(position.longitude) + 
+                "PAIR WAPOINT LOCATION PHOTO LOCATION LAT:"     + 
+                std::to_string(position.latitude)               + 
+                " LON:" + std::to_string(position.longitude)    +
+                " ALT:" + std::to_string(position.altitude)     +
                 " DIS:" + std::to_string(cdistance)
             );
             if(cdistance < min_distance)
@@ -203,9 +204,11 @@ public:
         }
 
         instance->system()->info(
-            photo_path      + 
-            " PHOTO LOCATION LAT:" + std::to_string(photo_location.Latitude) + " LON:" + std::to_string(photo_location.Longitude) + 
-            " INDEX :"      + std::to_string(item_index) +
+            photo_path                                                          + 
+            " PHOTO LOCATION LAT:" + std::to_string(photo_location.Latitude)    + 
+            " LON:" + std::to_string(photo_location.Longitude)                  + 
+            " ALT:" + std::to_string(photo_location.Altitude)                   +
+            " INDEX :"      + std::to_string(item_index)                        +
             " DIFFERENCE:"  + std::to_string(min_distance)
         );
 

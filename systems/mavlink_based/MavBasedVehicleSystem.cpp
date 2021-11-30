@@ -58,6 +58,7 @@ public:
 
         if (fut.wait_for(std::chrono::seconds(3)) == std::future_status::timeout) {
             _owner->error("Find System Time Out");
+            _mavsdk->subscribe_on_new_system(nullptr);
             return false;
         }
 
