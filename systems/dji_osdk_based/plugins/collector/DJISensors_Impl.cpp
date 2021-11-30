@@ -102,6 +102,8 @@ void DJIGNSSReceiver::convert(const DJIGNSSReceiver::pkg_msg_type& data)
 
     _COLLECTOR_msg.altitude         = raw_fused_altitude;
     _COLLECTOR_msg.related_altitude = ret_height;
+    
+    _dji_system->uploadPosition(_COLLECTOR_msg);
     onUpdate(_COLLECTOR_msg);
 }
 

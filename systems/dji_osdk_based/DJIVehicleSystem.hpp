@@ -1,6 +1,7 @@
 #ifndef _DJI_VEHICLE_SYSTEM_HPP_
 #define _DJI_VEHICLE_SYSTEM_HPP_
 #include "rsdk/system/RobotSystem.hpp"
+#include "rsdk/message/sensor_msg/msg_coordinate.h"
 #include "DJICameraManager.hpp"
 #include <unordered_set>
 #include <mutex>
@@ -87,6 +88,14 @@ public:
      * @return DJIVehicleModels 
      */
     DJIVehicleModels model();
+
+    /**
+     * @brief 
+     * 
+     */
+    const sensor_msg::Coordinate& lastUpdatePosition();
+
+    void uploadPosition(const sensor_msg::Coordinate&);
 
 protected:
     bool tryLink(const rsdk::SystemConfig& config) override;

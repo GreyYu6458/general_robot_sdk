@@ -191,6 +191,7 @@ private:
     rsdk::SystemConfig                  _config;
     std::string                         _manufacturer;
     std::string                         _unique_code;
+    sensor_msg::Coordinate              _coordinate;
 
     bool _is_linked;
 };
@@ -243,6 +244,16 @@ bool DJIVehicleSystem::tryLink(const rsdk::SystemConfig &config)
     // _impl->_hard_time_sync->startSync();
     _impl->registALLPlugin();
     return rst;
+}
+
+const sensor_msg::Coordinate& DJIVehicleSystem::lastUpdatePosition()
+{
+    return _impl->_coordinate;
+}
+
+void DJIVehicleSystem::uploadPosition(const sensor_msg::Coordinate& position)
+{
+    _impl->_coordinate = position;
 }
 
 std::mutex& DJIVehicleSystem::DJIAPIMutex()
