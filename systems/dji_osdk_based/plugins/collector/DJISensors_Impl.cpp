@@ -100,7 +100,7 @@ void DJIGNSSReceiver::convert(const DJIGNSSReceiver::pkg_msg_type& data)
         _COLLECTOR_msg.longitude   = fused_gps.longitude * 180 / M_PI;
     }
 
-    _COLLECTOR_msg.altitude         = fused_gps.altitude;
+    _COLLECTOR_msg.altitude         = raw_fused_altitude;
     _COLLECTOR_msg.related_altitude = ret_height;
     onUpdate(_COLLECTOR_msg);
 }
