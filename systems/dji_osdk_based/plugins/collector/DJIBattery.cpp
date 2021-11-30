@@ -64,7 +64,7 @@ void DJIBatteryWrapper::collect()
     SmartBatteryDynamicInfo dji_battery_one;
     SmartBatteryDynamicInfo dji_battery_two;
 
-    while (_impl->_should_exit)
+    while (!_impl->_should_exit)
     {
         if(this->_dji_system->DJIAPIMutex().try_lock())
         {
