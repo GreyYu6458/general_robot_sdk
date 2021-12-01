@@ -91,21 +91,18 @@ void DJIGNSSReceiver::convert(const DJIGNSSReceiver::pkg_msg_type& data)
     auto &raw_gps                   = std::get<4>(data);
     auto &raw_rtk                   = std::get<5>(data);
 
-    // rtkConnected == true mains rtknotconnected ...what fuck!
+    // rtkConnected == true means rtk not connected ...what fuck!
     if (!raw_rtk_status.rtkConnected)
     {
-        std::cout << "1" << std::endl;
         _COLLECTOR_msg.latitude     = raw_rtk.latitude  * 180 / M_PI;
         _COLLECTOR_msg.longitude    = raw_rtk.longitude * 180 / M_PI;
-        _COLLECTOR_msg.altitude     = raw_rtk.HFSL;
     }
     else
     {
-        std::cout << "2" << std::endl;
         _COLLECTOR_msg.latitude     = fused_gps.latitude  * 180 / M_PI;
         _COLLECTOR_msg.longitude    = fused_gps.longitude  * 180 / M_PI;
-        _COLLECTOR_msg.altitude     = raw_gps.z  / 1000.0;
     }
+    _COLLECTOR_msg.altitude         = raw_gps.z  / 1000.0;
     _COLLECTOR_msg.related_altitude = ret_height;
     
     _dji_system->uploadPosition(_COLLECTOR_msg);
