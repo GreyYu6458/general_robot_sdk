@@ -90,7 +90,7 @@ void DJIGNSSReceiver::convert(const DJIGNSSReceiver::pkg_msg_type& data)
     auto &raw_gps                   = std::get<4>(data);
     auto &raw_rtk                   = std::get<5>(data);
 
-    if (!raw_rtk_status.rtkConnected)
+    if (raw_rtk_status.rtkConnected)
     {
         _COLLECTOR_msg.latitude     = raw_rtk.latitude  * 180 / M_PI;
         _COLLECTOR_msg.longitude    = raw_rtk.longitude * 180 / M_PI;
@@ -98,11 +98,10 @@ void DJIGNSSReceiver::convert(const DJIGNSSReceiver::pkg_msg_type& data)
     }
     else
     {
-        _COLLECTOR_msg.latitude     = raw_gps.x  * 180 / M_PI;
-        _COLLECTOR_msg.longitude    = raw_gps.y  * 180 / M_PI;
+        _COLLECTOR_msg.latitude     = fused_gps.latitude  * 180 / M_PI;
+        _COLLECTOR_msg.longitude    = fused_gps.longitude  * 180 / M_PI;
         _COLLECTOR_msg.altitude     = raw_gps.z  / 1000.0;
     }
-    // _COLLECTOR_msg.altitude     = raw_fused_altitude;
     _COLLECTOR_msg.related_altitude = ret_height;
     
     _dji_system->uploadPosition(_COLLECTOR_msg);
@@ -114,8 +113,8 @@ void DJIGNSSUncertain::convert(const DJIGNSSUncertain::pkg_msg_type& data)
     auto &raw_gps = std::get<0>(data);
 
     _COLLECTOR_msg.fix_type = raw_gps.fix;
-    _COLLECTOR_msg.hdop = raw_gps.hdop;
-    _COLLECTOR_msg.vdop = raw_gps.gnssStatus; // what fuck?
-    _COLLECTOR_msg.sat_num = raw_gps.NSV;
+    _COLLECTOR_msg.hdop     = raw_gps.hdop;
+    _COLLECTOR_msg.vdop     = raw_gps.gnssStatus; // what fuck?
+    _COLLECTOR_msg.sat_num  = raw_gps.NSV;
     onUpdate(_COLLECTOR_msg);
 }
