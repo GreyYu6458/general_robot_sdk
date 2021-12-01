@@ -4,6 +4,7 @@
 #include "DJIAttitude.hpp"
 #include "DJIAvoid.hpp"
 #include "DJIFlightStatus.hpp"
+#include <iostream>
 #include <cmath>
 
 #define DJITelemetryDefine(class_name, interface_name, base_type_name_space) \
@@ -92,12 +93,14 @@ void DJIGNSSReceiver::convert(const DJIGNSSReceiver::pkg_msg_type& data)
 
     if (raw_rtk_status.rtkConnected)
     {
+        std::cout << "1" << std::endl;
         _COLLECTOR_msg.latitude     = raw_rtk.latitude  * 180 / M_PI;
         _COLLECTOR_msg.longitude    = raw_rtk.longitude * 180 / M_PI;
         _COLLECTOR_msg.altitude     = raw_rtk.HFSL;
     }
     else
     {
+        std::cout << "2" << std::endl;
         _COLLECTOR_msg.latitude     = fused_gps.latitude  * 180 / M_PI;
         _COLLECTOR_msg.longitude    = fused_gps.longitude  * 180 / M_PI;
         _COLLECTOR_msg.altitude     = raw_gps.z  / 1000.0;
