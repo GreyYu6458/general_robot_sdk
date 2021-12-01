@@ -59,7 +59,7 @@ public:
 
         current_context->total_wp                       = missionInitSettings.missTotalLen;
         current_context->total_repeated_times           = missionInitSettings.repeatTimes;
-        current_context->takeoff_altitude               = instance->system()->lastUpdatePosition().altitude;
+        current_context->takeoff_altitude               = instance->system()->lastUpdatePosition().rtk_altitude;
         instance->system()->info("Takeoff Height:" + std::to_string(current_context->takeoff_altitude));
 
         std::lock_guard<std::mutex> lck(_system->DJIAPIMutex());

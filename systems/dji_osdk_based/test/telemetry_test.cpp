@@ -70,7 +70,7 @@ void onGNSSDataUpdate(const GNSSReceiverProxy::msg_type& msg)
                 << " altitude:"     << msg.altitude
                 << " longitude:"    << msg.longitude
                 << " latitude:"     << msg.latitude
-                << " ret_height:"   << msg.related_altitude
+                << " ret_height:"   << msg.rtk_altitude
                 << std::endl;
 }
 

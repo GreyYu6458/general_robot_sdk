@@ -41,7 +41,7 @@ template<> InterpretException STDWPInterpreter::_convert_item
                 .latitude          = last_wp_x / wp_mavlink_2_dji, 
                 .longitude         = last_wp_y / wp_mavlink_2_dji , 
                 .altitude          = last_wp_z, 
-                .related_altitude  = last_wp_z 
+                .rtk_altitude      = last_wp_z 
             },
             item_seq
         }

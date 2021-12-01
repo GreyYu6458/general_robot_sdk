@@ -102,8 +102,8 @@ void DJIGNSSReceiver::convert(const DJIGNSSReceiver::pkg_msg_type& data)
         _COLLECTOR_msg.latitude     = fused_gps.latitude  * 180 / M_PI;
         _COLLECTOR_msg.longitude    = fused_gps.longitude  * 180 / M_PI;
     }
-    _COLLECTOR_msg.altitude         = raw_gps.z  / 1000.0;
-    _COLLECTOR_msg.related_altitude = ret_height;
+    _COLLECTOR_msg.altitude         = raw_fused_altitude;
+    _COLLECTOR_msg.rtk_altitude     = raw_rtk.HFSL;
     
     _dji_system->uploadPosition(_COLLECTOR_msg);
     onUpdate(_COLLECTOR_msg);

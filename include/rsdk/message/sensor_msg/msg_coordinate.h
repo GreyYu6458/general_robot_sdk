@@ -9,7 +9,7 @@ namespace sensor_msg
         unit::degree latitude;
         unit::degree longitude;
         unit::meter  altitude;
-        unit::meter  related_altitude;
+        unit::meter  rtk_altitude;
     };
 }
 
