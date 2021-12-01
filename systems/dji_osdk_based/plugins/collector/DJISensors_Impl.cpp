@@ -91,6 +91,7 @@ void DJIGNSSReceiver::convert(const DJIGNSSReceiver::pkg_msg_type& data)
     auto &raw_gps                   = std::get<4>(data);
     auto &raw_rtk                   = std::get<5>(data);
 
+    // rtkConnected == true mains rtknotconnected ...what fuck!
     if (!raw_rtk_status.rtkConnected)
     {
         std::cout << "1" << std::endl;
