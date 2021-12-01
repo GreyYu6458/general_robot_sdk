@@ -91,7 +91,7 @@ void DJIGNSSReceiver::convert(const DJIGNSSReceiver::pkg_msg_type& data)
     auto &raw_gps                   = std::get<4>(data);
     auto &raw_rtk                   = std::get<5>(data);
 
-    if (raw_rtk_status.rtkConnected)
+    if (!raw_rtk_status.rtkConnected)
     {
         std::cout << "1" << std::endl;
         _COLLECTOR_msg.latitude     = raw_rtk.latitude  * 180 / M_PI;
