@@ -18,6 +18,7 @@ namespace dji::gnss
         DJI::OSDK::Telemetry::TOPIC_ALTITUDE_FUSIONED,
         DJI::OSDK::Telemetry::TOPIC_ALTITUDE_OF_HOMEPOINT,
         DJI::OSDK::Telemetry::TOPIC_RTK_CONNECT_STATUS,
+        DJI::OSDK::Telemetry::TOPIC_GPS_POSITION,
         DJI::OSDK::Telemetry::TOPIC_RTK_POSITION
         >;
 }

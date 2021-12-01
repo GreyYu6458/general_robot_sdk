@@ -43,32 +43,32 @@ namespace rsdk::mission::waypoint
         void setMediaRootPath(const std::string& path);
 
         /**
-         * @brief
+         * @brief 当前设置的媒体保存路径
          *
          * @return const std::string&
          */
         const std::string& mediaRootPath();
 
         /**
-         * @brief 
+         * @brief 停止当前任务
          * 
          */
         void pause(const ControlCallback&);
 
         /**
-         * @brief 
+         * @brief 继续当前的任务
          * 
          */
         void resume(const ControlCallback&);
 
         /**
-         * @brief 
+         * @brief 停止当前的任务
          * 
          */
         void stop(const ControlCallback&);
 
         /**
-         * @brief 
+         * @brief 回到任务开始的位置
          * 
          */
         void return2home(const ControlCallback&);

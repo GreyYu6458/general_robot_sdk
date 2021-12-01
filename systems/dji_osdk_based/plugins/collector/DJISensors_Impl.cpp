@@ -83,24 +83,26 @@ void DJIFlightStatus::convert(const DJIFlightStatus::pkg_msg_type& data)
 
 void DJIGNSSReceiver::convert(const DJIGNSSReceiver::pkg_msg_type& data)
 {
-    auto &fused_gps             = std::get<0>(data);
-    auto &raw_fused_altitude    = std::get<1>(data);
-    auto &ret_height            = std::get<2>(data);
-    auto &raw_rtk_status        = std::get<3>(data);
-    auto &raw_rtk               = std::get<4>(data);
+    auto &fused_gps                 = std::get<0>(data);
+    auto &raw_fused_altitude        = std::get<1>(data);
+    auto &ret_height                = std::get<2>(data);
+    auto &raw_rtk_status            = std::get<3>(data);
+    auto &raw_gps                   = std::get<4>(data);
+    auto &raw_rtk                   = std::get<5>(data);
 
     if (!raw_rtk_status.rtkConnected)
     {
-        _COLLECTOR_msg.latitude    = raw_rtk.latitude * 180 / M_PI;
-        _COLLECTOR_msg.longitude   = raw_rtk.longitude * 180 / M_PI;
+        _COLLECTOR_msg.latitude     = raw_rtk.latitude  * 180 / M_PI;
+        _COLLECTOR_msg.longitude    = raw_rtk.longitude * 180 / M_PI;
+        _COLLECTOR_msg.altitude     = raw_rtk.HFSL;
     }
     else
     {
-        _COLLECTOR_msg.latitude    = fused_gps.latitude  * 180 / M_PI;
-        _COLLECTOR_msg.longitude   = fused_gps.longitude * 180 / M_PI;
+        _COLLECTOR_msg.latitude     = raw_gps.x  * 180 / M_PI;
+        _COLLECTOR_msg.longitude    = raw_gps.y  * 180 / M_PI;
+        _COLLECTOR_msg.altitude     = raw_gps.z  / 1000.0;
     }
-
-    _COLLECTOR_msg.altitude         = raw_fused_altitude;
+    // _COLLECTOR_msg.altitude     = raw_fused_altitude;
     _COLLECTOR_msg.related_altitude = ret_height;
     
     _dji_system->uploadPosition(_COLLECTOR_msg);

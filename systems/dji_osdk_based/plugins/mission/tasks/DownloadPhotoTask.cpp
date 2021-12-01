@@ -307,15 +307,26 @@ public:
             /********************* 下载结束 *********************/
             if(download_rst)
             {
+                instance->system()->info(
+                    "Download File Success, Current Download File Count :" + 
+                    ++instance->currentDelegateMemory()->photo_download_number
+                );
                 // match the photo with item index
                 auto index  = photo_match(info.file_path);
 
                 if(index == UINT32_MAX)
                 {
-                    instance->system()->warning("can not match photo:" + file_ptr->name);
+                    instance->system()->warning(
+                        "Can Not Match Photo:" + 
+                        file_ptr->name
+                    );
                     continue;
                 }
-                instance->system()->warning(file_ptr->name + " matched item index:" + std::to_string(index));
+                instance->system()->warning(
+                    file_ptr->name + 
+                    " matched item index:" + 
+                    std::to_string(index)
+                );
                 info.item_index = index;
 
                 // post event
