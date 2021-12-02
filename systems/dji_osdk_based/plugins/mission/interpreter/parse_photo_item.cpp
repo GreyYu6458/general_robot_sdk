@@ -64,7 +64,7 @@ template<> InterpretException STDWPInterpreter::_convert_item
 
         DJIActionEvent event;
         event.type          = DJIActionEventEnum::Resumed;
-        event.item_index    = item_seq;
+        event.item_index    = last_wp_seq;
         event.adjoint_wp    = last_wp_seq;
         mission.addActionEvent(dji_actions.size(), event);
 
