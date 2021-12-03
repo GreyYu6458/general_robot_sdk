@@ -125,7 +125,7 @@ public:
 
     void exec() override
     {
-        std::lock_guard<std::mutex> lck( system->DJIAPIMutex() );
+        std::lock_guard<std::mutex> lck( _dji_system->DJIAPIMutex() );
         _telem_package.startPackage(this->vehicle(), _freq);
 
         _telem_package.onMessageUnpack(
