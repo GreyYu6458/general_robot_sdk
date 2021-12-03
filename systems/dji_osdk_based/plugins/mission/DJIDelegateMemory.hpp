@@ -7,6 +7,10 @@
 
 using CoordinateIndexPair = std::pair<sensor_msg::Coordinate, uint32_t>;
 
+/**
+ * @brief DelegateMemory 是将航线生命周期延续到Proxy生命周期的方式
+ * 
+ */
 struct DJIDelegateMemory : rsdk::DelegateMemory
 {
     // 转换后的任务

@@ -74,6 +74,13 @@ public:
         std::promise<bool>&              _success_promise;
     };
 
+    /**
+     * @brief   如果没对下载任务加锁，promise会被触发多次。
+     *          然后OSDK会崩掉，然后程序也会崩掉，是不是很刺激
+     * 
+     * @param ret_code 
+     * @param userData 
+     */
     static void fileDownloadReponse(E_OsdkStat ret_code, void* userData)
     {
         FileDownloadBlock* block = (FileDownloadBlock*)(userData);
@@ -87,6 +94,14 @@ public:
         }
     }
 
+    /**
+     * @brief 从exif库里抄的
+     * 
+     * @param photo_path 
+     * @param info 
+     * @return true 
+     * @return false 
+     */
     bool loadExif(const std::string& photo_path, easyexif::EXIFInfo& info)
     {
         FILE* fp = fopen(photo_path.c_str(), "rb");
@@ -172,7 +187,7 @@ public:
         return item_index;
     }
     */
-
+    // TODO 目前会匹配所有的航点(虽然大概也慢不到哪去，但考虑到性能较差的硬件)，之后可以考虑引入滑动窗口法，让算法只匹配附近的航点
     uint32_t compareByLocation(const std::string& photo_path, const easyexif::EXIFInfo& result)
     {
         auto& photo_location    = result.GeoLocation;
@@ -189,6 +204,7 @@ public:
             );
             double height_dis   = (photo_location.Altitude - delegate_memory->takeoff_altitude) - position.altitude;
             double cdistance    = std::sqrt( lat_long_dis * lat_long_dis + height_dis * height_dis );
+            /*
             instance->system()->trace(
                 "PAIR WAPOINT LOCATION PHOTO LOCATION LAT:"     + 
                 std::to_string(position.latitude)               + 
@@ -196,6 +212,7 @@ public:
                 " ALT:" + std::to_string(position.altitude)     +
                 " DIS:" + std::to_string(cdistance)
             );
+            */
             if(cdistance < min_distance)
             {
                 min_distance    = cdistance;
@@ -211,6 +228,16 @@ public:
             " INDEX :"      + std::to_string(item_index)                        +
             " DIFFERENCE:"  + std::to_string(min_distance)
         );
+
+        // 距离差距太大，匹配失败
+        if(min_distance > 2.5)
+        {
+            instance->system()->error(
+                "Match Minimum Distance Bigger Than 2.5 Meters Which is " + 
+                std::to_string(min_distance) + " [" + photo_path + "]"
+            );
+            return UINT32_MAX;
+        }
 
         return item_index;
     }
@@ -316,7 +343,7 @@ public:
 
                 if(index == UINT32_MAX)
                 {
-                    instance->system()->warning(
+                    instance->system()->error(
                         "Can Not Match Photo:" + 
                         file_ptr->name
                     );
