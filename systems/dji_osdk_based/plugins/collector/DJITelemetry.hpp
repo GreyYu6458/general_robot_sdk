@@ -36,8 +36,9 @@ public:
         if (!pkg_status)
             return;
 
-        DJIACK::ErrorCode ec = dji_vehicle->subscribe->startPackage
-        (   pkg_index, 10 );
+        DJIACK::ErrorCode ec = dji_vehicle->subscribe->startPackage(   
+            pkg_index, 10 
+        );
 
         if (DJIACK::getError(ec) != DJIACK::SUCCESS)
         {
@@ -124,6 +125,7 @@ public:
 
     void exec() override
     {
+        std::lock_guard<std::mutex> lck( system->DJIAPIMutex() );
         _telem_package.startPackage(this->vehicle(), _freq);
 
         _telem_package.onMessageUnpack(
