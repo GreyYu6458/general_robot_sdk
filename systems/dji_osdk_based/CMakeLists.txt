@@ -18,6 +18,7 @@ ExternalProject_Add(
     "" # git pull origin ${DJI_OSDK_TAG} && git checkout ${DJI_OSDK_TAG} && git submodule update
   CMAKE_ARGS
     "-DCMAKE_INSTALL_PREFIX:PATH=${DJI_OSDK_INSTALL_DIR}"
+    "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
 )
 
 OPTION(BUILD_DJI_TEST ON)
