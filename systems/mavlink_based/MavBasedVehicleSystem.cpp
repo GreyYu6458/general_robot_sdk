@@ -5,6 +5,15 @@
 #include <mavsdk/plugins/info/info.h>
 #include <future>
 
+template<typename T> inline constexpr
+typename std::enable_if< std::is_integral<T>::value,  rsdk::LinkMethodType>::type
+operator+(rsdk::LinkMethodType first, T second)
+{
+    constexpr auto value = static_cast<uint32_t>(first) + second;
+    static_assert( value < static_cast<T>(rsdk::LinkMethodType::COUNT), "enum calcuate out of range");
+    return static_cast<rsdk::LinkMethodType>(value);
+}
+
 class MavBasedVehicleSystem::Impl
 {
 public:
@@ -13,6 +22,14 @@ public:
         _owner = owner;
     }
 
+    template<rsdk::LinkMethodType E>
+    typename std::enable_if< (E  < rsdk::LinkMethodType::COUNT), bool >::type
+    addConnection(const rsdk::SystemConfig& config)
+    {
+        return  add_connection<E>(config) ? true :
+                addConnection<E + 1>(config);
+    }
+    
     bool link(const rsdk::SystemConfig &config)
     {
         if(_mavsdk == nullptr)
@@ -75,7 +92,23 @@ public:
     std::shared_ptr<mavsdk::System>         _mavsdk_system;
     rsdk::SystemConfig                      _config;
     std::string                             _unique_code{""};
+
+private:
+    template<rsdk::LinkMethodType E> bool add_connection(const rsdk::SystemConfig& config);
 };
+
+template<> bool MavBasedVehicleSystem::Impl::add_connection
+<rsdk::LinkMethodType::SERIAL>(const rsdk::SystemConfig& config)
+{
+    auto _opt = config.getPameter<rsdk::SerialMethod>("acm");
+    if(_opt != std::nullopt)
+    {
+        auto& opt = *_opt;
+        _mavsdk->add_serial_connection(opt.dev_path, opt.baudrate);
+        return true;
+    }
+    return false;
+}
 
 std::unique_ptr<mavsdk::Mavsdk> MavBasedVehicleSystem::Impl::_mavsdk{nullptr};
 

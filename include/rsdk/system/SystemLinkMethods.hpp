@@ -9,7 +9,8 @@ namespace rsdk
     {
         SERIAL,
         TCP,
-        UDP
+        UDP,
+        COUNT
     };
 
     template<LinkMethodType _T> struct Method

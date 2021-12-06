@@ -230,6 +230,7 @@ public:
         );
 
         // 距离差距太大，匹配失败
+        /*
         if(min_distance > 2.5)
         {
             instance->system()->error(
@@ -238,6 +239,7 @@ public:
             );
             return UINT32_MAX;
         }
+        */
 
         return item_index;
     }
