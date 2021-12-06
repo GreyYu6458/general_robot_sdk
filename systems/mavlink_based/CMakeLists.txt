@@ -2,26 +2,34 @@ project(dji_vehicle)
 
 set(CMAKE_CXX_STANDARD 17)
 
-include(ExternalProject)
+include(cmake/findMAVSDK.cmake)
 
-SET(MAVSDK_INSTALL_DIR ${CMAKE_BINARY_DIR}/mavsdk)
-
-ExternalProject_Add(
-    mavsdk
-  GIT_REPOSITORY
-    https://github.com/mavlink/MAVSDK.git
-  GIT_TAG           
-    "v0.48.0"
-  GIT_PROGRESS
-    1
-  UPDATE_COMMAND 
-    ""
-  CMAKE_ARGS
-    "-DCMAKE_INSTALL_PREFIX:PATH=${MAVSDK_INSTALL_DIR}"
+add_library(
+    mav_vehicle
+    SHARED
+    MavBasedVehicleSystem.cpp
 )
 
-SET(MAVSDK_LIBRARY_DIR ${MAVSDK_INSTALL_DIR}/lib)
-SET(MAVSDK_INCLUDE_DIR ${MAVSDK_INSTALL_DIR}/include)
+add_dependencies(
+  mav_vehicle
+  mavsdk_project
+)
 
-link_directories(${MAVSDK_LIBRARY_DIR})
-include_directories(${MAVSDK_INCLUDE_DIR})
+target_link_libraries(
+    mav_vehicle
+    PUBLIC
+    robot_sdk
+    mavsdk
+    boost_thread
+    pthread
+)
+
+install(
+    TARGETS mav_vehicle
+    DESTINATION lib
+)
+
+install(
+    FILES "MavBasedVehicleSystem.hpp"
+    DESTINATION include/rsdk/systems/mav_system
+)

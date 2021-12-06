@@ -35,6 +35,11 @@ namespace rsdk
         std::string ip;
         uint16_t    port;
     };
+
+    template<LinkMethodType E> struct MethodConfigType;
+    template<> struct MethodConfigType<LinkMethodType::SERIAL>  {using type = SerialMethod;};
+    template<> struct MethodConfigType<LinkMethodType::TCP>     {using type = TCPMethod;};
+    template<> struct MethodConfigType<LinkMethodType::UDP>     {using type = UDPMethod;};
 }
 
 #endif

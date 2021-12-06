@@ -5,14 +5,12 @@
 #include <mavsdk/plugins/info/info.h>
 #include <future>
 
-template<typename T> inline constexpr
-typename std::enable_if< std::is_integral<T>::value,  rsdk::LinkMethodType>::type
-operator+(rsdk::LinkMethodType first, T second)
+const char* opt_key[static_cast<uint32_t>(rsdk::LinkMethodType::COUNT)] = 
 {
-    constexpr auto value = static_cast<uint32_t>(first) + second;
-    static_assert( value < static_cast<T>(rsdk::LinkMethodType::COUNT), "enum calcuate out of range");
-    return static_cast<rsdk::LinkMethodType>(value);
-}
+    [static_cast<uint32_t>(rsdk::LinkMethodType::SERIAL)]  = "acm",
+    [static_cast<uint32_t>(rsdk::LinkMethodType::TCP)]     = "tcp",
+    [static_cast<uint32_t>(rsdk::LinkMethodType::UDP)]     = "udp"
+};
 
 class MavBasedVehicleSystem::Impl
 {
@@ -22,42 +20,33 @@ public:
         _owner = owner;
     }
 
-    template<rsdk::LinkMethodType E>
+    template<rsdk::LinkMethodType E = static_cast<rsdk::LinkMethodType>(0)>
     typename std::enable_if< (E  < rsdk::LinkMethodType::COUNT), bool >::type
     addConnection(const rsdk::SystemConfig& config)
     {
-        return  add_connection<E>(config) ? true :
-                addConnection<E + 1>(config);
+        return  add_connection<E>(config) ? true : 
+        addConnection< static_cast<rsdk::LinkMethodType>(static_cast<uint32_t>(E) + 1)>(config);
+    }
+
+    template<rsdk::LinkMethodType E>
+    typename std::enable_if< (E  == rsdk::LinkMethodType::COUNT), bool >::type
+    addConnection(const rsdk::SystemConfig& config)
+    {
+        return false;
     }
     
     bool link(const rsdk::SystemConfig &config)
     {
+        // 如果mavsdk没有初始化，则初始化全局范围内的mavsdk
         if(_mavsdk == nullptr)
         {
             _mavsdk = std::make_unique<mavsdk::Mavsdk>();
         }
+
         mavsdk::ConnectionResult connection_result;
 
-        auto acm_opt = config.getPameter<rsdk::SerialMethod>("acm");
-        if(acm_opt != std::nullopt)
-        {
-            auto& opt = *acm_opt;
-            connection_result = _mavsdk->add_serial_connection(opt.dev_path, opt.baudrate);
-        }
-
-        auto udp_opt = config.getPameter<rsdk::UDPMethod>("udp");
-        if(udp_opt != std::nullopt)
-        {
-            auto& opt = *udp_opt;
-            connection_result = _mavsdk->add_udp_connection(opt.ip, opt.port);
-        }
-
-        auto tcp_opt = config.getPameter<rsdk::TCPMethod>("tcp");
-        if(tcp_opt != std::nullopt)
-        {
-            auto& opt = *tcp_opt;
-            connection_result = _mavsdk->add_tcp_connection(opt.ip, opt.port);
-        }
+        // 按照配置，添加链接
+        addConnection(config);
 
         auto prom = std::promise<std::shared_ptr<mavsdk::System>>{};
         auto fut = prom.get_future();
@@ -94,24 +83,51 @@ public:
     std::string                             _unique_code{""};
 
 private:
-    template<rsdk::LinkMethodType E> bool add_connection(const rsdk::SystemConfig& config);
-};
+    template<rsdk::LinkMethodType E> bool _mavsdk_add_connect(const typename rsdk::MethodConfigType<E>::type& );
 
-template<> bool MavBasedVehicleSystem::Impl::add_connection
-<rsdk::LinkMethodType::SERIAL>(const rsdk::SystemConfig& config)
-{
-    auto _opt = config.getPameter<rsdk::SerialMethod>("acm");
-    if(_opt != std::nullopt)
+    template<rsdk::LinkMethodType E> bool add_connection(const rsdk::SystemConfig& config)
     {
-        auto& opt = *_opt;
-        _mavsdk->add_serial_connection(opt.dev_path, opt.baudrate);
-        return true;
+        auto _opt = config.getPameter<typename rsdk::MethodConfigType<E>::type>(
+            opt_key[static_cast<uint32_t>(E)]
+        );
+        if(_opt == std::nullopt) return false;
+        return _mavsdk_add_connect<E>(*_opt);
     }
-    return false;
-}
+};
 
 std::unique_ptr<mavsdk::Mavsdk> MavBasedVehicleSystem::Impl::_mavsdk{nullptr};
 
+template<> bool MavBasedVehicleSystem::Impl::_mavsdk_add_connect
+<rsdk::LinkMethodType::SERIAL>(const rsdk::SerialMethod& config)
+{
+    _mavsdk->add_serial_connection(config.dev_path, config.baudrate);
+    return true;
+}
+
+template<> bool MavBasedVehicleSystem::Impl::_mavsdk_add_connect
+<rsdk::LinkMethodType::UDP>(const rsdk::UDPMethod& config)
+{
+    _mavsdk->add_serial_connection(config.ip, config.port);
+    return true;
+}
+
+template<> bool MavBasedVehicleSystem::Impl::_mavsdk_add_connect
+<rsdk::LinkMethodType::TCP>(const rsdk::TCPMethod& config)
+{
+    _mavsdk->add_serial_connection(config.ip, config.port);
+    return true;
+}
+
+template<rsdk::LinkMethodType E> bool add_connection(const rsdk::SystemConfig& config)
+{
+    auto _opt = config.getPameter<typename rsdk::MethodConfigType<E>::type>(
+        opt_key[static_cast<uint32_t>(E)]
+    );
+    if(_opt == std::nullopt) return false;
+    return _mavsdk_add_connect(*_opt);
+}
+
+/*****************************************************************************************************/
 MavBasedVehicleSystem::MavBasedVehicleSystem()
 {
     _impl = new Impl(this);
@@ -126,6 +142,7 @@ MavBasedVehicleSystem::~MavBasedVehicleSystem()
 const std::string &MavBasedVehicleSystem::manufacturer()
 {
     static const std::string manufacturer = "Unknown";
+    return manufacturer;
 }
 
 // 设备序列号，或者其他唯一绑定飞机的字符序列
