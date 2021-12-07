@@ -7,7 +7,7 @@ ExternalProject_Add(
   GIT_REPOSITORY
     https://github.com/mavlink/MAVSDK.git
   GIT_TAG           
-    "v0.48.0"
+    "v0.50.1"
   GIT_PROGRESS
     1
   UPDATE_COMMAND 

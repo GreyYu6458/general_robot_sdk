@@ -4,6 +4,11 @@ set(CMAKE_CXX_STANDARD 17)
 
 include(cmake/findMAVSDK.cmake)
 
+
+include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 add_library(
     mav_vehicle
     SHARED
@@ -20,6 +25,8 @@ target_link_libraries(
     PUBLIC
     robot_sdk
     mavsdk
+    mavsdk_info
+    mavsdk_mavlink_passthrough
     boost_thread
     pthread
 )
@@ -33,3 +40,7 @@ install(
     FILES "MavBasedVehicleSystem.hpp"
     DESTINATION include/rsdk/systems/mav_system
 )
+
+if(BUILD_MAV_TEST)
+  add_subdirectory(test)
+endif()

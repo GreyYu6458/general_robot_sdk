@@ -1,9 +1,10 @@
 #include "MavBasedVehicleSystem.hpp"
 #include <rsdk/system/SystemLinkMethods.hpp>
-
+#include <iostream>
 #include <mavsdk/mavsdk.h>
 #include <mavsdk/plugins/info/info.h>
 #include <future>
+#include <cstring>
 
 const char* opt_key[static_cast<uint32_t>(rsdk::LinkMethodType::COUNT)] = 
 {
@@ -19,21 +20,6 @@ public:
     {
         _owner = owner;
     }
-
-    template<rsdk::LinkMethodType E = static_cast<rsdk::LinkMethodType>(0)>
-    typename std::enable_if< (E  < rsdk::LinkMethodType::COUNT), bool >::type
-    addConnection(const rsdk::SystemConfig& config)
-    {
-        return  add_connection<E>(config) ? true : 
-        addConnection< static_cast<rsdk::LinkMethodType>(static_cast<uint32_t>(E) + 1)>(config);
-    }
-
-    template<rsdk::LinkMethodType E>
-    typename std::enable_if< (E  == rsdk::LinkMethodType::COUNT), bool >::type
-    addConnection(const rsdk::SystemConfig& config)
-    {
-        return false;
-    }
     
     bool link(const rsdk::SystemConfig &config)
     {
@@ -43,10 +29,11 @@ public:
             _mavsdk = std::make_unique<mavsdk::Mavsdk>();
         }
 
-        mavsdk::ConnectionResult connection_result;
-
         // 按照配置，添加链接
-        addConnection(config);
+        if(!addConnection(config))
+        {
+            _owner->error("Error Link Config!");
+        }
 
         auto prom = std::promise<std::shared_ptr<mavsdk::System>>{};
         auto fut = prom.get_future();
@@ -69,9 +56,12 @@ public:
         }
 
         _mavsdk_system = fut.get();
+        if(_mavsdk_system->is_connected())
+        {
+            std::cout << "system is connected" << std::endl;
+        }
 
-        auto system_info = mavsdk::Info(_mavsdk_system);
-        system_info.get_identification();
+        _unique_code = getUniqueID();
 
         return true;
     }
@@ -83,6 +73,44 @@ public:
     std::string                             _unique_code{""};
 
 private:
+
+    template<rsdk::LinkMethodType E = static_cast<rsdk::LinkMethodType>(0)>
+    typename std::enable_if< (E  < rsdk::LinkMethodType::COUNT), bool >::type
+    addConnection(const rsdk::SystemConfig& config)
+    {
+        return  add_connection<E>(config) ? true : 
+        addConnection< static_cast<rsdk::LinkMethodType>(static_cast<uint32_t>(E) + 1)>(config);
+    }
+
+    template<rsdk::LinkMethodType E>
+    typename std::enable_if< (E  == rsdk::LinkMethodType::COUNT), bool >::type
+    addConnection(const rsdk::SystemConfig& config)
+    {
+        return false;
+    }
+
+    std::string getUniqueID()
+    {
+        auto max_retry_time = 5;
+        auto system_info    = mavsdk::Info(_mavsdk_system);
+        auto rst = system_info.get_identification();
+        auto enable_hardware_uid = false;
+        while(rst.first != mavsdk::Info::Result::Success && max_retry_time--)
+        {
+            rst = system_info.get_identification();
+            _owner->error("waitting for mavlink version response");
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+        /* fuck! last charecror of hardware_uid is /000 maybe i can push a issue */
+        for(char c : rst.second.hardware_uid)
+        {
+            if(c != '0' && c != 0) enable_hardware_uid = true;
+        }
+
+        return enable_hardware_uid ? rst.second.hardware_uid : 
+            std::to_string(rst.second.legacy_uid);
+    }
+
     template<rsdk::LinkMethodType E> bool _mavsdk_add_connect(const typename rsdk::MethodConfigType<E>::type& );
 
     template<rsdk::LinkMethodType E> bool add_connection(const rsdk::SystemConfig& config)
@@ -107,14 +135,14 @@ template<> bool MavBasedVehicleSystem::Impl::_mavsdk_add_connect
 template<> bool MavBasedVehicleSystem::Impl::_mavsdk_add_connect
 <rsdk::LinkMethodType::UDP>(const rsdk::UDPMethod& config)
 {
-    _mavsdk->add_serial_connection(config.ip, config.port);
+    _mavsdk->add_udp_connection(config.ip, config.port);
     return true;
 }
 
 template<> bool MavBasedVehicleSystem::Impl::_mavsdk_add_connect
 <rsdk::LinkMethodType::TCP>(const rsdk::TCPMethod& config)
 {
-    _mavsdk->add_serial_connection(config.ip, config.port);
+    _mavsdk->add_tcp_connection(config.ip, config.port);
     return true;
 }
 

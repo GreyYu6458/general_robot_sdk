@@ -332,13 +332,13 @@ public:
             }
 
             download_rst = future.get();
-            instance->system()->info("Stop Downloading" + info.file_path);
+            instance->system()->info("Finish Downloading" + info.file_path);
             /********************* 下载结束 *********************/
             if(download_rst)
             {
                 instance->system()->info(
                     "Download File Success, Current Download File Count :" + 
-                    ++instance->currentDelegateMemory()->photo_download_number
+                    std::to_string(++instance->currentDelegateMemory()->photo_download_number)
                 );
                 // match the photo with item index
                 auto index  = photo_match(info.file_path);
@@ -364,7 +364,7 @@ public:
                     make_event<rsdk::event::mission::WPMSavedPhotoEvent>(info)
                 );
                 instance->system()->info(
-                    "Download File :" + file_ptr->name + " Success"
+                    "Match Photo With Waypoint :" + file_ptr->name + " Success"
                 );
             }
             else

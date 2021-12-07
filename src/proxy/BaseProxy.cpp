@@ -17,7 +17,10 @@ namespace rsdk
             const std::shared_ptr<BasePlugin>& plugin
         ): _sys(system), _plugin(plugin)
         {
-            _delegate_memory = _plugin->createDelegateMemory();
+            if(_plugin)
+            {
+                _delegate_memory = _plugin->createDelegateMemory();
+            }
         }
 
     private:
@@ -33,7 +36,10 @@ namespace rsdk
             const std::shared_ptr<BasePlugin>& plugin
     ): _impl(new Impl(system, plugin))
     {
-        plugin->installEventFilter(this);
+        if(plugin)
+        {
+            plugin->installEventFilter(this);
+        }
     }
 
     BaseProxy::~BaseProxy()
@@ -81,7 +87,7 @@ namespace rsdk
 
     bool BaseProxy::isLoaded()
     {
-        return _impl->_plugin ? true : false;
+        return _impl->_plugin != nullptr;
     }
 
     bool BaseProxy::start()
