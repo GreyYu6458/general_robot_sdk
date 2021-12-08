@@ -1,10 +1,10 @@
 #pragma once
 #include "DJIVehicleSystem.hpp"
-#include "DJIDelegateMemory.hpp"
 #include "p_rsdk/plugins/mission/waypoint/WPMInstancePlugin.hpp"
 #include "rsdk/message/sensor_msg/msg_coordinate.h"
 #include "plugins/DJIPluginBase.hpp"
 
+class DJIDelegateMemory;
 
 class DJIWPMInstance : 
     public  rsdk::mission::waypoint::WPMInstancePlugin, 

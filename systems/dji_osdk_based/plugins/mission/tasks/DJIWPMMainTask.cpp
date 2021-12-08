@@ -2,6 +2,7 @@
 #include "plugins/mission/DJIWPMInstance.hpp"
 #include "plugins/mission/DJIWPMission.hpp"
 #include "rsdk/proxy/collector/GNSSReceiver.hpp"
+#include "plugins/mission/DJIDelegateMemory.hpp"
 
 #include <dji_vehicle.hpp>
 #include <dji_waypoint_v2.hpp>

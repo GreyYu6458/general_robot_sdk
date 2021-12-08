@@ -1,5 +1,6 @@
 #include "STDWPInterpreter.hpp"
 #include "InterpretException.hpp"
+#include "plugins/mission/DJIDelegateMemory.hpp"
 #include <cmath>
 #include <dji_waypoint_v2.hpp>
 #include <dji_mission_type.hpp>

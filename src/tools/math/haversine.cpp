@@ -5,7 +5,7 @@
 #define D2R 			M_PI / 180;
 #define EARTH_RADIUS  	6371.393f;
 
-double haversine(double latitude_1, double longitude_1, double latitude_2, double longitude_2)
+double haversine(double latitude_1, double latitude_2,double longitude_1, double longitude_2)
 {
 	double rlat_1	=  latitude_1 	* D2R;
 	double rlat_2	=  latitude_2 	* D2R;

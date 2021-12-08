@@ -13,6 +13,8 @@
 #include "tasks/DJIWPMMainTask.hpp"
 #include "tasks/DownloadPhotoTask.hpp"
 
+#include "DJIDelegateMemory.hpp"
+
 class DJIWPMInstance::Impl
 {
 public:

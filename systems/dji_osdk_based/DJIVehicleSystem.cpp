@@ -33,7 +33,7 @@ class DJIVehicleSystem::SystemImpl
     friend class DJIVehicleSystem;
 
 #define REGIST_PLUGIN(dji_plugin_name, base_plugin_name) \
-    _owner->dji_regist_plugin<base_plugin_name> \
+    dji_regist_plugin<base_plugin_name> \
         ( \
             std::make_shared<dji_plugin_name> \
             ( \
@@ -42,6 +42,36 @@ class DJIVehicleSystem::SystemImpl
         )
 
 private:
+
+    template<class T, class G>
+    bool dji_regist_plugin(const std::shared_ptr<G>& impl)
+    {
+        static_assert(
+            std::is_base_of<DJIPluginBase, G>::value, 
+            "input type is not the base of DJIPlugin" 
+        );
+        // not support this model of dji
+
+        int8_t vehicle_model        = static_cast<int8_t>(_owner->model());
+        int8_t plugin_model         = static_cast<int8_t>(impl->supportModel());
+        int8_t is_support_plugin    = vehicle_model & plugin_model;
+
+        if(!is_support_plugin)
+        {
+            _owner->publishInfo<rsdk::SystemInfoLevel::WARNING>( 
+                "not support:\t" + std::string(typeid(G).name()) 
+            );   
+        }
+        else if (_owner->registInterfaceImplToMap<T>(impl))
+        {
+            _owner->publishInfo<rsdk::SystemInfoLevel::INFO>( 
+                "regist    :\t" + std::string(typeid(G).name())
+            );
+            return true;
+        }
+        return false;
+    }
+
     void registALLPlugin()
     {
         REGIST_PLUGIN(DJIAttitude,          rsdk::collector::AttitudePlugin);
@@ -240,8 +270,6 @@ bool DJIVehicleSystem::tryLink(const rsdk::SystemConfig &config)
         );
     }
 
-    // _impl->_hard_time_sync = std::make_unique<SystemHardSync>(this);
-    // _impl->_hard_time_sync->startSync();
     _impl->registALLPlugin();
     return rst;
 }

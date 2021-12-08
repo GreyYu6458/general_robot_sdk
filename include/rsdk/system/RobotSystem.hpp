@@ -54,15 +54,28 @@ namespace rsdk
          */
         virtual const std::string &robotName() = 0;
 
+        /**
+         * @brief 将事件放入事件循环中，
+         * 
+         * @return true 
+         * @return false 
+         */
         bool sendEvent(const std::shared_ptr<RObject>&, ::rsdk::event::REventParam);
 
         bool sendEvent(RObject*, ::rsdk::event::REventParam);
 
+        /**
+         * @brief 
+         * 
+         */
         void postEvent(const ::std::shared_ptr<RObject>&, ::rsdk::event::REventParam);
 
         void postEvent(RObject*, ::rsdk::event::REventParam);
 
-        // 更新系统时间的偏差
+        /**
+         * @brief 
+         * 
+         */
         void updateSystemBias(int64_t);
 
         /**

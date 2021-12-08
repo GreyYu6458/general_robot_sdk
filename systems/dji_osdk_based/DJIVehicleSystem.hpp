@@ -95,9 +95,20 @@ public:
      */
     const sensor_msg::Coordinate& lastUpdatePosition();
 
+    /**
+     * @brief 
+     * 
+     */
     void uploadPosition(const sensor_msg::Coordinate&);
 
 protected:
+    /**
+     * @brief 尝试链接
+     * 
+     * @param config 
+     * @return true 
+     * @return false 
+     */
     bool tryLink(const rsdk::SystemConfig& config) override;
 
     /**
@@ -108,34 +119,6 @@ protected:
     std::shared_ptr<DJIVehicleSystem> shared_from_this();
 
 private:
-    template<class T, class G>
-    bool dji_regist_plugin(const std::shared_ptr<G>& impl)
-    {
-        static_assert(
-            std::is_base_of<DJIPluginBase, G>::value, 
-            "input type is not the base of DJIPlugin" 
-        );
-        // not support this model of dji
-
-        int8_t vehicle_model        = static_cast<int8_t>(model());
-        int8_t plugin_model         = static_cast<int8_t>(impl->supportModel());
-        int8_t is_support_plugin    = vehicle_model & plugin_model;
-
-        if(!is_support_plugin)
-        {
-            publishInfo<rsdk::SystemInfoLevel::WARNING>( 
-                "not support:\t" + std::string(typeid(G).name()) 
-            );   
-        }
-        else if (registInterfaceImplToMap<T>(impl))
-        {
-            publishInfo<rsdk::SystemInfoLevel::INFO>( 
-                "regist    :\t" + std::string(typeid(G).name())
-            );
-            return true;
-        }
-        return false;
-    }
 
     void _regist_osdk_info();
 

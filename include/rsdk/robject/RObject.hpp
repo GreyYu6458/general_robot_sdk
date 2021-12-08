@@ -59,10 +59,17 @@ namespace rsdk
 
     protected:
 
+        /**
+         * @brief 
+         * 
+         * @return true 
+         * @return false 
+         */
         bool notifyied(::rsdk::event::REventParam);
 
         /**
-         * @brief almost last process of event
+         * @brief   almost last process of event
+         *          
          * 
          * @return true 
          * @return false 

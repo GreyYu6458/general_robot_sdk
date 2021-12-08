@@ -20,27 +20,25 @@ public:
     ~MavWPMMainTask();
 
     /**
-         * @brief 通知任务结束
-         * 
-         * @param rst 
-         */
+    * @brief 通知任务结束，外部通知task进程结束的方式
+    * 
+    * @param rst 
+    */
     void notifyMissionFinish(const rsdk::mission::StageRst &rst) override;
 
 protected:
     /**
-         * @brief 启动阶段
-         * 
-         * @return true 
-         * @return false 
-         */
+     * @brief 
+     * 
+     * @return rsdk::mission::StageRst 
+     */
     rsdk::mission::StageRst start_stage() override;
 
     /**
-         * @brief 执行阶段
-         * 
-         * @return true 
-         * @return false 
-         */
+     * @brief 
+     * 
+     * @return rsdk::mission::StageRst 
+     */
     rsdk::mission::StageRst executing_stage() override;
 
 private:

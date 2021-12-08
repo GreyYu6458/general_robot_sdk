@@ -1,5 +1,6 @@
 #include "DownloadPhotoTask.hpp"
 #include "plugins/mission/DJIWPMInstance.hpp"
+#include "plugins/mission/DJIDelegateMemory.hpp"
 #include "../exif.h"
 #include "p_rsdk/tools/math/haversine.h"
 #include <dji_vehicle.hpp>

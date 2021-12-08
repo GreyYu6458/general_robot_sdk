@@ -10,6 +10,12 @@ namespace mavsdk
     class MissionRaw;
 }
 
+class MavMissionDelegateMemory;
+
+/**
+ * @brief 
+ * 
+ */
 class MavMissionInstance: public  rsdk::mission::waypoint::WPMInstancePlugin
 {
     friend class MavMainTask;
@@ -25,6 +31,20 @@ public:
      * 
      */
     virtual ~MavMissionInstance();
+
+    /**
+     * @brief Create a Delegate Memory object
+     * 
+     * @return std::shared_ptr<DelegateMemory> 
+     */
+    std::shared_ptr<rsdk::DelegateMemory> createDelegateMemory() override;
+
+    /**
+     * @brief   返回当前正在执行任务的Delegate Memory
+     * 
+     * @return std::shared_ptr<rsdk::DelegateMemory> 
+     */
+    std::shared_ptr<MavMissionDelegateMemory>& currentDelegateMemory();
 
     /**
      * @brief Get the Main Task object
@@ -59,8 +79,18 @@ public:
 
 protected:
 
+    /**
+     * @brief 返回MAVSDK Mission的引用
+     * 
+     * @return mavsdk::Mission& 
+     */
     mavsdk::Mission& mavsdk_mission_handle();
 
+    /**
+     * @brief 返回MAVSDK MISSION_Raw的引用
+     * 
+     * @return mavsdk::MissionRaw& 
+     */
     mavsdk::MissionRaw& mavsdk_mission_raw_handle();
 
 private:

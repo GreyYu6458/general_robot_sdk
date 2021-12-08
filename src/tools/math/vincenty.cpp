@@ -2,8 +2,8 @@
 #include <cmath>
 
 std::tuple<double, double> vinc(double latp, double latc, double longp, double longc) {
-    constexpr double req = 6378137.0;             //Radius at equator
-    constexpr double flat = 1 / 298.257223563;    //flattening of earth
+    constexpr double req  = 6378137.0;             //Radius at equator
+    constexpr double flat = 1 / 298.257223563;     //flattening of earth
     constexpr double rpol = (1 - flat) * req;
 
     double sin_sigma, cos_sigma, sigma, sin_alpha, cos_sq_alpha, cos2sigma;

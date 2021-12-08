@@ -1,5 +1,6 @@
 #include "MavMissionInstance.hpp"
 #include "MavBasedVehicleSystem.hpp"
+#include "MavMissionDelegateMemory.hpp"
 #include <mavsdk/plugins/mission_raw/mission_raw.h>
 #include <mavsdk/plugins/mission/mission.h>
 #include <mavsdk/plugins/action/action.h>
@@ -19,6 +20,7 @@ public:
     mavsdk::Action              _mavsdk_action;
     mavsdk::Mission             _mavsdk_mission;
     mavsdk::MissionRaw          _mavsdk_mission_raw;
+    
     MavMissionInstance*         _owner;
 };
 
