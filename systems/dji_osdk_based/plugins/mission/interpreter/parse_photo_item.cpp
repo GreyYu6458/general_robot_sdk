@@ -11,6 +11,7 @@ template<> InterpretException STDWPInterpreter::_convert_item
 (const rmw::WaypointItems& std_items, DJIWPMission& mission)
 {
     static constexpr uint8_t default_wait_time  = 2; // 2s
+    static constexpr double  wp_mavlink_2_dji   = 1e7;
     
     auto    last_wp                 = context().last_wp;
     auto    last_wp_seq             = last_wp->get<rmw::ItemParam::SEQUENCE>();
@@ -36,16 +37,16 @@ template<> InterpretException STDWPInterpreter::_convert_item
     event.item_index    = item_seq;
     event.adjoint_wp    = last_wp_seq;
     // std::pair<sensor_msg::Coordinate, uint32_t>
-    instance()->currentDelegateMemory()->dji_photo_point.emplace_back(
-        std::make_pair<sensor_msg::Coordinate, uint32_t>(
+    instance()->currentDelegateMemory()->dji_photo_point.push_back(
+        {
             {
-                .latitude          = last_wp_x / 1e7, 
-                .longitude         = last_wp_y / 1e7,
+                .latitude          = last_wp_x / wp_mavlink_2_dji,
+                .longitude         = last_wp_y / wp_mavlink_2_dji,
                 .altitude          = last_wp_z, 
                 .rtk_altitude      = last_wp_z 
             },
             item_seq
-        )
+        }
     );
     mission.addActionEvent(dji_actions.size(), event);
 
