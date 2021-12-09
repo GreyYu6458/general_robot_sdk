@@ -43,6 +43,15 @@ class DJIVehicleSystem::SystemImpl
 
 private:
 
+    /**
+     * @brief 注册DJI功能插件
+     * 
+     * @tparam T 
+     * @tparam G 
+     * @param impl 
+     * @return true 
+     * @return false 
+     */
     template<class T, class G>
     bool dji_regist_plugin(const std::shared_ptr<G>& impl)
     {
@@ -51,7 +60,7 @@ private:
             "input type is not the base of DJIPlugin" 
         );
         // not support this model of dji
-
+        
         int8_t vehicle_model        = static_cast<int8_t>(_owner->model());
         int8_t plugin_model         = static_cast<int8_t>(impl->supportModel());
         int8_t is_support_plugin    = vehicle_model & plugin_model;
@@ -101,6 +110,9 @@ public:
     bool link(const rsdk::SystemConfig &config)
     {
         static boost::format formater("file:%s,line:%d,content:%s");
+        #ifdef DJI_SYSTEM_SIM_ENABLE
+            _owner->warning("Only work for sim enviroment!");
+        #endif
         _owner->_regist_osdk_info(); // get DJI Low layer message
         auto linker = new (std::nothrow) Linker();
 

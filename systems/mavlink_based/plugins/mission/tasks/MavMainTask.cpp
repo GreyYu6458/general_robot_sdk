@@ -18,10 +18,14 @@ public:
 
     void waitForMissionFinished()
     {
-        
+        std::unique_lock<std::mutex> ulck(_wait_finished_mutex);
+
+        while(_finished_rst.type == rsdk::mission::StageRstType::UNEXECUTE)
+        {
+            _wait_finished_cv.wait(ulck);
+        }
     }
 
-private:
     MavMissionInstance*         _instance;
     std::mutex                  _wait_finished_mutex;
     std::condition_variable     _wait_finished_cv;
@@ -39,17 +43,40 @@ MavWPMMainTask::~MavWPMMainTask()
     delete _impl;
 }
 
-void notifyMissionFinish(const rsdk::mission::StageRst &rst)
+void MavWPMMainTask::notifyMissionFinish(const rsdk::mission::StageRst &rst)
+{
+    {
+        std::lock_guard<std::mutex> lck(_impl->_wait_finished_mutex);
+        _impl->_finished_rst = rst;
+    }
+
+    _impl->_wait_finished_cv.notify_all();
+}
+
+/**
+ * @brief Set the Waypoint Items object
+ * 
+ */
+void setWaypointItems(const MavMissionItemList& list)
 {
 
 }
 
-rsdk::mission::StageRst start_stage()
+/**
+ * @brief Set the Waypoint Items object
+ * 
+ */
+void setWaypointItems(MavMissionItemList&& list)
+{
+
+}
+
+rsdk::mission::StageRst MavWPMMainTask::start_stage()
 {
     
 }
 
-rsdk::mission::StageRst executing_stage()
+rsdk::mission::StageRst MavWPMMainTask::executing_stage()
 {
 
 }
