@@ -17,20 +17,31 @@ namespace rsdk::mission::waypoint
 
         void handleMainTaskEvent(std::shared_ptr<rsdk::event::mission::TaskEvent>& event)
         {
-
+            // 强制进行一次匹配
+            _photo_event_not_handle = true;
         }
 
         void handleSubtaskEvent(std::shared_ptr<rsdk::event::mission::TaskEvent>& event)
         {
             // 目前只有下载任务,这里处理下载任务完成的事件
-            if(_photo_event_not_handle && !_owner->hasSubTask(PhotoDownloadTask::task_name()))
-            { // 如果有拍照事件没有处理，则新建一个下载任务
-                auto task = _owner->PLUGIN->getPhotoDownloadTask();
-                task->setMediaDownloadPath(_media_download_path);
-                task->setDelegateMemory(_owner->delegateMemory());
-                _owner->runSubTask(std::move(task));
+            // 如果有拍照事件没有处理，则新建一个下载任务
+            if(_photo_event_not_handle)
+            { 
+                if(!_owner->hasSubTask(PhotoDownloadTask::task_name()))
+                {
+                    auto task = _owner->PLUGIN->getPhotoDownloadTask();
+                    task->setMediaDownloadPath(_media_download_path);
+                    task->setDelegateMemory(_owner->delegateMemory());
+                    _owner->runSubTask(std::move(task));
+                    _owner->system()->warning("A New photo download task will be created");
+                    _photo_event_not_handle = false;
+                }
             }
-            _photo_event_not_handle = false;
+            else
+            {
+                _owner->system()->warning("There is a photo download task already exist");
+                _photo_event_not_handle = true;
+            }
         }
 
         WPMInstanceProxy*   _owner;
@@ -103,8 +114,8 @@ namespace rsdk::mission::waypoint
         // 相机拍照尝试下载照片
         if(_event->type() == rsdk::event::mission::WPMTakenPhotoEvent::event_type)
         {
+            _impl->_photo_event_not_handle = true;
             auto event = rsdk::event::REventCast<rsdk::event::mission::WPMTakenPhotoEvent>(_event);
-
             // 检测是否还存在拍照任务在运行
             if(!hasSubTask(PhotoDownloadTask::task_name()))
             {
@@ -114,10 +125,9 @@ namespace rsdk::mission::waypoint
                 runSubTask(std::move(task));
                 _impl->_photo_event_not_handle = false;
             }
-            else 
+            else
             {
                 system()->warning("There is a photo download task already exist");
-                _impl->_photo_event_not_handle = true;
             }
         }
         else if(_event->type() == rsdk::event::mission::TaskEvent::event_type)
