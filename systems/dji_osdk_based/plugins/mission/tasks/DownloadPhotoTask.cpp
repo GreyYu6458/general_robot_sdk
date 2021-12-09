@@ -197,11 +197,11 @@ public:
         double min_distance     = std::numeric_limits<double>::max();
         uint32_t item_index     = std::numeric_limits<uint32_t>::max();
         for(const auto& position_index_pair : delegate_memory->dji_photo_point)
-        {
+        {   
             auto&  position     = position_index_pair.first;
             double lat_long_dis = haversine(
-                position.latitude, position.longitude, 
-                photo_location.Latitude, photo_location.Longitude
+                position.latitude, photo_location.Latitude,
+                position.longitude, photo_location.Longitude
             );
             double height_dis   = (photo_location.Altitude - delegate_memory->takeoff_altitude) - position.altitude;
             double cdistance    = std::sqrt( lat_long_dis * lat_long_dis + height_dis * height_dis );
