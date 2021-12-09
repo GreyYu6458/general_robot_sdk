@@ -119,6 +119,12 @@ namespace rsdk::mission
             }
         }
 
+        /**
+         * @brief 主任务运行完毕处理函数
+         * 
+         * @param task 
+         * @param rst 
+         */
         void mainTaskExecutingHandle(MissionTask* task, StageRst rst)
         {
             using namespace rsdk::event::mission;
@@ -146,7 +152,8 @@ namespace rsdk::mission
         }
 
         /**
-         * @brief 不管subtask有没有成功，都将其移除
+         * @brief   子任务处理完毕处理函数
+         *          不管subtask有没有成功，都将其移除
          * 
          * @param task 
          * @param rst 
