@@ -18,6 +18,7 @@ namespace rsdk::mission::waypoint
         void handleMainTaskEvent(std::shared_ptr<rsdk::event::mission::TaskEvent>& event)
         {
             // 强制进行一次匹配
+            _photo_event_not_handle = true;
             if(!_owner->hasSubTask(PhotoDownloadTask::task_name()))
             {
                 auto task = _owner->PLUGIN->getPhotoDownloadTask();
