@@ -195,6 +195,7 @@ public:
         auto& delegate_memory   = instance->currentDelegateMemory();
         
         double min_distance     = std::numeric_limits<double>::max();
+        sensor_msg::Coordinate min_point;
         uint32_t item_index     = std::numeric_limits<uint32_t>::max();
         for(const auto& position_index_pair : delegate_memory->dji_photo_point)
         {   
@@ -206,6 +207,7 @@ public:
             double height_dis   = (photo_location.Altitude - delegate_memory->takeoff_altitude) - position.altitude;
             double cdistance    = std::sqrt( lat_long_dis * lat_long_dis + height_dis * height_dis );
             
+            /*
             instance->system()->trace(
                 "PAIR WAPOINT LOCATION PHOTO LOCATION LAT:"     + 
                 std::to_string(position.latitude)               + 
@@ -213,11 +215,13 @@ public:
                 " ALT:" + std::to_string(position.altitude)     +
                 " DIS:" + std::to_string(cdistance)
             );
+            */
             
             if(cdistance < min_distance)
             {
                 min_distance    = cdistance;
                 item_index      = position_index_pair.second;
+                min_point       = position;
             }
         }
 
@@ -226,6 +230,9 @@ public:
             " PHOTO LOCATION LAT:" + std::to_string(photo_location.Latitude)    + 
             " LON:" + std::to_string(photo_location.Longitude)                  + 
             " ALT:" + std::to_string(photo_location.Altitude)                   +
+            "\nWP    LOCATION LAT" + std::to_string(min_point.latitude)         +
+            " LON:" + std::to_string(min_point.longitude)                       + 
+            " ALT:" + std::to_string(min_point.altitude)                        +
             " INDEX :"      + std::to_string(item_index)                        +
             " DIFFERENCE:"  + std::to_string(min_distance)
         );
