@@ -1,5 +1,7 @@
 #include "MavMainTask.hpp"
 #include "../MavMissionInstance.hpp"
+#include <mutex>
+#include <condition_variable>
 
 class MavWPMMainTask::Impl
 {
@@ -9,8 +11,21 @@ public:
         _instance = instance;
     }
 
+    void startLaunch(rsdk::mission::StageRst& rst)
+    {
+
+    }
+
+    void waitForMissionFinished()
+    {
+        
+    }
+
 private:
-    MavMissionInstance*     _instance;
+    MavMissionInstance*         _instance;
+    std::mutex                  _wait_finished_mutex;
+    std::condition_variable     _wait_finished_cv;
+    rsdk::mission::StageRst     _finished_rst{rsdk::mission::StageRstType::UNEXECUTE};
 };
 
 MavWPMMainTask::MavWPMMainTask(MavMissionInstance *instance)

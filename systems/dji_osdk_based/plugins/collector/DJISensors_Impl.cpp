@@ -103,8 +103,16 @@ void DJIGNSSReceiver::convert(const DJIGNSSReceiver::pkg_msg_type& data)
         _COLLECTOR_msg.longitude    = fused_gps.longitude  * 180 / M_PI;
     }
     _COLLECTOR_msg.altitude         = raw_fused_altitude;
+
+#ifdef DJI_SYSTEM_SIM_ENABLE
+    // if we are in sim enviroment, rtk position is not enable
+    // we will use fused_altitude instead
+    _COLLECTOR_msg.rtk_altitude     = raw_fused_altitude;
+#else
     _COLLECTOR_msg.rtk_altitude     = raw_rtk.HFSL;
-    
+#endif
+
+    // FIXME this is so stupid, if user not create gnss proxy, system position will not update!
     _dji_system->uploadPosition(_COLLECTOR_msg);
     onUpdate(_COLLECTOR_msg);
 }

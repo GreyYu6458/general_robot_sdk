@@ -42,7 +42,7 @@ namespace rsdk::mission::waypoint
                     task->setMediaDownloadPath(_media_download_path);
                     task->setDelegateMemory(_owner->delegateMemory());
                     _owner->runSubTask(std::move(task));
-                    _owner->system()->warning("A New photo download task will be created");
+                    _owner->system()->warning("Triggered by new event, A New photo download task will be created");
                     _photo_event_not_handle = false;
                 }
             }

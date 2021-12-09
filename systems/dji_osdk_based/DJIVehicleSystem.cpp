@@ -187,7 +187,11 @@ public:
             _owner->error( (formater % __FILE__ % __LINE__ % "DJI VERIFY ERROR").str());
             return false;
         }
+
         _unique_code = _dji_vehicle->getHwSerialNum();
+#ifdef DJI_SYSTEM_SIM_ENABLE
+        _unique_code += "_SIM";
+#endif
         _owner->info("DJI Vehicle Link Success");
 
         return true;

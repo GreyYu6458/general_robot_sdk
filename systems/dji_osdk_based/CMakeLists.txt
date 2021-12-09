@@ -2,6 +2,7 @@ project(dji_vehicle)
 
 set(CMAKE_CXX_STANDARD 17)
 include(cmake/findDJIOSDK.cmake)
+include(cmake/djisystem_compile_option.cmake)
 
 # FIND FFMPEG
 find_path(AVCODEC_INCLUDE_DIR libavcodec/avcodec.h)
@@ -100,6 +101,14 @@ target_link_libraries(
     boost_thread
     pthread
 )
+
+if(DJI_SYSTEM_SIM_ENABLE)
+    target_compile_definitions(
+        dji_vehicle
+        PRIVATE
+        DJI_SYSTEM_SIM_ENABLE=1
+    )
+endif()
 
 install(
     TARGETS dji_vehicle
