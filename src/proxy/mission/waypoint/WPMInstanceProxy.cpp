@@ -18,14 +18,13 @@ namespace rsdk::mission::waypoint
         void handleMainTaskEvent(std::shared_ptr<rsdk::event::mission::TaskEvent>& event)
         {
             // 强制进行一次匹配
-            _photo_event_not_handle = true;
             if(!_owner->hasSubTask(PhotoDownloadTask::task_name()))
             {
                 auto task = _owner->PLUGIN->getPhotoDownloadTask();
                 task->setMediaDownloadPath(_media_download_path);
                 task->setDelegateMemory(_owner->delegateMemory());
                 _owner->runSubTask(std::move(task));
-                _owner->system()->warning("A New photo download task will be created");
+                _owner->system()->warning("Main task over, new photo download task will be created");
                 _photo_event_not_handle = false;
             }
         }
