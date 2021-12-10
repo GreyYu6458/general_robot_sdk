@@ -15,25 +15,8 @@ namespace rsdk::mission::waypoint
             _owner = owner;
         }
 
-        void handleMainTaskEvent(MissionTask* task, StageRst rst)
+        void addPhotoTask()
         {
-            // 强制进行一次匹配
-            _photo_event_not_handle = true;
-            if(!_owner->hasSubTask(PhotoDownloadTask::task_name()))
-            {
-                auto task = _owner->PLUGIN->getPhotoDownloadTask();
-                task->setMediaDownloadPath(_media_download_path);
-                task->setDelegateMemory(_owner->delegateMemory());
-                _owner->runSubTask(std::move(task));
-                _owner->system()->warning("Main task over, new photo download task will be created");
-                _photo_event_not_handle = false;
-            }
-        }
-
-        void handleSubtaskEvent(MissionTask* task, StageRst rst)
-        {
-            // 目前只有下载任务,这里处理下载任务完成的事件
-            // 如果有拍照事件没有处理，则新建一个下载任务
             if(_photo_event_not_handle)
             { 
                 if(!_owner->hasSubTask(PhotoDownloadTask::task_name()))
@@ -48,12 +31,24 @@ namespace rsdk::mission::waypoint
                         _photo_event_not_handle = false;
                     }
                 }
+                else
+                {
+                    _owner->system()->warning("There is a photo download task already exist");
+                    _photo_event_not_handle = true;
+                }
             }
-            else
-            {
-                _owner->system()->warning("There is a photo download task already exist");
-                _photo_event_not_handle = true;
-            }
+        }
+
+        void handleMainTaskEvent(MissionTask* task, StageRst rst)
+        {
+            addPhotoTask();
+        }
+
+        void handleSubtaskEvent(MissionTask* task, StageRst rst)
+        {
+            // 目前只有下载任务,这里处理下载任务完成的事件
+            // 如果有拍照事件没有处理，则新建一个下载任务
+            addPhotoTask();
         }
 
         WPMInstanceProxy*   _owner;
