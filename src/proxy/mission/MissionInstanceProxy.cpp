@@ -58,9 +58,12 @@ namespace rsdk::mission
             {
                 return InstanceState::FAILED_WITH_SUBTASK;
             }
-            else if (_state == InstanceState::FINISHED && _sub_task_map.size())
+            else if (_state == InstanceState::FINISHED)
             {
-                return InstanceState::FINISHED_WITH_SUBTASK;
+                if(_sub_task_map.size())
+                    return InstanceState::FINISHED_WITH_SUBTASK;
+                else
+                    return InstanceState::FINISHED;
             }
             return _state;
         }
@@ -170,16 +173,6 @@ namespace rsdk::mission
                 _sub_task_map.erase(task->taskName());
             }
             _owner->system()->info("Subtask Executing Over:" + task->taskName());
-
-            TaskInfo task_info;
-            task_info.detail            = "SubTaskExecuting";
-            task_info.execute_result    = 
-                (rst.type == StageRstType::SUCCESS) ? 
-                TaskEventType::SUCCESS : TaskEventType::FAILED;
-            task_info.is_main_task      = false;
-            task_info.task_name         = task->taskName();
-
-            _system->postEvent(_owner, std::make_shared<TaskEvent>(task_info));
         }
 
         /**
