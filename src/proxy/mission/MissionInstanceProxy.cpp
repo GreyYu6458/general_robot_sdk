@@ -54,19 +54,19 @@ namespace rsdk::mission
          */
         InstanceState real_state()
         {
-            std::cout << "0" << std::endl;
             std::lock_guard<std::mutex> lck(_task_map_mutex);
             if(_state == InstanceState::FAILED && _sub_task_map.size())
             {
-                std::cout << "1" << std::endl;
                 return InstanceState::FAILED_WITH_SUBTASK;
             }
             else if (_state == InstanceState::FINISHED && _sub_task_map.size())
             {
-                std::cout << "2" << std::endl;
                 return InstanceState::FINISHED_WITH_SUBTASK;
             }
-            std::cout << "3" << std::endl;
+            else if(_state == InstanceState::FINISHED && !_sub_task_map.size())
+            {
+                return InstanceState::FINISHED;
+            }
             return _state;
         }
 
