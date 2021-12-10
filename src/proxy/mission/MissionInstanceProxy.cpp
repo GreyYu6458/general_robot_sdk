@@ -257,6 +257,7 @@ namespace rsdk::mission
         std::lock_guard<std::mutex> lck(_impl->_state_mutex);
         // 记录状态
         _impl->_last_state = _impl->_state;
+        std::cout << static_cast<uint32_t>(_impl->_state) << std::endl;
         // 交给状态转移函数处理
         // TODO 封装状态机
         if(task->isMain()){
@@ -264,6 +265,7 @@ namespace rsdk::mission
         }else{
             _impl->subtaskExecutingHandle(task, rst);
         }
+        std::cout << static_cast<uint32_t>(_impl->_state) << std::endl;
 
         _impl->_state = _impl->real_state();
 
