@@ -55,6 +55,16 @@ namespace rsdk::mission
         const std::string& id();
 
     protected:
+        
+        /**
+         * @brief   暂时修复方法。由于在该类中发出的事件无法传给子类。让子类实现该方法，以实现自定义的处理方法
+         *          结构性的改正方法在mission_structure_change分支中。
+         * 
+         * @param task 
+         * @param rst 
+         */
+        virtual void handleTaskFinished(MissionTask* task, StageRst rst) = 0;
+
         /**
          * @brief overwrite handle function
          * 

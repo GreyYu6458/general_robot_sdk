@@ -74,7 +74,19 @@ namespace rsdk::mission::waypoint
         void return2home(const ControlCallback&);
 
     protected:
-    
+
+        /**
+         * @brief 
+         * 
+         */
+        void handleTaskFinished(MissionTask* task, StageRst rst) override;
+
+        /**
+         * @brief 
+         * 
+         * @return true 
+         * @return false 
+         */
         bool eventFilter(RObject*, ::rsdk::event::REventParam) override;
 
     private:

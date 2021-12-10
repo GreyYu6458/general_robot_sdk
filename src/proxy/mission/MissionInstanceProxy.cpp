@@ -257,6 +257,8 @@ namespace rsdk::mission
      */
     void MissionInstanceProxy::OnExecutingStageFinished(MissionTask* task, StageRst rst)
     {
+        handleTaskFinished(task, rst);
+
         std::lock_guard<std::mutex> lck(_impl->_state_mutex);
         // 记录状态
         _impl->_last_state = _impl->_state;

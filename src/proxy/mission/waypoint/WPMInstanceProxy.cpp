@@ -15,7 +15,7 @@ namespace rsdk::mission::waypoint
             _owner = owner;
         }
 
-        void handleMainTaskEvent(std::shared_ptr<rsdk::event::mission::TaskEvent>& event)
+        void handleMainTaskEvent(MissionTask* task, StageRst rst)
         {
             // 强制进行一次匹配
             _photo_event_not_handle = true;
@@ -30,7 +30,7 @@ namespace rsdk::mission::waypoint
             }
         }
 
-        void handleSubtaskEvent(std::shared_ptr<rsdk::event::mission::TaskEvent>& event)
+        void handleSubtaskEvent(MissionTask* task, StageRst rst)
         {
             // 目前只有下载任务,这里处理下载任务完成的事件
             // 如果有拍照事件没有处理，则新建一个下载任务
@@ -113,6 +113,18 @@ namespace rsdk::mission::waypoint
         PLUGIN->return2home(f);
     }
 
+    void WPMInstanceProxy::handleTaskFinished(MissionTask* task, StageRst rst)
+    {
+        if(task->isMain())
+        {
+            _impl->handleMainTaskEvent(task, rst);
+        }
+        else
+        {
+            _impl->handleSubtaskEvent(task, rst);
+        }
+    }
+
     /**
      * @brief type of obj is WPMInstancePlugin
      * 
@@ -144,16 +156,6 @@ namespace rsdk::mission::waypoint
             {
                 system()->warning("There is a photo download task already exist");
             }
-        }
-        else if(_event->type() == rsdk::event::mission::TaskEvent::event_type)
-        {
-            system()->warning("task info");
-            auto event = rsdk::event::REventCast<rsdk::event::mission::TaskEvent>(_event);
-            // 处理主task事件
-            if(event->payload().is_main_task)
-                _impl->handleMainTaskEvent(event);
-            else
-                _impl->handleSubtaskEvent(event);
         }
         else if(_event->type() == rsdk::event::mission::MissionFinishedEvent::event_type)
         {
