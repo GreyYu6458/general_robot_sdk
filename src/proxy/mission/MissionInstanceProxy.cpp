@@ -260,12 +260,12 @@ namespace rsdk::mission
             _impl->subtaskExecutingHandle(task, rst);
         }
 
-        _impl->_state = _impl->real_state();
+        auto _state = _impl->real_state();
 
         // 如果状态改变, 调用回调
-        if(_impl->_last_state != _impl->_state && _impl->_state_changed_cb)
+        if(_impl->_last_state != _state && _impl->_state_changed_cb)
         {
-            _impl->_state_changed_cb(_impl->_state);
+            _impl->_state_changed_cb(_state);
         }
     }
 
