@@ -3,6 +3,7 @@
 #include "plugins/mission/DJIDelegateMemory.hpp"
 #include "../exif.h"
 #include "p_rsdk/tools/math/haversine.h"
+#include <boost/format.hpp>
 #include <dji_vehicle.hpp>
 #include <unordered_set>
 #include <future>
@@ -226,15 +227,15 @@ public:
         }
 
         instance->system()->warning(
-            photo_path                                                          + 
-            " PHOTO LOCATION LAT:" + std::to_string(photo_location.Latitude)    + 
-            " LON:" + std::to_string(photo_location.Longitude)                  + 
-            " ALT:" + std::to_string(photo_location.Altitude)                   +
-            "\nWP    LOCATION LAT" + std::to_string(min_point.latitude)         +
-            " LON:" + std::to_string(min_point.longitude)                       + 
-            " ALT:" + std::to_string(min_point.altitude)                        +
-            " INDEX :"      + std::to_string(item_index)                        +
-            " DIFFERENCE:"  + std::to_string(min_distance)
+            photo_path                                                          +
+            " PHOTO LOCATION LAT:"  + std::to_string(photo_location.Latitude)   +
+            " LON:"                 + std::to_string(photo_location.Longitude)  +
+            " ALT:"                 + std::to_string(photo_location.Altitude)   +
+            "\nWP    LOCATION LAT"  + std::to_string(min_point.latitude)        +
+            " LON:"                 + std::to_string(min_point.longitude)       +
+            " ALT:"                 + std::to_string(min_point.altitude)        +
+            " INDEX :"              + std::to_string(item_index)                +
+            " DIFFERENCE:"          + std::to_string(min_distance)
         );
 
         // 距离差距太大，匹配失败

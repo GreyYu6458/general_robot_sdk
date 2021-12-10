@@ -10,16 +10,16 @@ namespace rsdk::mission
     class MainMissionTask;
     class SubMissionTask;
 
-    class MissionInstance : public BaseProxy,
+    class MissionInstanceProxy : public BaseProxy,
                             protected TaskListener
     {
     public:
-        MissionInstance(
+        MissionInstanceProxy(
             const std::shared_ptr<RobotSystem>&, 
             const std::shared_ptr<BasePlugin>&
         );
 
-        ~MissionInstance();
+        ~MissionInstanceProxy();
 
         /**
          * @brief 开始任务

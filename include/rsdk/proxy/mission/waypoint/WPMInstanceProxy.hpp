@@ -7,7 +7,7 @@
 
 namespace rsdk::mission::waypoint
 {
-    class WPMInstanceProxy : public MissionInstance
+    class WPMInstanceProxy : public MissionInstanceProxy
     {
     public:
         /**

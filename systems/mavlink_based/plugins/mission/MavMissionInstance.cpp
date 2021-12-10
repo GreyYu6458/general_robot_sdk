@@ -17,11 +17,11 @@ public:
         _owner = owner;    
     }
 
-    mavsdk::Action              _mavsdk_action;
-    mavsdk::Mission             _mavsdk_mission;
-    mavsdk::MissionRaw          _mavsdk_mission_raw;
-    
-    MavMissionInstance*         _owner;
+    mavsdk::Action                              _mavsdk_action;
+    mavsdk::Mission                             _mavsdk_mission;
+    mavsdk::MissionRaw                          _mavsdk_mission_raw;
+    std::shared_ptr<MavMissionDelegateMemory>   _mission_memory;
+    MavMissionInstance*                         _owner;
 };
 
 MavMissionInstance::MavMissionInstance(const std::shared_ptr<MavBasedVehicleSystem>& system):
@@ -43,6 +43,36 @@ mavsdk::Mission& MavMissionInstance::mavsdk_mission_handle()
 mavsdk::MissionRaw& MavMissionInstance::mavsdk_mission_raw_handle()
 {
     return _impl->_mavsdk_mission_raw;
+}
+
+/**
+ * @brief 创建委托内存
+ * 
+ * @return std::shared_ptr<rsdk::DelegateMemory> 
+ */
+std::shared_ptr<rsdk::DelegateMemory> MavMissionInstance::createDelegateMemory()
+{
+    return std::make_shared<MavMissionDelegateMemory>();
+}
+
+/**
+ * @brief   返回当前正在执行任务的Delegate Memory
+ * 
+ * @return std::shared_ptr<rsdk::DelegateMemory> 
+ */
+std::shared_ptr<MavMissionDelegateMemory>& MavMissionInstance::currentDelegateMemory()
+{
+    return _impl->_mission_memory;
+}
+
+/**
+ * @brief Get the Main Task object
+ * 
+ * @return std::unique_ptr<rsdk::mission::MainMissionTask> 
+ */
+std::unique_ptr<rsdk::mission::MainMissionTask> getMainTask()
+{
+
 }
 
 /**
@@ -79,7 +109,6 @@ void MavMissionInstance::resume(const rsdk::mission::ControlCallback& cb)
 void MavMissionInstance::stop(const   rsdk::mission::ControlCallback& cb)
 {
     rsdk::mission::ControlResult ret;
-    // 这玩意底层的操作是把飞机的状态切换到mission模式。
     auto rst = _impl->_mavsdk_action.land();
     ret.is_success = rst != mavsdk::Action::Result::Success;
     std::stringstream ss; ss << rst; ret.detail = ss.str();
@@ -93,7 +122,6 @@ void MavMissionInstance::stop(const   rsdk::mission::ControlCallback& cb)
 void MavMissionInstance::return2home(const rsdk::mission::ControlCallback& cb)
 {
     rsdk::mission::ControlResult ret;
-    // 这玩意底层的操作是把飞机的状态切换到mission模式。
     auto rst = _impl->_mavsdk_action.return_to_launch();
     ret.is_success = rst != mavsdk::Action::Result::Success;
     std::stringstream ss; ss << rst; ret.detail = ss.str();

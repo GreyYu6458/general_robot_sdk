@@ -59,7 +59,7 @@ void MavWPMMainTask::notifyMissionFinish(const rsdk::mission::StageRst &rst)
  */
 void setWaypointItems(const MavMissionItemList& list)
 {
-
+    
 }
 
 /**

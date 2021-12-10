@@ -36,6 +36,7 @@ namespace rsdk::event::mission
     struct TaskInfo
     {
         bool            is_main_task;
+        bool            is_interrupted;
         MissionInfo     mission_info;
         TaskEventType   execute_result;
         std::string     task_name;

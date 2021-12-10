@@ -39,11 +39,14 @@ namespace rsdk::mission::waypoint
                 if(!_owner->hasSubTask(PhotoDownloadTask::task_name()))
                 {
                     auto task = _owner->PLUGIN->getPhotoDownloadTask();
-                    task->setMediaDownloadPath(_media_download_path);
-                    task->setDelegateMemory(_owner->delegateMemory());
-                    _owner->runSubTask(std::move(task));
-                    _owner->system()->warning("Triggered by new event, A New photo download task will be created");
-                    _photo_event_not_handle = false;
+                    if(task != nullptr)
+                    {
+                        task->setMediaDownloadPath(_media_download_path);
+                        task->setDelegateMemory(_owner->delegateMemory());
+                        _owner->runSubTask(std::move(task));
+                        _owner->system()->warning("Triggered by new event, A New photo download task will be created");
+                        _photo_event_not_handle = false;
+                    }
                 }
             }
             else
@@ -60,7 +63,7 @@ namespace rsdk::mission::waypoint
 
 
     WPMInstanceProxy::WPMInstanceProxy(const std::shared_ptr<RobotSystem>& system)
-    :MissionInstance(system, system->BasePluginImpl<WPMInstancePlugin>())
+    :MissionInstanceProxy(system, system->BasePluginImpl<WPMInstancePlugin>())
     {
         _impl = new Impl(this);
     }
@@ -129,9 +132,12 @@ namespace rsdk::mission::waypoint
             if(!hasSubTask(PhotoDownloadTask::task_name()))
             {
                 auto task = PLUGIN->getPhotoDownloadTask();
-                task->setMediaDownloadPath(_impl->_media_download_path);
-                task->setDelegateMemory(delegateMemory());
-                runSubTask(std::move(task));
+                if(task != nullptr)
+                {
+                    task->setMediaDownloadPath(_impl->_media_download_path);
+                    task->setDelegateMemory(delegateMemory());
+                    runSubTask(std::move(task));
+                }
                 _impl->_photo_event_not_handle = false;
             }
             else
@@ -159,6 +165,6 @@ namespace rsdk::mission::waypoint
             return true; // 不向下传递
         }
 
-        return MissionInstance::eventFilter(obj, _event);
+        return MissionInstanceProxy::eventFilter(obj, _event);
     }
 }

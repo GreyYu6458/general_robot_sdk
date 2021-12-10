@@ -13,10 +13,10 @@ namespace rsdk::mission
 {
     using TaskMap = std::unordered_map< std::string, std::unique_ptr<MissionTask> >;
 
-    class MissionInstance::Impl
+    class MissionInstanceProxy::Impl
     {
     public:
-        Impl(MissionInstance* owner)
+        Impl(MissionInstanceProxy* owner)
         {
             _owner  = owner;
             _system = _owner->system();
@@ -35,7 +35,7 @@ namespace rsdk::mission
             );
         }
 
-        MissionInstance*                            _owner;
+        MissionInstanceProxy*                            _owner;
         std::string                                 _id;
         std::unique_ptr<MainMissionTask>            _main_task;
         TaskMap                                     _sub_task_map;
@@ -160,13 +160,26 @@ namespace rsdk::mission
          */
         void subtaskExecutingHandle(MissionTask* task, StageRst rst)
         {
-            std::lock_guard<std::mutex> lck(_task_map_mutex);
-            _owner->system()->info("Subtask Executing Over:" + task->taskName());
-            _end_sub_task_list.push_back( 
-                std::move(_sub_task_map[task->taskName()]) 
-            );
+            using namespace rsdk::event::mission;
 
-            _sub_task_map.erase(task->taskName());
+            {
+                std::lock_guard<std::mutex> lck(_task_map_mutex);
+                _end_sub_task_list.push_back( 
+                    std::move(_sub_task_map[task->taskName()]) 
+                );
+                _sub_task_map.erase(task->taskName());
+            }
+            _owner->system()->info("Subtask Executing Over:" + task->taskName());
+
+            TaskInfo task_info;
+            task_info.detail            = "SubTaskExecuting";
+            task_info.execute_result    = 
+                (rst.type == StageRstType::SUCCESS) ? 
+                TaskEventType::SUCCESS : TaskEventType::FAILED;
+            task_info.is_main_task      = false;
+            task_info.task_name         = task->taskName();
+
+            _system->postEvent(_owner, std::make_shared<TaskEvent>(task_info));
         }
 
         /**
@@ -191,7 +204,7 @@ namespace rsdk::mission
         }
     };
 
-    MissionInstance::MissionInstance(
+    MissionInstanceProxy::MissionInstanceProxy(
         const std::shared_ptr<RobotSystem>& system, 
         const std::shared_ptr<BasePlugin>& plugin
     ) : BaseProxy(system, plugin)
@@ -204,18 +217,18 @@ namespace rsdk::mission
         _impl->_state               = InstanceState::WAITTING;
     }
 
-    MissionInstance::~MissionInstance()
+    MissionInstanceProxy::~MissionInstanceProxy()
     {
         delete _impl;
     }
 
-    void MissionInstance::startMission()
+    void MissionInstanceProxy::startMission()
     {
         _impl->_main_task = plugin<InstancePlugin>()->getMainTask();
         _impl->_main_task->execute(this);
     }
 
-    void MissionInstance::OnStartStageFinished(MissionTask* task, StageRst rst)
+    void MissionInstanceProxy::OnStartStageFinished(MissionTask* task, StageRst rst)
     {
         std::lock_guard<std::mutex> lck(_impl->_state_mutex);
         // 记录状态
@@ -236,7 +249,13 @@ namespace rsdk::mission
         }
     }
 
-    void MissionInstance::OnExecutingStageFinished(MissionTask* task, StageRst rst)
+    /**
+     * @brief Task Executing 阶段结束后，会调用此函数
+     * 
+     * @param task 
+     * @param rst 
+     */
+    void MissionInstanceProxy::OnExecutingStageFinished(MissionTask* task, StageRst rst)
     {
         std::lock_guard<std::mutex> lck(_impl->_state_mutex);
         // 记录状态
@@ -258,22 +277,22 @@ namespace rsdk::mission
         }
     }
 
-    void MissionInstance::setId(const std::string& id)
+    void MissionInstanceProxy::setId(const std::string& id)
     {
         _impl->_id = id;
     }
 
-    const std::string& MissionInstance::id()
+    const std::string& MissionInstanceProxy::id()
     {
         return _impl->_id;
     }
 
-    InstanceState MissionInstance::state()
+    InstanceState MissionInstanceProxy::state()
     {
         return _impl->_state;
     }
 
-    void MissionInstance::setStateChangedCallback(const std::function<void (InstanceState)>& cb)
+    void MissionInstanceProxy::setStateChangedCallback(const std::function<void (InstanceState)>& cb)
     {
         _impl->_state_changed_cb =
         [this, cb](InstanceState state)
@@ -283,18 +302,18 @@ namespace rsdk::mission
         };
     }
 
-    bool MissionInstance::runSubTask(std::unique_ptr<SubMissionTask> task)
+    bool MissionInstanceProxy::runSubTask(std::unique_ptr<SubMissionTask> task)
     {
         return _impl->__run_task(std::move(task));
     }
 
-    bool MissionInstance::hasSubTask(const std::string& task_name)
+    bool MissionInstanceProxy::hasSubTask(const std::string& task_name)
     {
         std::lock_guard<std::mutex> lck(_impl->_task_map_mutex);
         return _impl->_sub_task_map.count(task_name);
     }
 
-    std::unique_ptr<MainMissionTask>& MissionInstance::mainTask()
+    std::unique_ptr<MainMissionTask>& MissionInstanceProxy::mainTask()
     {
         return _impl->_main_task;
     }

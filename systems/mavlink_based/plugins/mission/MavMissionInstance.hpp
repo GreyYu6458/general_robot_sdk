@@ -10,10 +10,14 @@ namespace mavsdk
     class MissionRaw;
 }
 
+/**
+ * @brief 委托内存的前置申明
+ * 
+ */
 class MavMissionDelegateMemory;
 
 /**
- * @brief 
+ * @brief 任务实例
  * 
  */
 class MavMissionInstance: public  rsdk::mission::waypoint::WPMInstancePlugin

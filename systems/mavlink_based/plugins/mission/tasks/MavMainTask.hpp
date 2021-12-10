@@ -4,7 +4,7 @@
  */
 #pragma once
 #include "p_rsdk/plugins/mission/MissionTask.hpp"
-#include <mavsdk/plugins/mission_raw/mission_raw.h>
+#include "../MAVCommonDef.hpp"
 
 class MavMissionInstance;
 

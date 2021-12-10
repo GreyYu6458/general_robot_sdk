@@ -8,6 +8,7 @@ namespace rsdk
     template<class T>
     class DelegateCreateHelp : public DelegateMemory
     {
+    public:
         template<typename... Args>
         std::shared_ptr<T> create(Args&&... args)
         {
