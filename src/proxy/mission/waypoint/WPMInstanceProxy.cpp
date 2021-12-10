@@ -147,6 +147,7 @@ namespace rsdk::mission::waypoint
         }
         else if(_event->type() == rsdk::event::mission::TaskEvent::event_type)
         {
+            system()->warning("task info");
             auto event = rsdk::event::REventCast<rsdk::event::mission::TaskEvent>(_event);
             // 处理主task事件
             if(event->payload().is_main_task)
