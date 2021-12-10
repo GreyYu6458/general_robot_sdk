@@ -35,7 +35,7 @@ namespace rsdk::mission
             );
         }
 
-        MissionInstanceProxy*                            _owner;
+        MissionInstanceProxy*                       _owner;
         std::string                                 _id;
         std::unique_ptr<MainMissionTask>            _main_task;
         TaskMap                                     _sub_task_map;
@@ -60,10 +60,9 @@ namespace rsdk::mission
             }
             else if (_state == InstanceState::FINISHED)
             {
-                if(_sub_task_map.size())
-                    return InstanceState::FINISHED_WITH_SUBTASK;
-                else
-                    return InstanceState::FINISHED;
+                return _sub_task_map.size() ? 
+                    InstanceState::FINISHED_WITH_SUBTASK:
+                    InstanceState::FINISHED;
             }
             return _state;
         }
@@ -233,12 +232,12 @@ namespace rsdk::mission
             _impl->subtaskStartHandle(task, rst);
         }
 
-        _impl->_state = _impl->real_state();
+        auto _state = _impl->real_state();
 
         // 如果状态改变, 调用回调
-        if(_impl->_last_state != _impl->_state && _impl->_state_changed_cb)
+        if(_impl->_last_state != _state && _impl->_state_changed_cb)
         {
-            _impl->_state_changed_cb(_impl->_state);
+            _impl->_state_changed_cb(_state);
         }
     }
 
