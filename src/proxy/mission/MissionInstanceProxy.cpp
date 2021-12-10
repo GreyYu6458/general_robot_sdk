@@ -54,6 +54,7 @@ namespace rsdk::mission
          */
         InstanceState real_state()
         {
+            std::lock_guard<std::mutex> lck(_task_map_mutex);
             if(_state == InstanceState::FAILED && _sub_task_map.size())
             {
                 return InstanceState::FAILED_WITH_SUBTASK;
