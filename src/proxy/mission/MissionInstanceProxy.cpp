@@ -58,11 +58,9 @@ namespace rsdk::mission
             {
                 return InstanceState::FAILED_WITH_SUBTASK;
             }
-            else if (_state == InstanceState::FINISHED)
+            else if (_state == InstanceState::FINISHED && _sub_task_map.size())
             {
-                return _sub_task_map.size() ? 
-                    InstanceState::FINISHED_WITH_SUBTASK:
-                    InstanceState::FINISHED;
+                return InstanceState::FINISHED_WITH_SUBTASK;
             }
             return _state;
         }
