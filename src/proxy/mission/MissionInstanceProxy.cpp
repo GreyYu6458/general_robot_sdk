@@ -31,7 +31,7 @@ namespace rsdk::mission
                 + _id + " State From "
                 + std::to_string(static_cast<uint16_t>(_last_state))
                 + " To "
-                + std::to_string(static_cast<uint16_t>(_state))
+                + std::to_string(static_cast<uint16_t>(state))
             );
         }
 
