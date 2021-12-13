@@ -35,6 +35,8 @@ target_link_libraries(
     mav_vehicle
     PUBLIC
     robot_sdk
+    jsoncpp
+    tinyxml2
     mavsdk
     mavsdk_action
     mavsdk_action_server
