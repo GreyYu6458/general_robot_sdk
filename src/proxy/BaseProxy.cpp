@@ -3,6 +3,7 @@
 #include "rsdk/system/RobotSystem.hpp"
 
 #include <mutex>
+#include <utility>
 #include <vector>
 
 
@@ -13,9 +14,9 @@ namespace rsdk
         friend class BaseProxy;
     public:
         Impl(
-            const std::shared_ptr<RobotSystem>& system,
-            const std::shared_ptr<BasePlugin>& plugin
-        ): _sys(system), _plugin(plugin)
+            std::shared_ptr<RobotSystem>  system,
+            std::shared_ptr<BasePlugin>  plugin
+        ): _sys(std::move(system)), _plugin(std::move(plugin))
         {
             if(_plugin)
             {

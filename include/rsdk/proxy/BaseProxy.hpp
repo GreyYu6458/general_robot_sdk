@@ -5,22 +5,22 @@
 #include "rsdk/proxy/Startable.hpp"
 #include "rsdk/robject/RObject.hpp"
 #include "rsdk/event/REvent.hpp"
-#include "p_rsdk/plugins/StateDelegation.hpp"
 
 namespace rsdk
 {
     class RobotSystem;
     class BasePlugin;
+    class DelegateMemory;
 
     class BaseProxy : public RObject, public Startable
     {
     public:
         explicit BaseProxy(
-            const std::shared_ptr<RobotSystem>&, 
+            const std::shared_ptr<RobotSystem>&,
             const std::shared_ptr<BasePlugin>&
         );
 
-        virtual ~BaseProxy();
+        ~BaseProxy() override;
 
         bool isLoaded();
 
