@@ -1,15 +1,16 @@
 #ifndef _DJI_PLUGIN_BASE_HPP_
 #define _DJI_PLUGIN_BASE_HPP_
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
+#include <utility>
 #include "DJIVehicleSystem.hpp"
 
 class DJIPluginBase
 {
 public:
-    DJIPluginBase(const std::shared_ptr<DJIVehicleSystem>& system)
-    : _dji_system(system){}
+    explicit DJIPluginBase(std::shared_ptr<DJIVehicleSystem>  system)
+    : _dji_system(std::move(system)){}
 
     virtual ~DJIPluginBase() = default;
 

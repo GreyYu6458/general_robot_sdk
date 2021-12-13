@@ -8,10 +8,10 @@ DJIWaypointV2Trigger STDWPInterpreter::createReachedTrigger(uint16_t waypoint_in
     DJIWaypointV2SampleReachPointTriggerParam reached_trigger;
     reached_trigger.waypointIndex = waypoint_index;
     reached_trigger.terminateNum = 0;
-    return DJIWaypointV2Trigger(
+    return DJIWaypointV2Trigger{
         DJIWaypointV2ActionTriggerTypeSampleReachPoint,
         &reached_trigger
-    );
+    };
 }
 
 DJIWaypointV2Trigger STDWPInterpreter::createAssociateTrigger(float wait_time /* unit:s */, uint16_t associate_action_index)
@@ -22,10 +22,10 @@ DJIWaypointV2Trigger STDWPInterpreter::createAssociateTrigger(float wait_time /*
     // sadly dji waiting time's unit is not second said in document, it is 0.1 second
     action_associated_trigger_param.waitingTime = static_cast<uint8_t>(wait_time * 10);
     // trigger
-    return DJIWaypointV2Trigger(
+    return DJIWaypointV2Trigger{
         DJIWaypointV2ActionTriggerTypeActionAssociated,
         &action_associated_trigger_param
-    );
+    };
 }
 
 DJIWaypointV2Actuator STDWPInterpreter::createAircraftControlActuator(bool isStartFlying)
@@ -37,19 +37,19 @@ DJIWaypointV2Actuator STDWPInterpreter::createAircraftControlActuator(bool isSta
         DJIWaypointV2ActionActuatorAircraftControlOperationTypeFlyingControl,
         &control_flying_param);
     // actuator
-    return DJIWaypointV2Actuator(
-        DJIWaypointV2ActionActuatorTypeAircraftControl,
-        0, &uav_control_param
-    );
+    return DJIWaypointV2Actuator{
+            DJIWaypointV2ActionActuatorTypeAircraftControl,
+            0, &uav_control_param
+    };
 }
 
 DJIWaypointV2Actuator STDWPInterpreter::createCameraControlActuator()
 {
     DJIWaypointV2CameraActuatorParam cameraActuatorParam(
         DJIWaypointV2ActionActuatorCameraOperationTypeTakePhoto, nullptr);
-    return DJIWaypointV2Actuator(
-        DJIWaypointV2ActionActuatorTypeCamera, 0, &cameraActuatorParam
-    );
+    return DJIWaypointV2Actuator{
+            DJIWaypointV2ActionActuatorTypeCamera, 0, &cameraActuatorParam
+    };
 }
 
 class STDWPInterpreter::Impl

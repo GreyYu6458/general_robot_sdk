@@ -62,7 +62,7 @@ template<> InterpretException STDWPInterpreter::_convert_item
         );
         dji_actions.push_back(action);
         
-        uint8_t last_wait_time = 
+        float last_wait_time =
             context().wait_time_info.wait_time > default_wait_time ? 
             context().wait_time_info.wait_time - default_wait_time : 0;
 

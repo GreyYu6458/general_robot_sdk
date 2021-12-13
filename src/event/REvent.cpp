@@ -8,7 +8,7 @@ namespace rsdk::event
     class BaseREvent::Impl
     {
     public:
-        Impl(uint64_t _type)
+        explicit Impl(uint64_t _type)
         :   type(_type)
         {
             using namespace ::std::chrono;
@@ -17,11 +17,8 @@ namespace rsdk::event
 
         std::atomic<bool> is_ignore{false};
         uint64_t type;
-        int64_t system_time;
+        int64_t system_time{0};
         int64_t host_time;
-        uint64_t  id;
-        uint32_t gid;
-        uint32_t sid;
     };
 
     BaseREvent::BaseREvent(uint64_t _type)

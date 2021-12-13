@@ -7,7 +7,7 @@
 class DJICameraManager::Impl
 {
 public:
-    Impl(DJIVehicleSystem* system)
+    explicit Impl(DJIVehicleSystem* system)
     : _system(system)
     {
 
@@ -20,9 +20,9 @@ public:
         std::vector<const DJIMediaFile*> _new_file_list;
     };
 
-    static void cameraFileReponse(E_OsdkStat ret_code, const FilePackage file_list, void* userData)
+    static void cameraFileReponse(E_OsdkStat ret_code, FilePackage file_list, void* userData)
     {
-        FileSyncBlock* file_sync_block = (FileSyncBlock*)userData;
+        auto* file_sync_block = (FileSyncBlock*)userData;
 
         if(ret_code != ErrorCode::SysCommonErr::Success)
         {
@@ -55,7 +55,7 @@ public:
     {
         ErrorCode::ErrorCodeType ret;
         ret = _system->vehicle()->cameraManager->initCameraModule(PAYLOAD_INDEX_0,"dji_camera_index_0");
-        return ret == ErrorCode::SysCommonErr::Success ? syncCameraFile() : false;
+        return ret == ErrorCode::SysCommonErr::Success && syncCameraFile();
     }
 
     bool syncCameraFile()

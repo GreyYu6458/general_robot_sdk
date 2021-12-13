@@ -10,7 +10,7 @@ namespace rsdk::mission::waypoint
     class WPMInstanceProxy::Impl
     {
     public:
-        Impl(WPMInstanceProxy* owner)
+        explicit Impl(WPMInstanceProxy* owner)
         {
             _owner = owner;
         }
@@ -22,7 +22,7 @@ namespace rsdk::mission::waypoint
          * @return true 
          * @return false 
          */
-        bool addPhotoTask()
+        bool addPhotoTask() const
         {
             if(_owner->hasSubTask(PhotoDownloadTask::task_name()))
             {
@@ -42,7 +42,7 @@ namespace rsdk::mission::waypoint
             return true;
         }
 
-        void handleMainTaskEvent(MissionTask* task, StageRst rst)
+        void handleMainTaskEvent(MissionTask* task, const StageRst& rst) const
         {
             if(!_photo_event_not_handle)
                 return;
@@ -50,7 +50,7 @@ namespace rsdk::mission::waypoint
             addPhotoTask();
         }
 
-        void handleSubtaskEvent(MissionTask* task, StageRst rst)
+        void handleSubtaskEvent(MissionTask* task, const StageRst& rst) const
         {
             if(!_photo_event_not_handle)
                 return;
@@ -60,7 +60,7 @@ namespace rsdk::mission::waypoint
         }
 
         WPMInstanceProxy*   _owner;
-        std::string         _media_download_path{""};
+        std::string         _media_download_path;
         bool                _photo_event_not_handle{false};
     };
 

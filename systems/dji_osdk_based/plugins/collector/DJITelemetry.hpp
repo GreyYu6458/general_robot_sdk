@@ -137,7 +137,7 @@ public:
 
     static void messageUnpackCallback(const pkg_msg_type& elem, void* user_data)
     {
-        self_type* obj = (self_type*)user_data;
+        auto* obj = (self_type*)user_data;
 
         obj->convert(elem);
     }

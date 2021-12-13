@@ -7,7 +7,7 @@ class DJIVehicleSystem;
 class DJIEventWrapper
 {
 public:
-    DJIEventWrapper(DJIWPMInstance* instance);
+    explicit DJIEventWrapper(DJIWPMInstance* instance);
 
     ~DJIEventWrapper();
 

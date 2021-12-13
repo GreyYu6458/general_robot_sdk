@@ -3,8 +3,6 @@
 #include "DJIFlightStatus.hpp"
 #include "DJIAttitude.hpp"
 #include "DJIAvoid.hpp"
-#include "DJIFlightStatus.hpp"
-#include <iostream>
 #include <cmath>
 
 #define DJITelemetryDefine(class_name, interface_name, base_type_name_space) \

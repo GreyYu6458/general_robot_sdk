@@ -61,8 +61,8 @@ private:
         );
         // not support this model of dji
         
-        int8_t vehicle_model        = static_cast<int8_t>(_owner->model());
-        int8_t plugin_model         = static_cast<int8_t>(impl->supportModel());
+        auto vehicle_model          = static_cast<int8_t>(_owner->model());
+        auto plugin_model           = static_cast<int8_t>(impl->supportModel());
         int8_t is_support_plugin    = vehicle_model & plugin_model;
 
         if(!is_support_plugin)
@@ -259,8 +259,7 @@ bool DJIVehicleSystem::tryLink(const rsdk::SystemConfig &config)
 
     auto rst = _impl->link(config);
 
-    if(rst == false)
-        return rst;
+    if(!rst) return rst;
 
     bool camera_init_ret{false};
 

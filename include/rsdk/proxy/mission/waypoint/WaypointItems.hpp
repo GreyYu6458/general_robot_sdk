@@ -12,11 +12,11 @@ namespace rsdk::mission::waypoint
 
         WaypointItems(const WaypointItems&);
 
-        WaypointItems(WaypointItems&&);
+        WaypointItems(WaypointItems&&) noexcept ;
 
         WaypointItems& operator=(const WaypointItems&);
 
-        WaypointItems& operator=(WaypointItems&&);
+        WaypointItems& operator=(WaypointItems&&) noexcept ;
 
         virtual ~WaypointItems();
 

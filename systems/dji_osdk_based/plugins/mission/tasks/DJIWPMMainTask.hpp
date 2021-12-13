@@ -9,7 +9,7 @@ class DJIWPMMainTask : public rsdk::mission::MainMissionTask
 public:
     DJIWPMMainTask(DJIWPMInstance*, DJIWPMission* mission);
 
-    virtual ~DJIWPMMainTask();
+    ~DJIWPMMainTask() override;
 
     /**
      * @brief 提示该task,任务终止

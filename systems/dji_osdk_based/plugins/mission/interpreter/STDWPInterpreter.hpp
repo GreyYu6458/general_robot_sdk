@@ -50,13 +50,13 @@ public:
      * @param waypoint_index 
      * @return DJIWaypointV2Trigger 
      */
-    DJI::OSDK::DJIWaypointV2Trigger    createReachedTrigger(uint16_t waypoint_index);
+    static DJI::OSDK::DJIWaypointV2Trigger    createReachedTrigger(uint16_t waypoint_index);
     
     /**
      * @brief 构建关联触发器
      * 
      */
-    DJI::OSDK::DJIWaypointV2Trigger    createAssociateTrigger(float wait_time /* unit:s */, uint16_t associate_action_index);
+    static DJI::OSDK::DJIWaypointV2Trigger    createAssociateTrigger(float wait_time /* unit:s */, uint16_t associate_action_index);
 
     /**
      * @brief 构建一个飞机控制器
@@ -64,14 +64,14 @@ public:
      * @param isStartFlying 
      * @return DJIWaypointV2Actuator 
      */
-    DJI::OSDK::DJIWaypointV2Actuator   createAircraftControlActuator(bool isStartFlying);
+    static DJI::OSDK::DJIWaypointV2Actuator   createAircraftControlActuator(bool isStartFlying);
 
     /**
      * @brief 构建一个相机控制器
      * 
      * @return DJIWaypointV2Actuator 
      */
-    DJI::OSDK::DJIWaypointV2Actuator   createCameraControlActuator();
+    static DJI::OSDK::DJIWaypointV2Actuator   createCameraControlActuator();
 
 protected:
 

@@ -65,7 +65,7 @@ namespace rsdk
 
         std::thread                             _queue_thread;
 
-        std::atomic<bool>                       _thread_quit;
+        std::atomic<bool>                       _thread_quit{false};
 
         std::condition_variable                 _cv;
 

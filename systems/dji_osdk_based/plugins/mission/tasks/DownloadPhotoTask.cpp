@@ -3,19 +3,14 @@
 #include "plugins/mission/DJIDelegateMemory.hpp"
 #include "../exif.h"
 #include "p_rsdk/tools/math/haversine.h"
-#include <boost/format.hpp>
 #include <dji_vehicle.hpp>
-#include <unordered_set>
 #include <future>
-#include <stdio.h>
-#include <sstream>
-#include <iomanip>
+#include <cstdio>
 #include <cmath>
-#include <regex>
 #include <limits>
 
 // DJI_20211014173902_0050_WIDE.jpg
-static std::regex photo_name_pettern("DJI_(.*?)_(.*?)_(.*?).jpg");
+// static std::regex photo_name_pettern("DJI_(.*?)_(.*?)_(.*?).jpg");
 
 class DJIDownloadPhotoTask::Impl
 {
@@ -85,7 +80,7 @@ public:
      */
     static void fileDownloadReponse(E_OsdkStat ret_code, void* userData)
     {
-        FileDownloadBlock* block = (FileDownloadBlock*)(userData);
+        auto* block = (FileDownloadBlock*)(userData);
         try
         {
             block->_success_promise.set_value(ret_code == ErrorCode::SysCommonErr::Success);
@@ -104,7 +99,7 @@ public:
      * @return true 
      * @return false 
      */
-    bool loadExif(const std::string& photo_path, easyexif::EXIFInfo& info)
+    bool loadExif(const std::string& photo_path, easyexif::EXIFInfo& info) const
     {
         FILE* fp = fopen(photo_path.c_str(), "rb");
         if(!fp)
@@ -115,7 +110,7 @@ public:
         fseek(fp, 0, SEEK_END);
         unsigned long fsize = ftell(fp);
         rewind(fp);
-        unsigned char* buf = new unsigned char[fsize];
+        auto* buf = new unsigned char[fsize];
         if(fread(buf, 1, fsize, fp) != fsize)
         {
             instance->system()->error("could not alloc memory for photo:"+ photo_path);
@@ -190,13 +185,13 @@ public:
     }
     */
     // TODO 目前会匹配所有的航点(虽然大概也慢不到哪去，但考虑到性能较差的硬件)，之后可以考虑引入滑动窗口法，让算法只匹配附近的航点
-    uint32_t compareByLocation(const std::string& photo_path, const easyexif::EXIFInfo& result)
+    [[nodiscard]] uint32_t compareByLocation(const std::string& photo_path, const easyexif::EXIFInfo& result) const
     {
         auto& photo_location    = result.GeoLocation;
         auto& delegate_memory   = instance->currentDelegateMemory();
         
         double min_distance     = std::numeric_limits<double>::max();
-        sensor_msg::Coordinate min_point;
+        sensor_msg::Coordinate min_point{};
         uint32_t item_index     = std::numeric_limits<uint32_t>::max();
         for(const auto& position_index_pair : delegate_memory->dji_photo_point)
         {   
@@ -257,7 +252,7 @@ public:
      * @param photo_path 
      * @return uint32_t 
      */
-    uint32_t photo_match(const std::string& photo_path)
+    [[nodiscard]] uint32_t photo_match(const std::string& photo_path) const
     {
         easyexif::EXIFInfo result;
         if(!loadExif(photo_path, result))
@@ -296,7 +291,6 @@ public:
             /********************* 开始下载 *********************/
             instance->system()->info("Start Downloading File :" + file_ptr->name);
             rsdk::event::mission::SavedPhotoInfo info;
-            bool download_rst{false};
                 
             dji_vehicle->cameraManager->setModeSync(
                 DJI::OSDK::PAYLOAD_INDEX_0,
@@ -323,22 +317,22 @@ public:
 
             info.file_path = save_path + file_ptr->name;
             instance->system()->info("Start Downloading" + info.file_path);
-            ret = dji_vehicle->cameraManager->startReqFileData(
-                DJI::OSDK::PAYLOAD_INDEX_0,
-                file_ptr->index,
-                info.file_path,
-                &Impl::fileDownloadReponse,
-                (void*)&download_block
+            dji_vehicle->cameraManager->startReqFileData(
+                    DJI::OSDK::PAYLOAD_INDEX_0,
+                    file_ptr->index,
+                    info.file_path,
+                    &Impl::fileDownloadReponse,
+                    (void *) &download_block
             );
                 
             auto status = future.wait_for(std::chrono::seconds(10));
             if(status == std::future_status::timeout)
             {
-                _file_download_promise.set_value(10);
+                _file_download_promise.set_value(true);
                 std::this_thread::sleep_for(std::chrono::seconds(3));
             }
 
-            download_rst = future.get();
+            bool download_rst = future.get();
             instance->system()->info("Finish Downloading" + info.file_path);
             /********************* 下载结束 *********************/
             if(download_rst)
@@ -389,9 +383,7 @@ public:
         return rst;
     }
 
-    std::mutex                          _file_download_mutex;
     DJIDownloadPhotoTask*               _owner;
-    std::condition_variable             _file_download_cv;
     std::vector<const DJIMediaFile *>   files_ready_to_download;
     DJIWPMInstance*                     instance;
 };

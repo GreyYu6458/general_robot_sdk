@@ -11,9 +11,9 @@ class DJIVideoStream : public rsdk::camera::VideoStreamPlugin,
                        public DJIPluginBase
 {
 public:
-   DJIVideoStream(const std::shared_ptr<DJIVehicleSystem> &system);
+   explicit DJIVideoStream(const std::shared_ptr<DJIVehicleSystem> &system);
 
-   ~DJIVideoStream();
+   ~DJIVideoStream() override;
 
    bool start() override;
 

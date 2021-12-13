@@ -9,7 +9,6 @@
 
 #include <mutex>
 #include <atomic>
-#include <iostream>
 
 namespace rsdk
 {

@@ -23,7 +23,7 @@ namespace rsdk::mission::waypoint
     {
     }
 
-    WaypointItems::WaypointItems(WaypointItems&& other)
+    WaypointItems::WaypointItems(WaypointItems&& other) noexcept
     {
         _impl = new Impl(std::move(*other._impl));
     }
@@ -34,7 +34,7 @@ namespace rsdk::mission::waypoint
         return *this;
     }
 
-    WaypointItems& WaypointItems::operator=(WaypointItems&& other)
+    WaypointItems& WaypointItems::operator=(WaypointItems&& other) noexcept
     {
         *_impl = std::move(*other._impl);
         return *this;

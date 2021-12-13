@@ -1,5 +1,5 @@
 #include "p_rsdk/tools/math/haversine.h"
-#include <math.h>
+#include <cmath>
 
 #define M_PI			3.14159265358979323846
 #define D2R 			M_PI / 180;

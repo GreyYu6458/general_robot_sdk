@@ -1,11 +1,6 @@
 #include "DJIWPMission.hpp"
-#include "DJIVehicleSystem.hpp"
-
-#include <cmath>
 #include <vector>
 #include <unordered_map>
-#include <dji_vehicle.hpp>
-#include <iostream>
 
 class DJIWPMission::Impl
 {
@@ -39,14 +34,14 @@ DJIWPMission::DJIWPMission(const DJIWPMission& other)
     _impl = new Impl(*other._impl);
 }
 
-DJIWPMission::DJIWPMission(DJIWPMission&& other)
+DJIWPMission::DJIWPMission(DJIWPMission&& other) noexcept
 {
     _impl = new Impl(std::move(*other._impl));
 }
 
 DJIWPMission& DJIWPMission::operator=(const DJIWPMission& other)
 {
-    *this->_impl = *other._impl;   
+    *this->_impl = *other._impl;
     return *this;
 }
 
@@ -83,14 +78,14 @@ void DJIWPMission::clear()
 
 bool DJIWPMission::eventType(size_t action_id, DJIActionEvent& dji_action_event)
 {
-    return _impl->_action_map.count(action_id) ? 
-        dji_action_event = _impl->_action_map[action_id], true : false;
+    return _impl->_action_map.count(action_id) != 0 &&
+        (dji_action_event = _impl->_action_map[action_id], true);
 }
 
 bool DJIWPMission::wpIndex2Sequence(uint32_t wp_index, uint32_t& sequence)
 {
-    return _impl->_wp_index_seq_list.size() > wp_index ?
-        sequence = _impl->_wp_index_seq_list[wp_index], true : false;
+    return _impl->_wp_index_seq_list.size() > wp_index &&
+        (sequence = _impl->_wp_index_seq_list[wp_index], true);
 }
 
 bool DJIWPMission::isValid()

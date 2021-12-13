@@ -21,11 +21,13 @@ namespace rsdk
 
     SystemConfig::SystemConfig(const SystemConfig& other)
     {
+        _impl = new Impl();
         this->_impl->_method_map = other._impl->_method_map;
     }
 
-    SystemConfig::SystemConfig(SystemConfig&& other)
+    SystemConfig::SystemConfig(SystemConfig&& other) noexcept
     {
+        _impl = new Impl();
         this->_impl->_method_map = std::move(other._impl->_method_map);
     }
 
@@ -35,7 +37,7 @@ namespace rsdk
         return *this;
     }
 
-    SystemConfig& SystemConfig::operator=(SystemConfig&& other)
+    SystemConfig& SystemConfig::operator=(SystemConfig&& other) noexcept
     {
         this->_impl->_method_map = std::move(other._impl->_method_map);
         return *this;

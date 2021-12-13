@@ -7,9 +7,9 @@ class DJICameraControl :    public rsdk::camera::CameraControlPlugin,
                             public DJIPluginBase
 {
 public:
-    DJICameraControl(const std::shared_ptr<DJIVehicleSystem> &system);
+    explicit DJICameraControl(const std::shared_ptr<DJIVehicleSystem> &system);
 
-    ~DJICameraControl();
+    ~DJICameraControl() override;
 
     bool setZoomFactorSync(float factor, uint8_t second) override;
 

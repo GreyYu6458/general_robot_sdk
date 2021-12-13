@@ -10,7 +10,7 @@ namespace rsdk::camera
     public:
         std::function<void (uint8_t* data, size_t len)> _data_call_back;
 
-        inline void onStreamData(uint8_t* data, size_t len)
+        inline void onStreamData(uint8_t* data, size_t len) const
         {
             _data_call_back(data, len);
         }

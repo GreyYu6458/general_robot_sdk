@@ -15,7 +15,7 @@ public:
         _message.each_cell = {{},{}};
     }
 
-    BatteryWholeInfo        _batteryWholeInfo;
+    // BatteryWholeInfo        _batteryWholeInfo;
     std::thread             _bg_thread;
     sensor_msg::BatteryInfo _message; // 
     std::atomic<bool>       _should_exit{false};
@@ -88,5 +88,5 @@ void DJIBatteryWrapper::collect()
 
 void DJIBatteryWrapper::exec()
 {
-    std::thread( std::bind(&DJIBatteryWrapper::collect, this) ).swap(_impl->_bg_thread);
+    std::thread( [this] { collect(); } ).swap(_impl->_bg_thread);
 }

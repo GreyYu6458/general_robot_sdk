@@ -22,7 +22,7 @@ class DJIFlightStatus
         public dji::flight_status::BaseType
 {
 public:
-    DJIFlightStatus(const std::shared_ptr<DJIVehicleSystem>& system);
+    explicit DJIFlightStatus(const std::shared_ptr<DJIVehicleSystem>& system);
 
     void convert(const DJIFlightStatus::pkg_msg_type& data);
 

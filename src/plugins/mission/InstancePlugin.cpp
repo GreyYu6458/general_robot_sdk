@@ -13,8 +13,6 @@ namespace rsdk::mission
     {
     }
 
-    InstancePlugin::~InstancePlugin()
-    {
-    }
+    InstancePlugin::~InstancePlugin() = default;
 
 }

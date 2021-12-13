@@ -21,7 +21,7 @@ public:
      * @brief Destroy the Mav Based Vehicle System object
      * 
      */
-    ~MavBasedVehicleSystem();
+    ~MavBasedVehicleSystem() override;
 
     /**
      * @brief 设备的生产商信息

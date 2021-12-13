@@ -13,7 +13,9 @@ public:
 
     void startLaunch(rsdk::mission::StageRst& rst)
     {
+        auto& current_context = _instance->currentDelegateMemory();
 
+        
     }
 
     void waitForMissionFinished()

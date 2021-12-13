@@ -21,7 +21,7 @@ class DJIGPSTime
     : public dji::gps_time::BaseType
 {
 public:
-    DJIGPSTime(const std::shared_ptr<DJIVehicleSystem>& system);
+    explicit DJIGPSTime(const std::shared_ptr<DJIVehicleSystem>& system);
 
     void convert(const DJIGPSTime::pkg_msg_type& data);
 };

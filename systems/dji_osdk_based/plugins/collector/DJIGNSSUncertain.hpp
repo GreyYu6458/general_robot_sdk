@@ -22,7 +22,7 @@ class DJIGNSSUncertain
     : public dji::gnss_uncertain::BaseType, public rsdk::collector::GNSSUncertainInfoPlugin
 {
 public:
-    DJIGNSSUncertain(const std::shared_ptr<DJIVehicleSystem>& system);
+    explicit DJIGNSSUncertain(const std::shared_ptr<DJIVehicleSystem>& system);
 
     void convert(const DJIGNSSUncertain::pkg_msg_type& data);
 

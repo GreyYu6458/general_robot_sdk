@@ -5,13 +5,9 @@
 #include <dji_vehicle.hpp>
 
 #include <cstdlib>
-#include <memory>
 #include <cmath>
-#include <string.h>
+#include <cstring>
 #include <chrono>
-#include <iomanip>
-#include <iostream>
-#include "p_rsdk/tools/platfrom/timestamp.hpp"
 
 #define HEXDIGIT_CHAR(d) ((char)((d) + (((d) < 0xA) ? '0' : 'A'-0xA)))
 
@@ -147,7 +143,7 @@ public:
     {
 		using namespace std::chrono;
 
-        SystemHardSync::Impl* impl = (SystemHardSync::Impl*)(userData);
+        auto* impl = (SystemHardSync::Impl*)(userData);
 
         int length = recvFrame.recvInfo.len - OpenProtocol::PackageMin - 4;
 		

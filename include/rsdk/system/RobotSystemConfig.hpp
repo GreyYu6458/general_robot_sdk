@@ -18,16 +18,16 @@ namespace rsdk
         SystemConfig& operator=(const SystemConfig&);
 
         // allow move
-        SystemConfig(SystemConfig&&);
+        SystemConfig(SystemConfig&&) noexcept;
 
-        SystemConfig& operator=(SystemConfig&&);
+        SystemConfig& operator=(SystemConfig&&) noexcept;
 
         ~SystemConfig();
 
         template<class T>
         bool addParameter(const std::string& key, T&& value)
         {
-            return !isExist(key) ? setValue(key, value), true : false;
+            return !isExist(key) && (setValue(key, value), true);
         }
 
         template<class T>
@@ -40,11 +40,11 @@ namespace rsdk
     protected:
         using value_type = std::any;
 
-        bool isExist(const std::string&) const;
+        [[nodiscard]] bool isExist(const std::string&) const;
 
         void setValue(const std::string&, const value_type&);
 
-        const value_type& getValue(const std::string&) const;
+        [[nodiscard]] const value_type& getValue(const std::string&) const;
 
     private:
         class Impl;

@@ -17,7 +17,7 @@ public:
 
     DJIWPMission(const DJIWPMission&);
 
-    DJIWPMission(DJIWPMission&&);
+    DJIWPMission(DJIWPMission&&) noexcept ;
 
     DJIWPMission& operator=(const DJIWPMission&);
 

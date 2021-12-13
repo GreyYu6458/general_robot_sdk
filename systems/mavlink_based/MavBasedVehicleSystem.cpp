@@ -16,7 +16,7 @@ const char* opt_key[static_cast<uint32_t>(rsdk::LinkMethodType::COUNT)] =
 class MavBasedVehicleSystem::Impl
 {
 public:
-    Impl(MavBasedVehicleSystem* owner)
+    explicit Impl(MavBasedVehicleSystem* owner)
     {
         _owner = owner;
     }
@@ -70,7 +70,7 @@ public:
     MavBasedVehicleSystem*                  _owner;
     std::shared_ptr<mavsdk::System>         _mavsdk_system;
     rsdk::SystemConfig                      _config;
-    std::string                             _unique_code{""};
+    std::string                             _unique_code;
 
 private:
 
@@ -78,8 +78,8 @@ private:
     typename std::enable_if< (E  < rsdk::LinkMethodType::COUNT), bool >::type
     addConnection(const rsdk::SystemConfig& config)
     {
-        return  add_connection<E>(config) ? true : 
-        addConnection< static_cast<rsdk::LinkMethodType>(static_cast<uint32_t>(E) + 1)>(config);
+        return add_connection<E>(config) ||
+               addConnection<static_cast<rsdk::LinkMethodType>(static_cast<uint32_t>(E) + 1)>(config);
     }
 
     template<rsdk::LinkMethodType E>
@@ -89,7 +89,7 @@ private:
         return false;
     }
 
-    std::string getUniqueID()
+    std::string getUniqueID() const
     {
         auto max_retry_time = 5;
         auto system_info    = mavsdk::Info(_mavsdk_system);

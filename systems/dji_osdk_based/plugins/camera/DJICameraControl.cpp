@@ -8,7 +8,7 @@
 class DJICameraControl::Impl
 {
 public:
-    Impl(const std::shared_ptr<DJIVehicleSystem> &system)
+    explicit Impl(const std::shared_ptr<DJIVehicleSystem> &system)
     {
         _system = system;
         _camera_manager = _system->vehicle()->cameraManager;

@@ -7,7 +7,7 @@ class DJIBatteryWrapper
     : public rsdk::collector::BatteryPlugin, public DJIPluginBase
 {
 public:
-    DJIBatteryWrapper(const std::shared_ptr<DJIVehicleSystem>& system);
+    explicit DJIBatteryWrapper(const std::shared_ptr<DJIVehicleSystem>& system);
 
     ~DJIBatteryWrapper() override;
 

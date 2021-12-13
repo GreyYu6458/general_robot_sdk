@@ -17,7 +17,7 @@ public:
      * @brief Destroy the DJIDownloadPhotoTask object
      * 
      */
-    virtual ~DJIDownloadPhotoTask();
+    ~DJIDownloadPhotoTask() override;
 
 
     void notifyMissionFinish(const rsdk::mission::StageRst& rst) override;

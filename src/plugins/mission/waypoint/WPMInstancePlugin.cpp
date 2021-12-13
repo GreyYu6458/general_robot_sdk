@@ -7,7 +7,7 @@ namespace rsdk::mission::waypoint
     class PhotoDownloadTask::Impl
     {
     public:
-        std::string     _media_download_path{""};
+        std::string     _media_download_path;
     };
 
     const char* PhotoDownloadTask::task_name()

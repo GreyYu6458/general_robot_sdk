@@ -22,15 +22,16 @@ public:
     {
         _owner = owner;
         _system = system;
-        _dji_mission_operator = _system->vehicle()->waypointV2Mission;
+        _dji_mission_operator           = _system->vehicle()->waypointV2Mission;
+        _standard_waypoint_interpreter  = new STDWPInterpreter(_owner);
+        _event_wrapper                  = new DJIEventWrapper(_owner);
+        _event_wrapper->startListeningDJILowLayerEvent();
     }
 
     ~Impl()
     {
-        if(_event_wrapper)
-            delete _event_wrapper;
-        if(_standard_waypoint_interpreter)
-            delete _standard_waypoint_interpreter;
+        delete _event_wrapper;
+        delete _standard_waypoint_interpreter;
     }
 
     static std::string djiRet2String(DJI::OSDK::ErrorCode::ErrorCodeType code)
@@ -56,9 +57,6 @@ DJIWPMInstance::DJIWPMInstance(
 ) : rsdk::mission::waypoint::WPMInstancePlugin(system), DJIPluginBase(system)
 {
     _impl = new Impl(this, system);
-    _impl->_standard_waypoint_interpreter = new STDWPInterpreter(this);
-    _impl->_event_wrapper = new DJIEventWrapper(this);
-    _impl->_event_wrapper->startListeningDJILowLayerEvent();
 }
 
 DJIWPMInstance::~DJIWPMInstance()

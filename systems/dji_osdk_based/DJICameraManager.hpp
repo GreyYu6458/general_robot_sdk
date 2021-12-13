@@ -6,11 +6,6 @@
 
 class DJIVehicleSystem;
 
-namespace DJI::OSDK
-{
-    class MediaFile;
-}
-
 /**
  * @brief 文件类型，目前只记录JPG和其他
  * 
@@ -53,7 +48,7 @@ using DJIMediaSet = std::unordered_set<DJIMediaFile, DJIMediaHash, DJIMediaEqual
 class DJICameraManager
 {
 public:
-    DJICameraManager(DJIVehicleSystem*);
+    explicit DJICameraManager(DJIVehicleSystem*);
 
     ~DJICameraManager();
 

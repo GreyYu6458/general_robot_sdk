@@ -16,12 +16,12 @@ namespace rsdk::mission
     class MissionInstanceProxy::Impl
     {
     public:
-        Impl(MissionInstanceProxy* owner)
+        explicit Impl(MissionInstanceProxy* owner)
         {
             _owner  = owner;
             _system = _owner->system();
             // set default callback
-            _state_changed_cb = std::bind(&Impl::default_state_changed_cb, this, std::placeholders::_1);
+            _state_changed_cb = [this](auto && PH1){ default_state_changed_cb(std::forward<decltype(PH1)>(PH1)); };
         }
 
         void default_state_changed_cb(InstanceState state)
@@ -55,15 +55,15 @@ namespace rsdk::mission
         InstanceState real_state()
         {
             std::lock_guard<std::mutex> lck(_task_map_mutex);
-            if(_state == InstanceState::FAILED && _sub_task_map.size())
+            if(_state == InstanceState::FAILED && !_sub_task_map.empty())
             {
                 return InstanceState::FAILED_WITH_SUBTASK;
             }
-            else if (_state == InstanceState::FINISHED && _sub_task_map.size())
+            else if (_state == InstanceState::FINISHED && !_sub_task_map.empty())
             {
                 return InstanceState::FINISHED_WITH_SUBTASK;
             }
-            else if(_state == InstanceState::FINISHED_WITH_SUBTASK && !_sub_task_map.size())
+            else if(_state == InstanceState::FINISHED_WITH_SUBTASK && _sub_task_map.empty())
             {
                 return InstanceState::FINISHED;
             }
@@ -75,7 +75,7 @@ namespace rsdk::mission
          * 
          * @param rst 
          */
-        void mainTaskStartHandle(MissionTask* task, StageRst rst)
+        void mainTaskStartHandle(MissionTask* task, const StageRst& rst)
         {
             using namespace rsdk::event::mission;
 
@@ -107,7 +107,7 @@ namespace rsdk::mission
          * 
          * @param rst 
          */
-        void subtaskStartHandle(MissionTask* task, StageRst rst)
+        void subtaskStartHandle(MissionTask* task, const StageRst& rst)
         {
             if(rst.type != StageRstType::SUCCESS)
             {
@@ -130,7 +130,7 @@ namespace rsdk::mission
          * @param task 
          * @param rst 
          */
-        void mainTaskExecutingHandle(MissionTask* task, StageRst rst)
+        void mainTaskExecutingHandle(MissionTask* task, const StageRst& rst)
         {
             using namespace rsdk::event::mission;
             auto event = rsdk::event::REventPtr();
@@ -163,7 +163,7 @@ namespace rsdk::mission
          * @param task 
          * @param rst 
          */
-        void subtaskExecutingHandle(MissionTask* task, StageRst rst)
+        void subtaskExecutingHandle(MissionTask* task, const StageRst& rst)
         {
             using namespace rsdk::event::mission;
 
@@ -184,7 +184,7 @@ namespace rsdk::mission
          * @return true 
          * @return false 
          */
-        bool __run_task(std::unique_ptr<MissionTask> task)
+        bool _run_task(std::unique_ptr<MissionTask> task)
         {
             std::lock_guard<std::mutex> lck(_task_map_mutex);
             const std::string& name = task->taskName();
@@ -301,7 +301,7 @@ namespace rsdk::mission
 
     bool MissionInstanceProxy::runSubTask(std::unique_ptr<SubMissionTask> task)
     {
-        return _impl->__run_task(std::move(task));
+        return _impl->_run_task(std::move(task));
     }
 
     bool MissionInstanceProxy::hasSubTask(const std::string& task_name)

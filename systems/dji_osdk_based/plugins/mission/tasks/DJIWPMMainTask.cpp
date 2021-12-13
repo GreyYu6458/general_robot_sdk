@@ -30,7 +30,7 @@ public:
         return std::string("ErrorMsg:") + msg.errorMsg + ";ModuleMsg:" + msg.moduleMsg + ";SolutionMsg:" + msg.solutionMsg;
     }
 
-    void startLaunch(rsdk::mission::StageRst& rst)
+    void startLaunch(rsdk::mission::StageRst& rst) const
     {
         using namespace DJI::OSDK;
         auto& current_context = instance->currentDelegateMemory();
@@ -139,7 +139,7 @@ DJIWPMMainTask::DJIWPMMainTask(DJIWPMInstance* instance, DJIWPMission* mission)
 DJIWPMMainTask::~DJIWPMMainTask()
 {
     delete _impl;
-}   
+}
 
 rsdk::mission::StageRst DJIWPMMainTask::start_stage()
 {

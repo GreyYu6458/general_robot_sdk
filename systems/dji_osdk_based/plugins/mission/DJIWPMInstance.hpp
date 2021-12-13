@@ -18,7 +18,7 @@ public:
      * @param system 
      * @param dji_mission 
      */
-    DJIWPMInstance(
+    explicit DJIWPMInstance(
         const std::shared_ptr<DJIVehicleSystem>& system
     );
 
@@ -26,7 +26,7 @@ public:
      * @brief Destroy the DJIWPMInstance object
      * 
      */
-    virtual ~DJIWPMInstance();
+    ~DJIWPMInstance() override;
 
     /**
      * @brief Get the Photo Download Task object

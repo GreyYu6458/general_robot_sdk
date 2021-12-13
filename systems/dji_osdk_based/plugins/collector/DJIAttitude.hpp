@@ -20,7 +20,7 @@ class DJIAttitude
     : public dji::attitude::BaseType, public rsdk::collector::AttitudePlugin
 {
 public:
-    DJIAttitude(const std::shared_ptr<DJIVehicleSystem>& system);
+    explicit DJIAttitude(const std::shared_ptr<DJIVehicleSystem>& system);
 
     void convert(const DJIAttitude::pkg_msg_type& data);
 

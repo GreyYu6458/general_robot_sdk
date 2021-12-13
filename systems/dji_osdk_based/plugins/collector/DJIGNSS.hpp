@@ -27,7 +27,7 @@ class DJIGNSSReceiver
     : public dji::gnss::BaseType, public rsdk::collector::GNSSReceiverPlugin
 {
 public:
-    DJIGNSSReceiver(const std::shared_ptr<DJIVehicleSystem>& system);
+    explicit DJIGNSSReceiver(const std::shared_ptr<DJIVehicleSystem>& system);
 
     void convert(const DJIGNSSReceiver::pkg_msg_type& data);
 
