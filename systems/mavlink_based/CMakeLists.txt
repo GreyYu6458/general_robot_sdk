@@ -36,7 +36,11 @@ target_link_libraries(
     PUBLIC
     robot_sdk
     mavsdk
+    mavsdk_action
     mavsdk_info
+    mavsdk_telemetry
+    mavsdk_mission
+    mavsdk_mission_raw
     mavsdk_mavlink_passthrough
     boost_thread
     pthread
