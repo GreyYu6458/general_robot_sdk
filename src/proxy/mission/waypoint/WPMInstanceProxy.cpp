@@ -22,17 +22,22 @@ namespace rsdk::mission::waypoint
          * @return true 
          * @return false 
          */
-        bool addPhotoTask() const
+        bool addPhotoTask()
         {
             if(_owner->hasSubTask(PhotoDownloadTask::task_name()))
             {
                 _owner->system()->warning("There is a photo download task already exist");
+                _photo_event_not_handle = true;
                 return false;
             }
             // 新建一个下载任务
             auto task = _owner->PLUGIN->getPhotoDownloadTask();
                 
-            if(task == nullptr) return false;
+            if(task == nullptr)
+            {
+                _owner->system()->warning("Not Support Photo Downloading");
+                return false;
+            }
 
             task->setMediaDownloadPath(_media_download_path);
             task->setDelegateMemory(_owner->delegateMemory());
@@ -42,15 +47,16 @@ namespace rsdk::mission::waypoint
             return true;
         }
 
-        void handleMainTaskEvent(MissionTask* task, const StageRst& rst) const
+        void handleMainTaskEvent(MissionTask* task, const StageRst& rst)
         {
             if(!_photo_event_not_handle)
+            {
                 return;
-
+            }
             addPhotoTask();
         }
 
-        void handleSubtaskEvent(MissionTask* task, const StageRst& rst) const
+        void handleSubtaskEvent(MissionTask* task, const StageRst& rst)
         {
             if(!_photo_event_not_handle)
                 return;
