@@ -23,9 +23,6 @@ public:
         _owner = owner;
         _system = system;
         _dji_mission_operator           = _system->vehicle()->waypointV2Mission;
-        _standard_waypoint_interpreter  = new STDWPInterpreter(_owner);
-        _event_wrapper                  = new DJIEventWrapper(_owner);
-        _event_wrapper->startListeningDJILowLayerEvent();
     }
 
     ~Impl()
@@ -46,8 +43,8 @@ public:
     std::shared_ptr<DJIDelegateMemory>              _dji_delegate_memory;
     DJI::OSDK::WaypointV2MissionOperator*           _dji_mission_operator;
     DJIWPMInstance*                                 _owner;
-    DJIEventWrapper*                                _event_wrapper;
-    STDWPInterpreter*                               _standard_waypoint_interpreter;
+    DJIEventWrapper*                                _event_wrapper{nullptr};
+    STDWPInterpreter*                               _standard_waypoint_interpreter{nullptr};
 
     bool                                            _photo_event_not_handle{false};
 };
@@ -57,6 +54,10 @@ DJIWPMInstance::DJIWPMInstance(
 ) : rsdk::mission::waypoint::WPMInstancePlugin(system), DJIPluginBase(system)
 {
     _impl = new Impl(this, system);
+
+    _impl->_standard_waypoint_interpreter  = new STDWPInterpreter(this);
+    _impl->_event_wrapper                  = new DJIEventWrapper(this);
+    _impl->_event_wrapper->startListeningDJILowLayerEvent();
 }
 
 DJIWPMInstance::~DJIWPMInstance()
