@@ -10,6 +10,7 @@ public:
     enum class InterpretException
     {
         SUCCESS,
+        FAILED
     };
 
     explicit MavWPInterpreter(MavMissionInstance* instance);
@@ -17,4 +18,9 @@ public:
     ~MavWPInterpreter();
 
     InterpretException interpret(const rmw::WaypointItems&, MavMissionItemList&);
+
+private:
+
+    class Impl;
+    Impl* _impl;
 };

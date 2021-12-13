@@ -1,7 +1,6 @@
 #include "DJIWPMMainTask.hpp"
 #include "plugins/mission/DJIWPMInstance.hpp"
 #include "plugins/mission/DJIWPMission.hpp"
-#include "rsdk/proxy/collector/GNSSReceiver.hpp"
 #include "plugins/mission/DJIDelegateMemory.hpp"
 
 #include <dji_vehicle.hpp>
@@ -14,15 +13,17 @@
 class DJIWPMMainTask::Impl
 {
 public:
-    Impl(DJIWPMInstance* instance, DJIWPMission* mission)
-    : instance(instance), _dji_mission(mission)
-    {} 
+    explicit Impl(DJIWPMInstance* instance)
+    : instance(instance)
+    {
+        _current_context = instance->currentDelegateMemory();
+    }
 
-    DJIWPMInstance*             instance;
-    DJIWPMission*               _dji_mission;
-    std::mutex                  _wait_finished_mutex;
-    std::condition_variable     _wait_finished_cv;
-    rsdk::mission::StageRst     _finished_rst{rsdk::mission::StageRstType::UNEXECUTE};
+    DJIWPMInstance*                 instance;
+    shared_ptr<DJIDelegateMemory>   _current_context;
+    std::mutex                      _wait_finished_mutex;
+    std::condition_variable         _wait_finished_cv;
+    rsdk::mission::StageRst         _finished_rst{rsdk::mission::StageRstType::UNEXECUTE};
 
     static std::string djiRet2String(DJI::OSDK::ErrorCode::ErrorCodeType code)
     {
@@ -33,12 +34,17 @@ public:
     void startLaunch(rsdk::mission::StageRst& rst) const
     {
         using namespace DJI::OSDK;
-        auto& current_context = instance->currentDelegateMemory();
+        if(!_current_context)
+        {
+            rst.type = rsdk::mission::StageRstType::FAILED;
+            rst.detail = "Delegate memory not existed";
+            return;
+        }
 
         auto    _system                     = instance->system();
         auto    _dji_mission_operator       = _system->vehicle()->waypointV2Mission;
 
-        if(!_dji_mission->isValid())
+        if(!_current_context->dji_mission.isValid())
         {
             rst.type = rsdk::mission::StageRstType::FAILED;
             rst.detail = "DJI MISSION IS NOT VAILD";
@@ -48,20 +54,20 @@ public:
         WayPointV2InitSettings missionInitSettings;
         missionInitSettings.missionID                   = rand();
         missionInitSettings.repeatTimes                 = 0;
-        missionInitSettings.finishedAction              =   _dji_mission->autoReturnHome() ? 
+        missionInitSettings.finishedAction              =   _current_context->dji_mission.autoReturnHome() ?
                                                             DJIWaypointV2MissionFinishedGoHome : 
                                                             DJIWaypointV2MissionFinishedAutoLanding;
         missionInitSettings.maxFlightSpeed              = 5;
         missionInitSettings.autoFlightSpeed             = 2;
         missionInitSettings.exitMissionOnRCSignalLost   = 1;
         missionInitSettings.gotoFirstWaypointMode       = DJIWaypointV2MissionGotoFirstWaypointModeSafely;
-        missionInitSettings.mission                     = _dji_mission->djiWayPoints();
+        missionInitSettings.mission                     = _current_context->dji_mission.djiWayPoints();
         missionInitSettings.missTotalLen                = missionInitSettings.mission.size();
 
-        current_context->total_wp                       = missionInitSettings.missTotalLen;
-        current_context->total_repeated_times           = missionInitSettings.repeatTimes;
-        current_context->takeoff_altitude               = instance->system()->lastUpdatePosition().rtk_altitude;
-        instance->system()->info("Takeoff Height:" + std::to_string(current_context->takeoff_altitude));
+        _current_context->total_wp                       = missionInitSettings.missTotalLen;
+        _current_context->total_repeated_times           = missionInitSettings.repeatTimes;
+        _current_context->takeoff_altitude               = instance->system()->lastUpdatePosition().rtk_altitude;
+        instance->system()->info("Takeoff Height:" + std::to_string(_current_context->takeoff_altitude));
 
         std::lock_guard<std::mutex> lck(_system->DJIAPIMutex());
 
@@ -73,7 +79,7 @@ public:
             return;
         }
         
-        for(int i = 0 ; i < 300 ; i++)   // FUCK DJI
+        for(int i = 0 ; i < 50 ; i++)   // FUCK DJI
         {
             instance->system()->warning("try upload mission to fcu, retry time:" + std::to_string(i));
             ret = _dji_mission_operator->uploadMission(30);
@@ -90,7 +96,7 @@ public:
             return;
         }
 
-        ret = _dji_mission_operator->uploadAction(_dji_mission->djiActions(), 30);
+        ret = _dji_mission_operator->uploadAction(_current_context->dji_mission.djiActions(), 30);
         if (ret != ErrorCode::SysCommonErr::Success)
         {
             rst.type = rsdk::mission::StageRstType::FAILED;
@@ -130,10 +136,10 @@ void DJIWPMMainTask::notifyMissionFinish(const rsdk::mission::StageRst& rst)
     _impl->_wait_finished_cv.notify_all();
 }
 
-DJIWPMMainTask::DJIWPMMainTask(DJIWPMInstance* instance, DJIWPMission* mission)
+DJIWPMMainTask::DJIWPMMainTask(DJIWPMInstance* instance)
 : MainMissionTask("DJI WAYPOINT MAIN TASK")
 {
-    _impl = new Impl(instance, mission);
+    _impl = new Impl(instance);
 }
 
 DJIWPMMainTask::~DJIWPMMainTask()

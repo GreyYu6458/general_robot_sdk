@@ -19,7 +19,7 @@ namespace rsdk::mission
             const std::shared_ptr<BasePlugin>&
         );
 
-        ~MissionInstanceProxy();
+        ~MissionInstanceProxy() override;
 
         /**
          * @brief 开始任务
@@ -102,7 +102,7 @@ namespace rsdk::mission
          * 
          * @return std::unique_ptr<SubMissionTask> 
          */
-        std::unique_ptr<MainMissionTask>& mainTask();
+        std::shared_ptr<MainMissionTask>& mainTask();
 
     private:
         class Impl;

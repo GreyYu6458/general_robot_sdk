@@ -2,7 +2,7 @@
 #define _PLUGIN_INTERFACE_HPP_
 #include <memory>
 #include "rsdk/proxy/Startable.hpp"
-#include "rsdk/proxy/StateDelegation.hpp"
+#include "StateDelegation.hpp"
 #include "rsdk/event/REvent.hpp"
 #include "rsdk/robject/RObject.hpp"
 

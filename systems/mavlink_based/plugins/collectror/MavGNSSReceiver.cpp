@@ -37,6 +37,7 @@ bool MavGNSSReceiver::start()
             this->onUpdate(this->_impl->_info);
         }
     );
+    return true;
 }
 
 bool MavGNSSReceiver::isStarted()

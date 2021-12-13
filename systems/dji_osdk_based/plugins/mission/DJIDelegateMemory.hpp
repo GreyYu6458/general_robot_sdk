@@ -1,5 +1,5 @@
 #pragma once
-#include "rsdk/proxy/StateDelegation.hpp"
+#include "p_rsdk/plugins/StateDelegation.hpp"
 #include "rsdk/message/sensor_msg/msg_coordinate.h"
 #include "DJIWPMission.hpp"
 #include <vector>

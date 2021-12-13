@@ -11,7 +11,7 @@ class MavAttitude :
 public:
     explicit MavAttitude(const std::shared_ptr<MavBasedVehicleSystem>&);
 
-    ~MavAttitude();
+    ~MavAttitude() override;
 
     bool start() override;
 

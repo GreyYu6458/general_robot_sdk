@@ -13,6 +13,17 @@ add_library(
     mav_vehicle
     SHARED
     MavBasedVehicleSystem.cpp
+    plugins/collectror/MavAttitude.cpp
+    plugins/collectror/MavBasedCollector.cpp
+    plugins/collectror/MavBattery.cpp
+    plugins/collectror/MavFlightStatus.cpp
+    plugins/collectror/MavGNSSReceiver.cpp
+    plugins/collectror/MavGNSSUncertain.cpp
+
+    plugins/mission/MavMissionInstance.cpp
+    plugins/mission/MavMissionEventHandler.cpp
+    plugins/mission/tasks/MavMainTask.cpp
+    plugins/mission/interpreter/MavWPInterpreter.cpp
 )
 
 add_dependencies(

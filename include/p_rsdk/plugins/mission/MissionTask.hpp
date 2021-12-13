@@ -5,7 +5,7 @@
 #include <memory>
 #include "rsdk/robject/RObject.hpp"
 #include "rsdk/event/MissionEvents.hpp"
-#include "rsdk/proxy/StateDelegation.hpp"
+#include "p_rsdk/plugins/StateDelegation.hpp"
 #include "TaskListener.hpp"
 
 namespace rsdk::mission

@@ -34,6 +34,8 @@ bool MavBattery::start()
             this->onUpdate(this->_impl->_info);
         }
     );
+
+    return true;
 }
 
 bool MavBattery::isStarted()

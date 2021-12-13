@@ -23,7 +23,7 @@ public:
         }
     }
 
-    void start()
+    bool start()
     {
         _is_start = true;
         _owner->mavTelemetry()->subscribe_attitude_quaternion(
@@ -36,7 +36,8 @@ public:
                 _attitude.q3 = msg.w;
             }
         );
-        std::thread(std::bind(Impl::collectThread, this)).swap(_bg_thread);
+        std::thread([this] { collectThread(); }).swap(_bg_thread);
+        return true;
     }
 
     void collectThread()
@@ -76,7 +77,7 @@ MavAttitude::~MavAttitude()
 
 bool MavAttitude::start()
 {
-    _impl->start();
+    return _impl->start();
 }
 
 bool MavAttitude::isStarted()

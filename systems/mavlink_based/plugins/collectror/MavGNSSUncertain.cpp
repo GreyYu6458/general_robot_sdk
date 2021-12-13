@@ -43,6 +43,8 @@ bool MavGNSSUncertain::start()
             onUpdate(_impl->_gnss_uncertain);
         }
     );
+
+    return true;
 }
 
 bool MavGNSSUncertain::isStarted()

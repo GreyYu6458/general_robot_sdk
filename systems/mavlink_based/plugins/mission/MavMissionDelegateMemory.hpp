@@ -4,7 +4,7 @@
  */
 
 #pragma once
-#include "rsdk/proxy/StateDelegation.hpp"
+#include "p_rsdk/plugins/StateDelegation.hpp"
 #include "tasks/MavMainTask.hpp"
 
 struct MavMissionDelegateMemory : public rsdk::DelegateMemory

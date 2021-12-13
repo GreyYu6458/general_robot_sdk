@@ -11,7 +11,7 @@ class MavBattery :
 public:
     explicit MavBattery(const std::shared_ptr<MavBasedVehicleSystem>&);
 
-    ~MavBattery();
+    ~MavBattery() override;
 
     bool start() override;
 

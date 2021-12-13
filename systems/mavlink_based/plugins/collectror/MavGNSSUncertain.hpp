@@ -11,7 +11,7 @@ class MavGNSSUncertain :
 public:
     explicit MavGNSSUncertain(const std::shared_ptr<MavBasedVehicleSystem>&);
 
-    ~MavGNSSUncertain();
+    ~MavGNSSUncertain() override;
 
     bool start() override;
 

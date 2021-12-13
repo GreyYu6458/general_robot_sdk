@@ -5,7 +5,7 @@
 #include "rsdk/proxy/Startable.hpp"
 #include "rsdk/robject/RObject.hpp"
 #include "rsdk/event/REvent.hpp"
-#include "StateDelegation.hpp"
+#include "p_rsdk/plugins/StateDelegation.hpp"
 
 namespace rsdk
 {

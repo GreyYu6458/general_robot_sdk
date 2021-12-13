@@ -5,6 +5,7 @@
 #include "plugins/DJIPluginBase.hpp"
 
 class DJIDelegateMemory;
+class DJIWPMMainTask;
 
 class DJIWPMInstance : 
     public  rsdk::mission::waypoint::WPMInstancePlugin, 
@@ -38,9 +39,17 @@ public:
     /**
      * @brief Get the Main Task object
      * 
-     * @return std::unique_ptr<rsdk::mission::MainMissionTask> 
+     * @return std::shared_ptr<rsdk::mission::MainMissionTask>
      */
-    std::unique_ptr<rsdk::mission::MainMissionTask> getMainTask() override;
+    std::shared_ptr<rsdk::mission::MainMissionTask> getMainTask() override;
+
+    /**
+     *
+     * @brief Get the Main Task object
+     *
+     * @return std::shared_ptr<rsdk::mission::MainMissionTask>
+     **/
+    std::shared_ptr<DJIWPMMainTask> currentMainTask();
 
     /**
      * @brief Create a Delegate Memory object

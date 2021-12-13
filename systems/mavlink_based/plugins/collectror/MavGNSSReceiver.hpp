@@ -11,7 +11,7 @@ class MavGNSSReceiver :
 public:
     explicit MavGNSSReceiver(const std::shared_ptr<MavBasedVehicleSystem>&);
 
-    ~MavGNSSReceiver();
+    ~MavGNSSReceiver() override;
 
     bool start() override;
 

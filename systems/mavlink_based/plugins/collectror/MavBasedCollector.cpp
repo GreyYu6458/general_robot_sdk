@@ -5,10 +5,10 @@
 class MavBasedCollector::Impl
 {
 public:
-    Impl(const std::shared_ptr<MavBasedVehicleSystem>& system)
+    explicit Impl(const std::shared_ptr<MavBasedVehicleSystem>& system)
     {
         _system     = system;
-        _telemetry  = std::make_shared<mavsdk::Telemetry>(_system);
+        _telemetry  = std::make_shared<mavsdk::Telemetry>(_system->mavsdkLowLayerSystem());
     }
 
     std::shared_ptr<MavBasedVehicleSystem>  _system;

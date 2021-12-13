@@ -33,13 +33,13 @@ namespace rsdk::mission
          * @brief Destroy the InstancePlugin object
          * 
          */
-        virtual ~InstancePlugin();
+        ~InstancePlugin() override;
 
         /**
          * @brief Get the Main Task object
          * 
          * @return std::unique_ptr<MissionTask> 
          */
-        virtual std::unique_ptr<MainMissionTask> getMainTask() = 0;
+        virtual std::shared_ptr<MainMissionTask> getMainTask() = 0;
     };
 }

@@ -143,16 +143,6 @@ namespace rsdk::mission::waypoint
         {
             _impl->addPhotoTask();
         }
-        else if(_event->type() == rsdk::event::mission::MissionFinishedEvent::event_type)
-        {
-            using namespace rsdk::event;
-            auto event = REventCast<rsdk::event::mission::MissionFinishedEvent>(_event);
-            StageRst rst;
-            rst.type = event->payload().is_interrupted ? StageRstType::INTERRUPTTED : StageRstType::SUCCESS;
-            rst.detail = event->payload().detail;
-            mainTask()->notifyMissionFinish(rst);
-            return true; // 不向下传递
-        }
 
         return MissionInstanceProxy::eventFilter(obj, _event);
     }

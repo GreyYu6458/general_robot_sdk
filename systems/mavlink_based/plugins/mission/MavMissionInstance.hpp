@@ -2,7 +2,6 @@
 #include "p_rsdk/plugins/mission/waypoint/WPMInstancePlugin.hpp"
 
 class MavBasedVehicleSystem;
-class MavMainTask;
 
 namespace mavsdk
 {
@@ -15,6 +14,7 @@ namespace mavsdk
  * 
  */
 class MavMissionDelegateMemory;
+class MavWPMMainTask;
 
 /**
  * @brief 任务实例
@@ -28,13 +28,13 @@ public:
      * @brief Construct a new Mav Mission Instance object
      * 
      */
-    MavMissionInstance(const std::shared_ptr<MavBasedVehicleSystem>&);
+    explicit MavMissionInstance(const std::shared_ptr<MavBasedVehicleSystem>&);
 
     /**
      * @brief Destroy the Mav Mission Instance object
      * 
      */
-    virtual ~MavMissionInstance();
+    ~MavMissionInstance() override;
 
     /**
      * @brief Create a Delegate Memory object
@@ -55,7 +55,14 @@ public:
      * 
      * @return std::unique_ptr<rsdk::mission::MainMissionTask> 
      */
-    std::unique_ptr<rsdk::mission::MainMissionTask> getMainTask() override;
+    std::shared_ptr<rsdk::mission::MainMissionTask> getMainTask() override;
+
+    /**
+     * @brief Get the Main Task object
+     *
+     * @return std::unique_ptr<rsdk::mission::MainMissionTask>
+     */
+    std::shared_ptr<MavWPMMainTask> currentMainTask();
 
     /**
      * @brief 任务暂停
@@ -80,8 +87,6 @@ public:
      * 
      */
     void return2home(const rsdk::mission::ControlCallback&) override;
-
-protected:
 
     /**
      * @brief 返回MAVSDK Mission的引用

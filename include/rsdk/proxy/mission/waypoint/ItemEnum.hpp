@@ -18,4 +18,6 @@ namespace rsdk::mission::waypoint
         IMAGE_START_CAPTURE         = 2000,
         IMAGE_STOP_CAPTURE          = 2001
     };
+
+
 }

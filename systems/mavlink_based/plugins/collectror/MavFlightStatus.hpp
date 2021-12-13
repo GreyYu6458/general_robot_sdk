@@ -11,7 +11,7 @@ class MavFlightStatus :
 public:
     explicit MavFlightStatus(const std::shared_ptr<MavBasedVehicleSystem>&);
 
-    ~MavFlightStatus();
+    ~MavFlightStatus() override;
 
     bool start() override;
 

@@ -37,7 +37,7 @@ namespace rsdk::mission
 
         MissionInstanceProxy*                       _owner;
         std::string                                 _id;
-        std::unique_ptr<MainMissionTask>            _main_task;
+        std::shared_ptr<MainMissionTask>            _main_task;
         TaskMap                                     _sub_task_map;
         std::vector<std::unique_ptr<MissionTask>>   _end_sub_task_list;
         InstanceState                               _last_state;
@@ -310,7 +310,7 @@ namespace rsdk::mission
         return _impl->_sub_task_map.count(task_name);
     }
 
-    std::unique_ptr<MainMissionTask>& MissionInstanceProxy::mainTask()
+    std::shared_ptr<MainMissionTask>& MissionInstanceProxy::mainTask()
     {
         return _impl->_main_task;
     }

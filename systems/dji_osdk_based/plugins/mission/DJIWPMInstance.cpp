@@ -38,6 +38,7 @@ public:
     }
 
     std::shared_ptr<DJIVehicleSystem>               _system;
+    std::shared_ptr<DJIWPMMainTask>                 _current_main_task{nullptr};
     // _dji_delegate_memory的生命周期跟随proxy,每次新的proxy构造，这个对象就会被刷新
     // 但是proxy仍旧持有一份
     std::shared_ptr<DJIDelegateMemory>              _dji_delegate_memory;
@@ -45,8 +46,6 @@ public:
     DJIWPMInstance*                                 _owner;
     DJIEventWrapper*                                _event_wrapper{nullptr};
     STDWPInterpreter*                               _standard_waypoint_interpreter{nullptr};
-
-    bool                                            _photo_event_not_handle{false};
 };
 
 DJIWPMInstance::DJIWPMInstance(
@@ -89,7 +88,7 @@ std::unique_ptr<rsdk::mission::waypoint::PhotoDownloadTask> DJIWPMInstance::getP
     return std::make_unique<DJIDownloadPhotoTask>(this);
 }
 
-std::unique_ptr<rsdk::mission::MainMissionTask> DJIWPMInstance::getMainTask()
+std::shared_ptr<rsdk::mission::MainMissionTask> DJIWPMInstance::getMainTask()
 {
     using namespace std::chrono;
     auto start = system_clock::now(); // 计算解析时间
@@ -104,7 +103,14 @@ std::unique_ptr<rsdk::mission::MainMissionTask> DJIWPMInstance::getMainTask()
         " s"
     );
 
-    return std::make_unique<DJIWPMMainTask>(this, &_impl->_dji_delegate_memory->dji_mission);
+    _impl->_current_main_task = std::make_shared<DJIWPMMainTask>(this);
+
+    return _impl->_current_main_task;
+}
+
+std::shared_ptr<DJIWPMMainTask> DJIWPMInstance::currentMainTask()
+{
+    return _impl->_current_main_task;
 }
 
 void DJIWPMInstance::pause(const rsdk::mission::ControlCallback& cb)

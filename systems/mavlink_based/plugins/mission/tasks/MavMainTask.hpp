@@ -1,7 +1,3 @@
-/**
- * @brief 这是一个非公开的头，不要直接在其他头文件里包含这个头文件
- *        除非另一个也是非公开的头文件
- */
 #pragma once
 #include "p_rsdk/plugins/mission/MissionTask.hpp"
 #include "../MAVCommonDef.hpp"
@@ -18,25 +14,13 @@ public:
      * 
      * @param instance 
      */
-    MavWPMMainTask(MavMissionInstance *instance);
+    explicit MavWPMMainTask(MavMissionInstance *instance);
 
     /**
      * @brief Destroy the Mav WPM Main Task object
      * 
      */
-    ~MavWPMMainTask();
-
-    /**
-     * @brief Set the Waypoint Items object
-     * 
-     */
-    void setWaypointItems(const MavMissionItemList&);
-
-    /**
-     * @brief Set the Waypoint Items object
-     * 
-     */
-    void setWaypointItems(MavMissionItemList&&);
+    ~MavWPMMainTask() override;
 
     /**
     * @brief 通知任务结束，外部通知task进程结束的方式

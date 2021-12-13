@@ -3,18 +3,7 @@
 
 namespace rsdk
 {
-    struct DelegateMemory{};
-
-    template<class T>
-    class DelegateCreateHelp : public DelegateMemory
-    {
-    public:
-        template<typename... Args>
-        std::shared_ptr<T> create(Args&&... args)
-        {
-            return std::make_shared<T>(std::forward<Args>(args)...);
-        }
-    };
+    class DelegateMemory{};
 
     /**
      * @brief 用于依赖于状态上下文的接口继承

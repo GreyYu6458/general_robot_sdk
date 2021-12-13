@@ -50,10 +50,13 @@ bool MavFlightStatus::start()
                     break;
                 case mavsdk::Telemetry::LandedState::TakingOff:
                     break;
+                case mavsdk::Telemetry::LandedState::Landing:
+                    break;
             }
             onUpdate(this->_impl->_state);
         }
     );
+    return true;
 }
 
 bool MavFlightStatus::isStarted()

@@ -5,6 +5,7 @@
 #include "DJIWPMInstance.hpp"
 #include "DJIDelegateMemory.hpp"
 #include "p_rsdk/plugins/mission/MissionTask.hpp"
+#include "tasks/DJIWPMMainTask.hpp"
 
 #include <dji_vehicle.hpp>
 #include <dji_waypoint_v2.hpp>
@@ -105,16 +106,11 @@ template <> void process<DJIMissionEvent::MissionFinished>
     auto& current_context     = event_wrapper.instance()->currentDelegateMemory();
     event_wrapper.instance()->system()->trace("[mission]: Mission Finished:" + std::to_string(ack));
 
-    rsdk::event::mission::MissionInfo info;
-    info.instance_name  = "Unknown";
-    info.is_interrupted = 
-        current_context->current_repeated_times < current_context->total_repeated_times + 1;
-    info.detail         = info.is_interrupted ? "Mission Interrupted" : "Mission Finished";
-
-    event_wrapper.instance()->system()->postEvent(
-        event_wrapper.instance(),
-        make_event<rsdk::event::mission::MissionFinishedEvent>(info)
-    );
+    bool is_interrupted = current_context->current_repeated_times < current_context->total_repeated_times + 1;
+    rsdk::mission::StageRst rst;
+    rst.type    = is_interrupted ? rsdk::mission::StageRstType::INTERRUPTTED : rsdk::mission::StageRstType::SUCCESS;
+    rst.detail  = is_interrupted ? "Mission Interrupted" : "Mission Finished";
+    event_wrapper.instance()->currentMainTask()->notifyMissionFinish(rst);
 }
 
 /**

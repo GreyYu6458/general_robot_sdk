@@ -7,7 +7,7 @@ class DJIWPMInstance;
 class DJIWPMMainTask : public rsdk::mission::MainMissionTask
 {
 public:
-    DJIWPMMainTask(DJIWPMInstance*, DJIWPMission* mission);
+    explicit DJIWPMMainTask(DJIWPMInstance*);
 
     ~DJIWPMMainTask() override;
 
