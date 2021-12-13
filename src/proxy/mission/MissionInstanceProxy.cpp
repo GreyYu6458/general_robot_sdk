@@ -252,28 +252,26 @@ namespace rsdk::mission
      */
     void MissionInstanceProxy::OnExecutingStageFinished(MissionTask* task, StageRst rst)
     {
-        handleTaskFinished(task, rst);
-
-        std::lock_guard<std::mutex> lck(_impl->_state_mutex);
-        // 记录状态
-        _impl->_last_state = _impl->_state;
-        std::cout << static_cast<uint32_t>(_impl->_state) << std::endl;
-        // 交给状态转移函数处理
-        // TODO 封装状态机
-        if(task->isMain()){
-            _impl->mainTaskExecutingHandle(task, rst);
-        }else{
-            _impl->subtaskExecutingHandle(task, rst);
-        }
-        std::cout << static_cast<uint32_t>(_impl->_state) << std::endl;
-
-        _impl->_state = _impl->real_state();
-
-        // 如果状态改变, 调用回调
-        if(_impl->_last_state != _impl->_state && _impl->_state_changed_cb)
         {
-            _impl->_state_changed_cb(_impl->_state);
+            std::lock_guard<std::mutex> lck(_impl->_state_mutex);
+            // 记录状态
+            _impl->_last_state = _impl->_state;
+            // 交给状态转移函数处理
+            // TODO 封装状态机
+            if(task->isMain()){
+                _impl->mainTaskExecutingHandle(task, rst);
+            }else{
+                _impl->subtaskExecutingHandle(task, rst);
+            }
+            _impl->_state = _impl->real_state();
+            // 如果状态改变, 调用回调
+            if(_impl->_last_state != _impl->_state && _impl->_state_changed_cb)
+            {
+                _impl->_state_changed_cb(_impl->_state);
+            }
         }
+
+        handleTaskFinished(task, rst);
     }
 
     void MissionInstanceProxy::setId(const std::string& id)

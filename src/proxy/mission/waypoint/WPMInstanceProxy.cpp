@@ -15,37 +15,45 @@ namespace rsdk::mission::waypoint
             _owner = owner;
         }
 
-        void addPhotoTask()
+        /**
+         * @brief   添加一个照片下载任务，
+         *          如果目前没有下载任务在执行,并且实现中支持下载任务，返回true
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool addPhotoTask()
         {
-            if(_photo_event_not_handle)
-            { 
-                if(!_owner->hasSubTask(PhotoDownloadTask::task_name()))
-                {
-                    auto task = _owner->PLUGIN->getPhotoDownloadTask();
-                    if(task != nullptr)
-                    {
-                        task->setMediaDownloadPath(_media_download_path);
-                        task->setDelegateMemory(_owner->delegateMemory());
-                        _owner->runSubTask(std::move(task));
-                        _owner->system()->warning("Triggered by new event, A New photo download task will be created");
-                        _photo_event_not_handle = false;
-                    }
-                }
-                else
-                {
-                    _owner->system()->warning("There is a photo download task already exist");
-                    _photo_event_not_handle = true;
-                }
+            if(_owner->hasSubTask(PhotoDownloadTask::task_name()))
+            {
+                _owner->system()->warning("There is a photo download task already exist");
+                return false;
             }
+            // 新建一个下载任务
+            auto task = _owner->PLUGIN->getPhotoDownloadTask();
+                
+            if(task == nullptr) return false;
+
+            task->setMediaDownloadPath(_media_download_path);
+            task->setDelegateMemory(_owner->delegateMemory());
+            _owner->runSubTask(std::move(task));
+            _owner->system()->warning("A New photo download task will be created");
+
+            return true;
         }
 
         void handleMainTaskEvent(MissionTask* task, StageRst rst)
         {
+            if(!_photo_event_not_handle)
+                return;
+
             addPhotoTask();
         }
 
         void handleSubtaskEvent(MissionTask* task, StageRst rst)
         {
+            if(!_photo_event_not_handle)
+                return;
             // 目前只有下载任务,这里处理下载任务完成的事件
             // 如果有拍照事件没有处理，则新建一个下载任务
             addPhotoTask();
@@ -133,24 +141,7 @@ namespace rsdk::mission::waypoint
         // 相机拍照尝试下载照片
         if(_event->type() == rsdk::event::mission::WPMTakenPhotoEvent::event_type)
         {
-            _impl->_photo_event_not_handle = true;
-            auto event = rsdk::event::REventCast<rsdk::event::mission::WPMTakenPhotoEvent>(_event);
-            // 检测是否还存在拍照任务在运行
-            if(!hasSubTask(PhotoDownloadTask::task_name()))
-            {
-                auto task = PLUGIN->getPhotoDownloadTask();
-                if(task != nullptr)
-                {
-                    task->setMediaDownloadPath(_impl->_media_download_path);
-                    task->setDelegateMemory(delegateMemory());
-                    runSubTask(std::move(task));
-                }
-                _impl->_photo_event_not_handle = false;
-            }
-            else
-            {
-                system()->warning("There is a photo download task already exist");
-            }
+            _impl->addPhotoTask();
         }
         else if(_event->type() == rsdk::event::mission::MissionFinishedEvent::event_type)
         {
