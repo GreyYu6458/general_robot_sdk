@@ -54,6 +54,13 @@ public:
 protected:
     bool tryLink(const rsdk::SystemConfig& config) override;
 
+    /**
+    * @brief overload base class
+    *
+    * @return std::shared_ptr<DJIVehicleSystem>
+    */
+    std::shared_ptr<MavBasedVehicleSystem> shared_from_this();
+
 private:
     class Impl;
     Impl* _impl;

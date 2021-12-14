@@ -56,7 +56,7 @@ namespace rsdk::mission::waypoint
          * @brief Destroy the WPMInstancePlugin object
          * 
          */
-        virtual ~WPMInstancePlugin();
+        ~WPMInstancePlugin() override;
 
         /**
          * @brief Get the Photo Download Task object

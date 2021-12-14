@@ -4,7 +4,13 @@
 #include <mavsdk/mavsdk.h>
 #include <mavsdk/plugins/info/info.h>
 #include <future>
-#include <cstring>
+
+#include "plugins/collectror/MavAttitude.hpp"
+#include "plugins/collectror/MavBattery.hpp"
+#include "plugins/collectror/MavFlightStatus.hpp"
+#include "plugins/collectror/MavGNSSReceiver.hpp"
+#include "plugins/collectror/MavGNSSUncertain.hpp"
+#include "plugins/mission/MavMissionInstance.hpp"
 
 const char* opt_key[static_cast<uint32_t>(rsdk::LinkMethodType::COUNT)] = 
 {
@@ -13,12 +19,31 @@ const char* opt_key[static_cast<uint32_t>(rsdk::LinkMethodType::COUNT)] =
     [static_cast<uint32_t>(rsdk::LinkMethodType::UDP)]     = "udp"
 };
 
+#define REGIST_PLUGIN(plugin_name, base_plugin_name) \
+    _owner->registInterfaceImplToMap<base_plugin_name> \
+        ( \
+            std::make_shared<plugin_name> \
+            ( \
+                _owner->shared_from_this() \
+            ) \
+        )
+
 class MavBasedVehicleSystem::Impl
 {
 public:
     explicit Impl(MavBasedVehicleSystem* owner)
     {
         _owner = owner;
+    }
+
+    void registMavBasedPlugin()
+    {
+        REGIST_PLUGIN(MavAttitude,          rsdk::collector::AttitudePlugin);
+        REGIST_PLUGIN(MavBattery,           rsdk::collector::BatteryPlugin);
+        REGIST_PLUGIN(MavGNSSReceiver,      rsdk::collector::GNSSReceiverPlugin);
+        REGIST_PLUGIN(MavGNSSUncertain,     rsdk::collector::GNSSUncertainInfoPlugin);
+        REGIST_PLUGIN(MavFlightStatus,      rsdk::collector::FlyingRobotStatusPlugin);
+        REGIST_PLUGIN(MavMissionInstance,   rsdk::mission::waypoint::WPMInstancePlugin);
     }
     
     bool link(const rsdk::SystemConfig &config)
@@ -63,6 +88,8 @@ public:
 
         _unique_code = getUniqueID();
         _config      = config;
+
+        registMavBasedPlugin();
 
         return true;
     }
@@ -172,6 +199,11 @@ MavBasedVehicleSystem::MavBasedVehicleSystem()
 MavBasedVehicleSystem::~MavBasedVehicleSystem()
 {
     delete _impl;
+}
+
+std::shared_ptr<MavBasedVehicleSystem> MavBasedVehicleSystem::shared_from_this()
+{
+    return std::static_pointer_cast<MavBasedVehicleSystem>(this->RobotSystem::shared_from_this());
 }
 
 // 设备的生产商信息

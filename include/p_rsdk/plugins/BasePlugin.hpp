@@ -23,7 +23,7 @@ namespace rsdk
          * @brief Destroy the Plugin Interface object
          * 
          */
-        virtual ~BasePlugin();
+        ~BasePlugin() override;
 
         /**
          * @brief Create a Delegate Memory object
@@ -39,7 +39,7 @@ namespace rsdk
          * 
          * @return std::shared_ptr<RobotSystem> 
          */
-        const std::shared_ptr<RobotSystem>& system() const;
+        [[nodiscard]] const std::shared_ptr<RobotSystem>& system() const;
 
     private:
         class Impl;

@@ -89,6 +89,24 @@ public:
     void return2home(const rsdk::mission::ControlCallback&) override;
 
     /**
+    * @brief 切换到ret模式
+    *
+    */
+    bool start() override;
+
+    /**
+    * @brief 切换到ret模式
+    *
+    */
+    bool isStarted() override;
+
+    /**
+    * @brief 返回照片下载任务
+    *
+    */
+    std::unique_ptr<rsdk::mission::waypoint::PhotoDownloadTask> getPhotoDownloadTask() override;
+
+    /**
      * @brief 返回MAVSDK Mission的引用
      * 
      * @return mavsdk::Mission& 

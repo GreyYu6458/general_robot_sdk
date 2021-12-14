@@ -161,3 +161,17 @@ void MavMissionInstance::return2home(const rsdk::mission::ControlCallback& cb)
     std::stringstream ss; ss << rst; ret.detail = ss.str();
     cb(ret);
 }
+
+std::unique_ptr<rsdk::mission::waypoint::PhotoDownloadTask>
+MavMissionInstance::getPhotoDownloadTask()
+{
+    return nullptr;
+}
+
+bool MavMissionInstance::isStarted() {
+    return true;
+}
+
+bool MavMissionInstance::start() {
+    return true;
+}
