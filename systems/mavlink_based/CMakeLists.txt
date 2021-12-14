@@ -35,35 +35,9 @@ target_link_libraries(
     mav_vehicle
     PUBLIC
     robot_sdk
+    ${MAVSDK_LINK_LIBRARIES}
     jsoncpp
     tinyxml2
-    mavsdk
-    mavsdk_action
-    mavsdk_action_server
-    mavsdk_calibration
-    mavsdk_camera
-    mavsdk_failure
-    mavsdk_follow_me
-    mavsdk_ftp
-    mavsdk_geofence
-    mavsdk_gimbal
-    mavsdk_log_files
-    mavsdk_manual_control
-    mavsdk_mission_raw_server
-    mavsdk_mocap
-    mavsdk_offboard
-    mavsdk_param
-    mavsdk_param_server
-    mavsdk_server_utility
-    mavsdk_shell
-    mavsdk_tracking_server
-    mavsdk_transponder
-    mavsdk_tune
-    mavsdk_info
-    mavsdk_telemetry
-    mavsdk_mission
-    mavsdk_mission_raw
-    mavsdk_mavlink_passthrough
     boost_thread
     pthread
 )
