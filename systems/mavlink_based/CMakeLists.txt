@@ -35,9 +35,12 @@ target_link_libraries(
     mav_vehicle
     PUBLIC
     robot_sdk
+    -Wl,--whole-archive
     ${MAVSDK_LINK_LIBRARIES}
+    curl
     jsoncpp
     tinyxml2
+    -Wl,--no-whole-archive
     boost_thread
     pthread
 )

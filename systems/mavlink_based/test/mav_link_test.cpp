@@ -14,9 +14,9 @@ int main()
 
     config.addParameter("udp", udp_method);
 
-    auto dji_system = std::make_shared<MavBasedVehicleSystem>();
+    auto mav_system = std::make_shared<MavBasedVehicleSystem>();
 
-    dji_system->subscribeSystemInfo(
+    mav_system->subscribeSystemInfo(
         [](const rsdk::SystemInfo& msg)
         {
             std::cout   << "Received Messgae level :" 
@@ -26,12 +26,12 @@ int main()
         }
     );
     
-    if(!dji_system->link(config))
+    if(!mav_system->link(config))
     {
         return 0;
     }
 
-    std::cout << "SYSTEM UNIQUE CODE:" << dji_system->uniqueCode() << std::endl;
+    std::cout << "SYSTEM UNIQUE CODE:" << mav_system->uniqueCode() << std::endl;
 
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
