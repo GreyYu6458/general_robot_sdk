@@ -62,6 +62,7 @@ public:
         }
 
         _unique_code = getUniqueID();
+        _config      = config;
 
         return true;
     }
@@ -89,7 +90,7 @@ private:
         return false;
     }
 
-    std::string getUniqueID() const
+    [[nodiscard]] std::string getUniqueID() const
     {
         auto max_retry_time = 5;
         auto system_info    = mavsdk::Info(_mavsdk_system);
@@ -105,6 +106,13 @@ private:
         for(char c : rst.second.hardware_uid)
         {
             if(c != '0' && c != 0) enable_hardware_uid = true;
+        }
+
+        if(enable_hardware_uid){
+            rst.second.hardware_uid.erase(
+                std::remove(rst.second.hardware_uid.begin(), rst.second.hardware_uid.end(), '\000'),
+                rst.second.hardware_uid.end()
+            );
         }
 
         return enable_hardware_uid ? rst.second.hardware_uid : 
