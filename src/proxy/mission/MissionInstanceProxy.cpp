@@ -139,7 +139,7 @@ namespace rsdk::mission
             mission_info.instance_name  = _id;
             mission_info.detail = rst.detail;
 
-            if( rst.type == StageRstType::SUCCESS or 
+            if( rst.type == StageRstType::SUCCESS ||
                 rst.type == StageRstType::INTERRUPTTED)
             {
                 _state = InstanceState::FINISHED;
