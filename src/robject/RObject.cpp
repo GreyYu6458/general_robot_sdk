@@ -7,9 +7,9 @@ namespace rsdk
     class RObject::Impl
     {
     public:
-        RObject*                    _parent;
-        RObject*                    _root;
-        RObject*                    _watcher_bare;
+        RObject*                    _parent{nullptr};
+        RObject*                    _root{nullptr};
+        RObject*                    _watcher_bare{nullptr};
         std::vector<RObject*>       _children;
         std::weak_ptr<RObject>      _watcher;
         std::mutex                  _set_watcher_mutex;

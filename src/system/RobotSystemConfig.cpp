@@ -33,6 +33,7 @@ namespace rsdk
 
     SystemConfig& SystemConfig::operator=(const SystemConfig& other)
     {
+        if(this == &other) return *this;
         this->_impl->_method_map = other._impl->_method_map;
         return *this;
     }

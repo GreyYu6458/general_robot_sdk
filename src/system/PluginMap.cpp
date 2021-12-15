@@ -63,11 +63,6 @@ namespace rsdk
     bool PluginMap::_regist_impl(size_t plugin_hash, const std::shared_ptr<BasePlugin>& impl)
     {
         std::lock_guard<std::mutex> l(_impl->plugin_regist_mutex);
-        if( _impl->plugin_hash_map.count(plugin_hash) ) // 确定已经预注册过了
-        {
-            _impl->plugin_hash_map[plugin_hash] = impl;
-            return true;
-        }
-        return false;
+        return _impl->plugin_hash_map.count(plugin_hash) != 0 && (_impl->plugin_hash_map[plugin_hash] = impl, true);
     }
 }

@@ -1,5 +1,4 @@
 #include "rsdk/event/REvent.hpp"
-#include "rsdk/system/RobotSystem.hpp"
 #include "p_rsdk/tools/platfrom/timestamp.hpp"
 #include <atomic>
 
