@@ -37,5 +37,9 @@ MavWPInterpreter::interpret(const rmw::WaypointItems & std_wp, MavMissionItemLis
 
         twp.push_back(item);
     }
+    if(!twp.empty())
+    {
+        twp[0].current = true;
+    }
     return MavWPInterpreter::InterpretException::SUCCESS;
 }
