@@ -17,7 +17,13 @@ namespace rsdk
         template<SystemInfoLevel Level>
         inline void publishInfo(const std::string& msg)
         {
-            __publish({ .level = Level, .data = msg});
+            _publish({ Level, msg});
+        }
+
+        template<SystemInfoLevel Level>
+        inline void publishInfo(std::string&& msg)
+        {
+            _publish({ Level, std::move(msg)});
         }
 
         inline void warning(const std::string& msg)
@@ -44,7 +50,7 @@ namespace rsdk
 
     protected:
 
-        void __publish(const SystemInfo&);
+        void _publish(const SystemInfo&);
 
     private:
         class Impl;

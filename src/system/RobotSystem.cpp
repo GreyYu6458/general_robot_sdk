@@ -94,12 +94,7 @@ namespace rsdk
     void RobotSystem::postEvent(const ::std::shared_ptr<RObject>& robject, REventParam event)
     {
         event->setSystemTime( systemTime() );
-        _impl->event_loop.pushEvent(
-            {
-                .event  = event,
-                .object = { .is_shared_ptr = true , .target = robject}
-            }
-        );
+        _impl->event_loop.pushEvent({event, { true , robject}});
     }
 
     bool RobotSystem::sendEvent(RObject* robject, REventParam event)
@@ -111,12 +106,7 @@ namespace rsdk
     void RobotSystem::postEvent(RObject* robject, REventParam event)
     {
         event->setSystemTime( systemTime() );
-        _impl->event_loop.pushEvent(
-            {
-                .event  = event,
-                .object = { .is_shared_ptr = false , .target = robject}
-            }
-        );
+        _impl->event_loop.pushEvent({event,{ false , robject}});
     }
 
     bool RobotSystem::notify(const std::shared_ptr<RObject>& robject, REventParam event)

@@ -20,7 +20,7 @@ namespace rsdk
         delete _impl;
     }
 
-    void SystemInfoPublisher::__publish(const SystemInfo& info)
+    void SystemInfoPublisher::_publish(const SystemInfo& info)
     {
         std::lock_guard<std::mutex> l(_impl->_cb_set_mutex);
         for(const auto& func : _impl->system_info_cbs)

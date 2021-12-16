@@ -1,6 +1,5 @@
 #include "DJIWPMMainTask.hpp"
 #include "plugins/mission/DJIWPMInstance.hpp"
-#include "plugins/mission/DJIWPMission.hpp"
 #include "plugins/mission/DJIDelegateMemory.hpp"
 
 #include <dji_vehicle.hpp>

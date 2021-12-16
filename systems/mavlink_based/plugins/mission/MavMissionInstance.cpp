@@ -21,11 +21,16 @@ public:
         _interpreter = new MavWPInterpreter(_owner);
     }
 
+    ~Impl()
+    {
+        delete _interpreter;
+    }
+
     mavsdk::Action                              _mavsdk_action;
     mavsdk::Mission                             _mavsdk_mission;
     mavsdk::MissionRaw                          _mavsdk_mission_raw;
     std::shared_ptr<MavMissionDelegateMemory>   _mission_memory;
-    std::shared_ptr<MavWPMMainTask>                _current_main_task{nullptr};
+    std::shared_ptr<MavWPMMainTask>             _current_main_task{nullptr};
     MavMissionInstance*                         _owner;
     MavWPInterpreter*                           _interpreter;
 };
@@ -58,7 +63,8 @@ mavsdk::MissionRaw& MavMissionInstance::mavsdk_mission_raw_handle()
  */
 std::shared_ptr<rsdk::DelegateMemory> MavMissionInstance::createDelegateMemory()
 {
-    return std::make_shared<MavMissionDelegateMemory>();
+    _impl->_mission_memory =std::make_shared<MavMissionDelegateMemory>();
+    return _impl->_mission_memory;
 }
 
 /**

@@ -30,14 +30,6 @@ namespace rsdk::mission::waypoint
                 _photo_event_not_handle = true;
                 return false;
             }
-
-            if(_owner->state() == InstanceState::FINISHED)
-            {
-                _owner->system()->warning("Mission Had Finished, No More Subtask Will Be Created");
-                _photo_event_not_handle = false;
-                return false;
-            }
-
             // 新建一个下载任务
             auto task = _owner->PLUGIN->getPhotoDownloadTask();
                 
@@ -58,10 +50,6 @@ namespace rsdk::mission::waypoint
 
         void handleMainTaskEvent(MissionTask* task, const StageRst& rst)
         {
-            if(!_photo_event_not_handle)
-            {
-                return;
-            }
             addPhotoTask();
         }
 
