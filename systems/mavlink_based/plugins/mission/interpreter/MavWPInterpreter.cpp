@@ -23,6 +23,7 @@ MavWPInterpreter::interpret(const rmw::WaypointItems & std_wp, MavMissionItemLis
     for(const auto& std_item : std_wp.getItems())
     {
         item.autocontinue   = std_item.get<rmw::ItemParam::AUTO_CONTINUE>();
+        item.seq            = std_item.get<rmw::ItemParam::SEQUENCE>();
         item.command        = static_cast<uint32_t>(std_item.get<rmw::ItemParam::COMMAND>());
         item.current        = std_item.get<rmw::ItemParam::CURRENT>();
         item.frame          = std_item.get<rmw::ItemParam::FRAME>();

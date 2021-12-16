@@ -1,6 +1,7 @@
 #include <iostream>
 #include <thread>
 #include "rsdk/system/RobotSystem.hpp"
+#include "rsdk/system/RobotSystemConfig.hpp"
 #include "rsdk/system/SystemLinkMethods.hpp"
 #include "MavBasedVehicleSystem.hpp"
 

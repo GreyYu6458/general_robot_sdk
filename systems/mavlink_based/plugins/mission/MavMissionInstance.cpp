@@ -56,6 +56,11 @@ mavsdk::MissionRaw& MavMissionInstance::mavsdk_mission_raw_handle()
     return _impl->_mavsdk_mission_raw;
 }
 
+mavsdk::Action& MavMissionInstance::mavsdk_action_handle()
+{
+    return _impl->_mavsdk_action;
+}
+
 /**
  * @brief 创建委托内存
  * 

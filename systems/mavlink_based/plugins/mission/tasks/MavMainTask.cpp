@@ -3,6 +3,7 @@
 #include "../MavMissionInstance.hpp"
 #include "../MavMissionDelegateMemory.hpp"
 #include <mavsdk/plugins/mission/mission.h>
+#include <mavsdk/plugins/action/action.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
 #include <mutex>
 #include <condition_variable>
@@ -48,6 +49,15 @@ public:
             return;
         }
 
+        auto arm_rst = _instance->mavsdk_action_handle().arm();
+        if(arm_rst != mavsdk::Action::Result::Success)
+        {
+            _string_stream << arm_rst;
+            ret.detail  = _string_stream.str();
+            ret.type    = rsdk::mission::StageRstType::FAILED;
+            return;
+        }
+
         mission_rst = _instance->mavsdk_mission_raw_handle().start_mission();
         if(mission_rst != mavsdk::MissionRaw::Result::Success)
         {
@@ -68,7 +78,8 @@ public:
         std::thread(
             [this]()
             {
-                // waitting for vehicle armed
+                std::this_thread::sleep_for(std::chrono::seconds(5));
+                // waitting for vehicle disarmed
                 while(_mav_telemetry->armed() && !_query_finished_quit)
                 {
                     std::this_thread::sleep_for(std::chrono::seconds(1));

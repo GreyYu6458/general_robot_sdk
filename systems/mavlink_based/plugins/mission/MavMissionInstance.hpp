@@ -7,6 +7,7 @@ namespace mavsdk
 {
     class Mission;
     class MissionRaw;
+    class Action;
 }
 
 /**
@@ -119,6 +120,9 @@ public:
      * @return mavsdk::MissionRaw& 
      */
     mavsdk::MissionRaw& mavsdk_mission_raw_handle();
+
+
+    mavsdk::Action& mavsdk_action_handle();
 
 private:
     class Impl;
