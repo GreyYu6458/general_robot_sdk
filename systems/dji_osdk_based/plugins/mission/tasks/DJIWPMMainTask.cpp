@@ -78,7 +78,7 @@ public:
             return;
         }
         
-        for(int i = 0 ; i < 50 ; i++)   // FUCK DJI
+        for(int i = 0 ; i < INT_MAX ; i++)   // FUCK DJI
         {
             instance->system()->warning("try upload mission to fcu, retry time:" + std::to_string(i));
             ret = _dji_mission_operator->uploadMission(30);
