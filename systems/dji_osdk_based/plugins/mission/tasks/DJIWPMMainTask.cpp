@@ -49,7 +49,7 @@ public:
             rst.detail = "DJI MISSION IS NOT VAILD";
             return;
         }
-
+        srand( time(nullptr) );
         WayPointV2InitSettings missionInitSettings;
         missionInitSettings.missionID                   = rand();
         missionInitSettings.repeatTimes                 = 0;
