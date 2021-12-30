@@ -14,7 +14,6 @@ add_library(
     system/RobotSystemConfig.cpp
     system/SystemInfoPublisher.cpp
     system/SystemEventLoop.cpp
-    system/SystemManager.cpp
     tools/math/haversine.cpp
 
     event/REvent.cpp
