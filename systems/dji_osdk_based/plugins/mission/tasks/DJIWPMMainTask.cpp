@@ -77,22 +77,29 @@ public:
             rst.detail = djiRet2String(ret);
             return;
         }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
         
         for(int i = 0 ; i < 50 ; i++)   // FUCK DJI
         {
-            instance->system()->warning("try upload mission to fcu, retry time:" + std::to_string(i));
             ret = _dji_mission_operator->uploadMission(30);
-            if(ret != DJI::OSDK::ErrorCode::WaypointV2MissionErr::TRAJ_UPLOAD_WP_ID_NOT_CONTINUE)
+
+            if(ret == DJI::OSDK::ErrorCode::WaypointV2MissionErr::TRAJ_UPLOAD_WP_ID_NOT_CONTINUE)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                instance->system()->warning("try upload mission to fcu, retry time:" + std::to_string(i + 1));
+                continue;
+            }
+            else if (ret == ErrorCode::SysCommonErr::Success)  // 成功上传航点
             {
                 break;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        }
-        if (ret != ErrorCode::SysCommonErr::Success)
-        {
-            rst.type = rsdk::mission::StageRstType::FAILED;
-            rst.detail = djiRet2String(ret);
-            return;
+            else // 其他航线任务错误
+            {
+                rst.type = rsdk::mission::StageRstType::FAILED;
+                rst.detail = djiRet2String(ret);
+                return;
+            }
         }
 
         ret = _dji_mission_operator->uploadAction(_current_context->dji_mission.djiActions(), 30);

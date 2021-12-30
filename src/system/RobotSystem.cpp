@@ -1,10 +1,8 @@
 #include "rsdk/system/RobotSystem.hpp"
 #include "rsdk/event/REvent.hpp"
-#include "rsdk/system/SystemManager.hpp"
 
 #include "p_rsdk/plugins/PluginRegister.hpp"
 #include "p_rsdk/system/SystemEventLoop.hpp"
-
 #include "p_rsdk/tools/platfrom/timestamp.hpp"
 
 #include <mutex>
@@ -42,7 +40,7 @@ namespace rsdk
                 if(event_wrapper.object.is_shared_ptr)
                 {
                     this->notify(
-                        std::get<::std::shared_ptr<RObject>>
+                        std::get<std::shared_ptr<RObject>>
                         (
                             event_wrapper.object.target
                         ),

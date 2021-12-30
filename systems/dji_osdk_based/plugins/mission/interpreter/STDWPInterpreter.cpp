@@ -43,7 +43,7 @@ DJIWaypointV2Actuator STDWPInterpreter::createAircraftControlActuator(bool isSta
     };
 }
 
-DJIWaypointV2Actuator STDWPInterpreter::createCameraControlActuator()
+DJIWaypointV2Actuator STDWPInterpreter::createPhotoActuator()
 {
     DJIWaypointV2CameraActuatorParam cameraActuatorParam(
         DJIWaypointV2ActionActuatorCameraOperationTypeTakePhoto, nullptr);

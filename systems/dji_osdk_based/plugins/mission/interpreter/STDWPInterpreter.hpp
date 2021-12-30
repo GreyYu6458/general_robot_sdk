@@ -71,7 +71,7 @@ public:
      * 
      * @return DJIWaypointV2Actuator 
      */
-    static DJI::OSDK::DJIWaypointV2Actuator   createCameraControlActuator();
+    static DJI::OSDK::DJIWaypointV2Actuator   createPhotoActuator();
 
 protected:
 

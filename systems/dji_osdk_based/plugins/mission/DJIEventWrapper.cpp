@@ -310,8 +310,9 @@ public:
         }
         return OSDK_STAT_SYS_ERR;
     }
-    DJIEventWrapper* _owner;
-    DJIWPMInstance * _instance;
+
+    DJIEventWrapper*        _owner;
+    DJIWPMInstance *        _instance;
 };
 
 DJIEventWrapper::DJIEventWrapper(DJIWPMInstance *instance)

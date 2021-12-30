@@ -56,9 +56,9 @@ template<> InterpretException STDWPInterpreter::_convert_item
         // 关联触发器，关联pause动作，等待默认时间秒钟,然后拍照
         auto action     = 
         DJIWaypointV2Action(
-            dji_actions.size(), 
+            dji_actions.size(),
             createAssociateTrigger(default_wait_time, context().wait_time_info.pause_item_index),
-            createCameraControlActuator()
+            createPhotoActuator()
         );
         dji_actions.push_back(action);
         
@@ -86,7 +86,7 @@ template<> InterpretException STDWPInterpreter::_convert_item
         auto action      = DJIWaypointV2Action(
             dji_actions.size(), 
             createReachedTrigger(dji_wps.size() - 1),
-            createCameraControlActuator()
+            createPhotoActuator()
         );   
         dji_actions.push_back(action);
     }
