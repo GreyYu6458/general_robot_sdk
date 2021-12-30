@@ -84,7 +84,8 @@ public:
         {
             ret = _dji_mission_operator->uploadMission(30);
 
-            if(ret == DJI::OSDK::ErrorCode::WaypointV2MissionErr::TRAJ_UPLOAD_WP_ID_NOT_CONTINUE)
+            if(ret == DJI::OSDK::ErrorCode::WaypointV2MissionErr::TRAJ_UPLOAD_WP_ID_NOT_CONTINUE || 
+               ret == DJI::OSDK::ErrorCode::WaypointV2MissionErr::TRAJ_UPLOAD_START_ID_GT_END_ID)
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
                 instance->system()->warning("try upload mission to fcu, retry time:" + std::to_string(i + 1));
