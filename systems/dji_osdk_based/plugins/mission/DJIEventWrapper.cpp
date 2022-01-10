@@ -189,17 +189,29 @@ template <> void process<DJIMissionEvent::ActionExecEvent>
     using namespace rsdk::event::mission;
 
     auto  instance          = event_wrapper.instance();
-    auto& system            = instance->system();
     auto& current_context   = event_wrapper.instance()->currentDelegateMemory();
-    
-    WaypointTaskInfo info;
-    DJIActionEvent dji_action_event;
-    auto event = ::rsdk::event::REventPtr();
+    auto& system            = instance->system();
+    auto& id_filter         = current_context->action_id_filter;
+
+    // id_filter 一开始会开辟和动作点数量的空间
+    if(ack.actionId < id_filter.size())
+    {
+        if(id_filter[ack.actionId]) return;
+        else id_filter[ack.actionId] = true;
+    }
+    else
+    {
+        // 冗余
+        id_filter.resize( ack.actionId * 1.5, false);
+        id_filter[ack.actionId] = true;
+    }
+
+    WaypointTaskInfo    info;
+    DJIActionEvent      dji_action_event;
+    auto                event       = rsdk::event::REventPtr();
+    auto&               dji_wp_ref  = current_context->dji_mission;
 
     instance->system()->trace("[mission]: Action id " + std::to_string(ack.actionId));
-
-    auto& dji_wp_ref = current_context->dji_mission;
-
     // query what type the action is
     if(!dji_wp_ref.eventType(ack.actionId, dji_action_event))
     {

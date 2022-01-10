@@ -19,6 +19,9 @@ struct DJIDelegateMemory : rsdk::DelegateMemory
     // 需要拍照的航点
     std::vector<CoordinateIndexPair>    dji_photo_point;
 
+    // action id 去重
+    std::vector<bool>                   action_id_filter;
+
     // 已下载照片数
     uint32_t                            photo_download_number{0};
 

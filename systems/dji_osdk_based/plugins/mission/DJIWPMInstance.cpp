@@ -92,9 +92,17 @@ std::shared_ptr<rsdk::mission::MainMissionTask> DJIWPMInstance::getMainTask()
 {
     using namespace std::chrono;
     auto start = system_clock::now(); // 计算解析时间
-    _impl->_standard_waypoint_interpreter->interpret(waypointItems(), _impl->_dji_delegate_memory->dji_mission);
-    auto end = system_clock::now();
 
+    _impl->_standard_waypoint_interpreter->interpret(waypointItems(), _impl->_dji_delegate_memory->dji_mission);
+
+    auto& id_filter = _impl->_dji_delegate_memory->action_id_filter;
+    // 构造action id 过滤器
+    id_filter.clear();
+    id_filter.resize(
+        _impl->_dji_delegate_memory->dji_mission.djiActions().size(), false
+    );
+
+    auto end = system_clock::now();
     auto duration = duration_cast<microseconds>(end - start);
 
     system()->info(
