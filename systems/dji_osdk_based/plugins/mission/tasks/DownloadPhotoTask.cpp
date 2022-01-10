@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <cmath>
 #include <limits>
+#include <thread>
 
 // DJI_20211014173902_0050_WIDE.jpg
 // static std::regex photo_name_pettern("DJI_(.*?)_(.*?)_(.*?).jpg");
