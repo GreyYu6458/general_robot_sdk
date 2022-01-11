@@ -18,13 +18,13 @@ namespace rsdk::camera
 
         virtual ~VideoStreamPlugin();
 
-        virtual EncodeType encodeType() = 0;
+        virtual VideoInfo videoInfo() = 0;
 
         virtual bool startStream() = 0;
 
         virtual bool stopStream() = 0;
 
-        void subscribeStreamData(const std::function<void (uint8_t* data, size_t len)>&);
+        void subscribeStreamData(const VideoSteamCallback&);
 
     protected:
 

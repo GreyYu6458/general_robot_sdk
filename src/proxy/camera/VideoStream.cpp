@@ -7,12 +7,12 @@ namespace rsdk::camera
     VideoStreamProxy::VideoStreamProxy(const std::shared_ptr<rsdk::RobotSystem>& system)
         :   BaseProxy(system, system->BasePluginImpl<VideoStreamPlugin>()){}
 
-    EncodeType VideoStreamProxy::encodeType()
+    VideoInfo VideoStreamProxy::videoInfo()
     {
-        return plugin<VideoStreamPlugin>()->encodeType();
+        return plugin<VideoStreamPlugin>()->videoInfo();
     }
 
-    void VideoStreamProxy::subscribeOnFrameUpdate(const std::function<void (uint8_t* data, size_t len)>& f)
+    void VideoStreamProxy::subscribeVideoStream(const VideoSteamCallback& f)
     {
         return plugin<VideoStreamPlugin>()->subscribeStreamData(f);
     }

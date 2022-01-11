@@ -21,7 +21,7 @@ public:
 
    DJIVehicleModels supportModel() override;
 
-   rsdk::camera::EncodeType encodeType() override;
+   rsdk::camera::VideoInfo videoInfo() override;
 
    bool startStream() override;
 

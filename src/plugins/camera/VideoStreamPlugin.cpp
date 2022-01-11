@@ -8,7 +8,7 @@ namespace rsdk::camera
     class VideoStreamPlugin::Impl
     {
     public:
-        std::function<void (uint8_t* data, size_t len)> _data_call_back;
+        VideoSteamCallback _data_call_back;
 
         inline void onStreamData(uint8_t* data, size_t len) const
         {
@@ -27,7 +27,7 @@ namespace rsdk::camera
         delete _impl;
     }
 
-    void VideoStreamPlugin::subscribeStreamData(const std::function<void (uint8_t* data, size_t len)>& f)
+    void VideoStreamPlugin::subscribeStreamData(const VideoSteamCallback& f)
     {
         _impl->_data_call_back = f;
     }

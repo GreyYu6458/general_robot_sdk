@@ -1,50 +1,80 @@
 #ifndef _CAMERA_STREAM_HPP_
 #define _CAMERA_STREAM_HPP_
 #include "../BaseProxy.hpp"
+#include "CameraDescription.hpp"
 #include <functional>
 
 namespace rsdk{class RobotSystem;}
 
-// TODO 还没有完整的实现，这里预计会创建一个回调函数，用于接受解码以后的数据。
 namespace rsdk::camera
 {   
-    enum class EncodeType
+    /**
+     * @brief 视频信息
+     * 
+     */
+    struct VideoInfo
     {
-        H264,
-        H265,
-        MPEG2,
-        MPEG4,
-        AC1,
-        DIVX,
-        XVID,
-        WMV,
-        VP8,
-        VP9,
-        RV,
-        RM
+        EncodeType  encode_type;
+
+        PixFmt      fix_fmt; 
+
+        int         width;
+
+        int         height;
+
+        int         bit_rate;
+        
+        int         frame_rate;
     };
 
-    struct VideoFrameInfo
-    {
-        int width;
-        int height;
-    };
+    /**
+     * @brief 
+     * 
+     */
+    using VideoSteamCallback = std::function<void (uint8_t* data, size_t len)>;
 
+    /**
+     * @brief 通过该代理获取视频流
+     * 
+     */
     class VideoStreamProxy : public BaseProxy
     {
     public:
         /**
-         * @ brief 
+         * @brief Construct a new Video Stream Proxy object
          * 
-        */
-        VideoStreamProxy(const std::shared_ptr<rsdk::RobotSystem>& system);
+         * @param system 
+         */
+        explicit VideoStreamProxy(const std::shared_ptr<rsdk::RobotSystem>& system);
 
-        EncodeType encodeType();
+        /**
+         * @brief 视频的信息
+         * 
+         * @return VideoInfo 
+         */
+        VideoInfo videoInfo();
 
-        void subscribeOnFrameUpdate(const std::function<void (uint8_t* data, size_t len)>&);
+        /**
+         * @brief 你将会直接得到底层数据的指针，而非一份拷贝。
+         *        如果需要进行处理，最好拷贝到其他线程进行处理。
+         * 
+         */
+        void subscribeVideoStream(const VideoSteamCallback&);
 
+        /**
+         * @brief 打开视频流
+         * 
+         * @return true 
+         * @return false 
+         */
         bool startStream();
 
+        /**
+         * @brief 关闭视频流
+         * 
+         * @return true 
+         * @return false 
+         */
         bool stopStream();
     };
 }

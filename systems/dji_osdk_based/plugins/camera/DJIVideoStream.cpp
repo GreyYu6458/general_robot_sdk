@@ -52,9 +52,18 @@ DJIVideoStream::DJIVideoStream(const std::shared_ptr<DJIVehicleSystem>& system)
     _impl = new Impl(this);
 }
 
-rsdk::camera::EncodeType DJIVideoStream::encodeType()
+rsdk::camera::VideoInfo DJIVideoStream::videoInfo()
 {
-    return rsdk::camera::EncodeType::H264;
+    static rsdk::camera::VideoInfo info
+    {
+        rsdk::camera::EncodeType::ID_H264, 
+        rsdk::camera::PixFmt::YUV420P,  
+        1280,   // width
+        960,    // height
+        768240, // bit rate
+        30      // frame rate
+    };
+    return info;
 }
 
 DJIVideoStream::~DJIVideoStream()
