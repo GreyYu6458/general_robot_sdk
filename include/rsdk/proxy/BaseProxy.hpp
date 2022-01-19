@@ -12,7 +12,7 @@ namespace rsdk
     class BasePlugin;
     class DelegateMemory;
 
-    class BaseProxy : public RObject, public Startable
+    class HUI_EXPORT BaseProxy : public RObject, public Startable
     {
     public:
         explicit BaseProxy(

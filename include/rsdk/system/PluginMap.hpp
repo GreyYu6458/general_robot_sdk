@@ -1,12 +1,13 @@
 #ifndef _PLUGIN_MAP_HPP_
 #define _PLUGIN_MAP_HPP_
 #include <memory>
+#include "rsdk/tools/visibility_control.h"
 
 namespace rsdk
 {   
     class BasePlugin;
     
-    class PluginMap
+    class HUI_EXPORT PluginMap
     {
     public:
         /**

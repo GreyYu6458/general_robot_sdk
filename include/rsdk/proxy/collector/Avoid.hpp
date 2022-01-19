@@ -6,7 +6,7 @@
 
 namespace rsdk::collector
 {
-    class AvoidanceProxy:  public BaseProxy
+    class HUI_EXPORT AvoidanceProxy:  public BaseProxy
     {
     public:
         using msg_type = sensor_msg::Avoidance;

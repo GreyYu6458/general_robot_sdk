@@ -5,7 +5,7 @@ namespace rsdk{class RobotSystem;}
 
 namespace rsdk::camera
 {
-    class CameraControlProxy : public BaseProxy
+    class HUI_EXPORT CameraControlProxy : public BaseProxy
     {
     public:
         explicit CameraControlProxy(const std::shared_ptr<rsdk::RobotSystem>& system);

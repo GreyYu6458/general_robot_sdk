@@ -1,10 +1,11 @@
 #ifndef _ROBOT_OBJECT_HPP_
 #define _ROBOT_OBJECT_HPP_
+#include "rsdk/tools/visibility_control.h"
 #include "rsdk/event/REvent.hpp"
 
 namespace rsdk
 {
-    class RObject
+    class HUI_EXPORT RObject
     {
         friend class RobotSystem;
     public:

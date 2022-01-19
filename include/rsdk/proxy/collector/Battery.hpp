@@ -6,7 +6,7 @@
 
 namespace rsdk::collector
 {
-    class BatteryProxy:  public BaseProxy
+    class HUI_EXPORT BatteryProxy:  public BaseProxy
     {
     public:
         using msg_type = sensor_msg::BatteryInfo;

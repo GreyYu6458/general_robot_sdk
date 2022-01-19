@@ -12,7 +12,7 @@ namespace rsdk::gimbal
         float yaw;
     };
 
-    class GimbalControlProxy : public BaseProxy
+    class HUI_EXPORT GimbalControlProxy : public BaseProxy
     {
     public:
         explicit GimbalControlProxy(const std::shared_ptr<rsdk::RobotSystem>& system);

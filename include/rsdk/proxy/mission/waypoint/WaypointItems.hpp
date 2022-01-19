@@ -1,11 +1,12 @@
 #ifndef _WAYPOINT_ITEMS_HPP_
 #define _WAYPOINT_ITEMS_HPP_
 #include "WPMItem.hpp"
+#include "rsdk/tools/visibility_control.h"
 #include <vector>
 
 namespace rsdk::mission::waypoint
 {
-    class WaypointItems
+    class HUI_EXPORT WaypointItems
     {
     public:
         WaypointItems();

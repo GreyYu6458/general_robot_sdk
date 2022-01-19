@@ -6,7 +6,7 @@
 
 namespace rsdk::collector
 {
-    class GNSSUncertainInfoProxy:  public BaseProxy
+    class HUI_EXPORT GNSSUncertainInfoProxy:  public BaseProxy
     {
     public:
         using msg_type = sensor_msg::GNSSUncertain;

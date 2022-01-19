@@ -6,6 +6,10 @@ else()
     message("can not find boost library")
 endif()
 
+if(WIN32)
+add_definitions(-DBOOST_UUID_FORCE_AUTO_LINK)
+endif()
+
 add_library(
     robot_sdk
     SHARED

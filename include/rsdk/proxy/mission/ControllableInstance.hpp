@@ -14,7 +14,7 @@ namespace rsdk::mission
     using ControlCallback = std::function<void (const ControlResult&)>;
 
     // 任务异步控制接口(真实实现不一定是异步的)
-    struct Controllable
+    struct HUI_EXPORT Controllable
     {
         /**
          * @brief 暂停任务

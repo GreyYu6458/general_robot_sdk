@@ -4,12 +4,12 @@
 #include <memory>
 #include <functional>
 #include <tuple>
-
+#include "rsdk/tools/visibility_control.h"
 #include "REventType.hpp"
 
 namespace rsdk::event
 {
-    class BaseREvent
+    class HUI_EXPORT BaseREvent
     {
     public:
         BaseREvent(uint64_t type);

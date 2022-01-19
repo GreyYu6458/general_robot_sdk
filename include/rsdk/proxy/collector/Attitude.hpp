@@ -6,7 +6,7 @@
 
 namespace rsdk::collector
 {
-    class AttitudeProxy:  public BaseProxy
+    class HUI_EXPORT AttitudeProxy:  public BaseProxy
     {
     public:
         using msg_type = sensor_msg::Attitude;

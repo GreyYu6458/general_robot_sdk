@@ -10,7 +10,7 @@ namespace rsdk::mission
     class MainMissionTask;
     class SubMissionTask;
 
-    class MissionInstanceProxy : public BaseProxy,
+    class HUI_EXPORT MissionInstanceProxy : public BaseProxy,
                             protected TaskListener
     {
     public:

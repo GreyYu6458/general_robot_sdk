@@ -6,7 +6,7 @@
 
 namespace rsdk::collector
 {
-    class FlyingRobotStatusProxy:  public BaseProxy
+    class HUI_EXPORT FlyingRobotStatusProxy:  public BaseProxy
     {
     public:
         using msg_type = sensor_msg::FlightEnum;

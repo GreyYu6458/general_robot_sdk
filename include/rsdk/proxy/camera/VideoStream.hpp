@@ -37,7 +37,7 @@ namespace rsdk::camera
      * @brief 通过该代理获取视频流
      * 
      */
-    class VideoStreamProxy : public BaseProxy
+    class HUI_EXPORT VideoStreamProxy : public BaseProxy
     {
     public:
         /**

@@ -4,10 +4,11 @@
 #include <optional>
 #include <cstdint>
 #include <string>
+#include "rsdk/tools/visibility_control.h"
 
 namespace rsdk
 {
-    class SystemConfig
+    class HUI_EXPORT SystemConfig
     {
     public:
         SystemConfig();

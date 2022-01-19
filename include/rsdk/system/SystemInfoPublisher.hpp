@@ -1,11 +1,12 @@
 #ifndef _SYSTEM_INFO_PUBLISHER_HPP_
 #define _SYSTEM_INFO_PUBLISHER_HPP_
 #include "SystemInfo.hpp"
+#include "rsdk/tools/visibility_control.h"
 #include <functional>
 
 namespace rsdk
 {
-    class SystemInfoPublisher
+    class HUI_EXPORT SystemInfoPublisher
     {
     public:
         using SystemInfoCallback = std::function<void (const SystemInfo&)>;
