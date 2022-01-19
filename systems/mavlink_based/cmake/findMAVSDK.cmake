@@ -1,6 +1,11 @@
 include(FetchContent)
 
 Set(FETCHCONTENT_QUIET FALSE)
+if(WIN32)
+    SET(USE_SUPERBUILD OFF)
+else()
+    SET(USE_SUPERBUILD ON)
+endif()
 
 fetchcontent_declare(
         mavsdk_project
@@ -11,6 +16,7 @@ fetchcontent_declare(
     GIT_PROGRESS
         1
     CMAKE_ARGS
+        "-DSUPERBUILD=${USE_SUPERBUILD}"
         "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
         "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
         "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
