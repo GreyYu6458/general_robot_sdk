@@ -8,8 +8,6 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-find_package(MAVSDK REQUIRED)
-
 add_library(
     mav_vehicle
     SHARED
@@ -37,11 +35,7 @@ target_link_libraries(
     PUBLIC
     robot_sdk
     -Wl,--whole-archive
-    MAVSDK::mavsdk
-    MAVSDK::mavsdk_action
-    MAVSDK::mavsdk_telemetry
-    MAVSDK::mavsdk_mission
-    MAVSDK::mavsdk_mission_raw
+    ${MAVSDK_LINK_LIBRARIES}
     curl
     jsoncpp
     tinyxml2
