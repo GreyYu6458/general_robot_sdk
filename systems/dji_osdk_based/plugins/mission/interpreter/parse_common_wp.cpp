@@ -14,6 +14,24 @@ inline double nomoralizeYawAngle(double yaw)
     return yaw > 180 ? yaw - 360 : yaw;
 }
 
+/**
+ * @param next_raw         目标角度     0    -> 360
+ * @param last_converted   本次角度     -180 -> 180
+ * @return DJIWaypointV2TurnMode
+ */
+inline DJIWaypointV2TurnMode calTurnMode(double next_raw, double current_converted)
+{
+    // 转换到 0 -> 360
+    double current_raw = current_converted < 0 ? -current_converted : -current_converted + 360;
+    // 对齐到 0 度
+    double diff_angle  = next_raw - current_converted;
+    
+    if(diff_angle < 0) diff_angle + 360;
+
+    return diff_angle > 180 ? DJIWaypointV2TurnMode::DJIWaypointV2TurnModeClockwise :
+                              DJIWaypointV2TurnMode::DJIWaypointV2TurnModeCounterClockwise;
+}
+
 void wp_common_set(DJI::OSDK::WaypointV2 &dji_wp_item)
 {
     dji_wp_item.waypointType = DJI::OSDK::DJIWaypointV2FlightPathModeGoToPointInAStraightLineAndStop;
@@ -65,7 +83,10 @@ template<> InterpretException STDWPInterpreter::_convert_item
     dji_wp.longitude        = item_y / 1e7 * M_PI / 180.0;
     dji_wp.relativeHeight   = item_z;
     dji_wp.heading          = nomoralizeYawAngle(yaw_degree);
-    
+    dji_wp.turnMode         = !context().last_dji_wp /*没有上一次*/ ? 
+                                DJIWaypointV2TurnMode::DJIWaypointV2TurnModeClockwise:
+                                calTurnMode(yaw_degree, context().last_dji_wp->heading);
+
     mission.wpIndexSeqList().push_back(item_seq);
 
     if(wait_time > 25.5)

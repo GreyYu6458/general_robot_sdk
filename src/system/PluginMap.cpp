@@ -8,7 +8,7 @@ namespace rsdk
     using BasePluginMap = std::unordered_map<size_t, std::shared_ptr<BasePlugin>>;
 
     /**
-     * @brief 
+     * @brief 将一个集合转换为一个空表
      * 
      * @return BasePluginMap 
      */

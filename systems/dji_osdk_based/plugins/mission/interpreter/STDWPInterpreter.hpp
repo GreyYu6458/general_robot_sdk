@@ -102,7 +102,7 @@ protected:
         const rmw::WPMItem*             last_wp;
 
         // 解析中，上一个大疆的航点
-        const DJI::OSDK::WaypointV2*    last_dji_wp;
+        const DJI::OSDK::WaypointV2*    last_dji_wp{nullptr};
 
         void reset()
         {
