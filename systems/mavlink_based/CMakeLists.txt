@@ -2,11 +2,11 @@ project(dji_vehicle)
 
 set(CMAKE_CXX_STANDARD 17)
 
-include(cmake/findMAVSDK.cmake)
-
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+find_package(MAVSDK REQUIRED)
 
 add_library(
     mav_vehicle
@@ -18,28 +18,17 @@ add_library(
     plugins/collectror/MavFlightStatus.cpp
     plugins/collectror/MavGNSSReceiver.cpp
     plugins/collectror/MavGNSSUncertain.cpp
-
     plugins/mission/MavMissionInstance.cpp
     plugins/mission/MavMissionEventHandler.cpp
     plugins/mission/tasks/MavMainTask.cpp
     plugins/mission/interpreter/MavWPInterpreter.cpp
 )
 
-add_dependencies(
-  mav_vehicle
-  mavsdk_project
-)
-
 target_link_libraries(
     mav_vehicle
     PUBLIC
     robot_sdk
-    -Wl,--whole-archive
-    ${MAVSDK_LINK_LIBRARIES}
-    curl
-    jsoncpp
-    tinyxml2
-    -Wl,--no-whole-archive
+    MAVSDK::mavsdk
     boost_thread
     pthread
 )

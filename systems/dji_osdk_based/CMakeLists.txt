@@ -1,49 +1,16 @@
 project(dji_vehicle)
 
 set(CMAKE_CXX_STANDARD 17)
-include(cmake/findDJIOSDK.cmake)
 include(cmake/djisystem_compile_option.cmake)
 
-# FIND FFMPEG
-find_path(AVCODEC_INCLUDE_DIR libavcodec/avcodec.h)
-find_library(AVCODEC_LIBRARY avcodec)
-
-find_path(AVFORMAT_INCLUDE_DIR libavformat/avformat.h)
-find_library(AVFORMAT_LIBRARY avformat)
-
-find_path(AVUTIL_INCLUDE_DIR libavutil/avutil.h)
-find_library(AVUTIL_LIBRARY avutil)
-
-find_path(AVDEVICE_INCLUDE_DIR libavdevice/avdevice.h)
-find_library(AVDEVICE_LIBRARY avdevice)
-
-find_path(AVDEVICE_INCLUDE_DIR libswscale/swscale.h)
-find_library(SWSCALE_LIBRARY swscale)
-
-# OpenCV
-find_package(OpenCV REQUIRED)
-include_directories(${OpenCV_INCLUDE_DIRS})
-
-include_directories(
-    ${AVCODEC_INCLUDE_DIR}
-    ${AVFORMAT_INCLUDE_DIR}
-    ${AVUTIL_INCLUDE_DIR}
-    ${AVDEVICE_INCLUDE_DIR}
-    ${AVDEVICE_INCLUDE_DIR}
-)
-
 # FIND LIBUSB-1.0
-find_path(LIBUSB_INCLUDE_PATH libusb-1.0/libusb.h)
-find_library(LIBUSB_1_0 usb-1.0)
+find_path(LIBUSB_INCLUDE_PATH   libusb-1.0/libusb.h)
+find_library(LIBUSB_1_0         usb-1.0)
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${LIBUSB_INCLUDE_PATH}
-    ${LIBUSB_INCLUDE_PATH}/libusb-1.0
-)
-
-# FIND TINYXML2
-find_library(LIBTINYXML2 tinyxml2)
+# FIND DJI OSDK
+find_library(OSDK_CORE_LIBRARY      djiosdk-core        PATHS   ${SUPERBUILD_INSTALL_DIR}/lib)
+find_library(OSDK_ADVANCED_LIBRARY  advanced-sensing    PATHS   ${SUPERBUILD_INSTALL_DIR}/lib)
+find_library(OSDK_LINKER_LIBRARY    dji-linker          PATHS   ${SUPERBUILD_INSTALL_DIR}/lib)
 
 add_library(
     dji_vehicle
@@ -77,9 +44,10 @@ add_library(
     plugins/mission/interpreter/STDWPInterpreter.cpp
 )
 
-add_dependencies(
-  dji_vehicle
-  dji_osdk
+target_compile_definitions(
+    dji_vehicle
+    PRIVATE
+    ADVANCED_SENSING
 )
 
 target_link_libraries(
@@ -90,16 +58,15 @@ target_link_libraries(
     ${OSDK_ADVANCED_LIBRARY}
     ${OSDK_LINKER_LIBRARY}
     ${LIBUSB_1_0}
-    # FFMPEG
-    ${AVCODEC_LIBRARY}
-    ${AVFORMAT_LIBRARY}
-    ${AVUTIL_LIBRARY}
-    ${AVDEVICE_LIBRARY}
-    ${SWSCALE_LIBRARY}
-    ${OpenCV_LIBS}
-    ${LIBTINYXML2}
     boost_thread
     pthread
+)
+
+target_include_directories(
+    dji_vehicle
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${LIBUSB_INCLUDE_PATH}/libusb-1.0
 )
 
 if(DJI_SYSTEM_SIM_ENABLE)
