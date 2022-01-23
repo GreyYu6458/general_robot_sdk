@@ -3,7 +3,7 @@ include(ProcessorCount)
 set(DEPS_ROOT_PATH          ${CMAKE_BINARY_DIR})
 set(SUPERBUILD_INSTALL_DIR  ${CMAKE_INSTALL_PREFIX})
 include_directories(${SUPERBUILD_INSTALL_DIR}/include)
-set(CMAKE_PREFIX_PATH       ${SUPERBUILD_INSTALL_DIR}) # for find_package
+list(APPEND CMAKE_PREFIX_PATH ${SUPERBUILD_INSTALL_DIR}) # for find_package
 set(SUPERBUILD_PACKAGE_DIR) # package list
 
 function(SET_SUPERBUILD TARGET_NAME CMAKE_CONFIG_PATH)
