@@ -1,11 +1,3 @@
-
-find_package(Boost 1.75 REQUIRED)
-if(Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
-else()
-    message("can not find boost library")
-endif()
-
 if(WIN32)
 add_definitions(-DBOOST_UUID_FORCE_AUTO_LINK)
 endif()

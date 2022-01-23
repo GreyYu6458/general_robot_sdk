@@ -11,6 +11,15 @@ endif()
 include(cmake/super_build.cmake)
 include_directories(include)
 
+find_package(Boost 1.75 REQUIRED)
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+else()
+    message("can not find boost library")
+endif()
+
+find_package(Threads REQUIRED)
+
 add_subdirectory(src)
 add_subdirectory(systems)
 

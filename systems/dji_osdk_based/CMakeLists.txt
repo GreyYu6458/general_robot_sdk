@@ -58,8 +58,7 @@ target_link_libraries(
     ${OSDK_ADVANCED_LIBRARY}
     ${OSDK_LINKER_LIBRARY}
     ${LIBUSB_1_0}
-    boost_thread
-    pthread
+    Threads::Threads
 )
 
 target_include_directories(

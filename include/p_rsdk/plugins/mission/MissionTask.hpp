@@ -22,7 +22,7 @@ namespace rsdk::mission
      * 
      *          listener为Instance时的情况:
      */
-    class MissionTask : public RObject, public StateDelegation
+    class HUI_EXPORT MissionTask : public RObject, public StateDelegation
     {
     public:
         /**
@@ -101,7 +101,7 @@ namespace rsdk::mission
         Impl* _impl;
     };
 
-    class MainMissionTask : public MissionTask
+    class HUI_EXPORT MainMissionTask : public MissionTask
     {
     public:
         MainMissionTask(
@@ -109,7 +109,7 @@ namespace rsdk::mission
         ) : MissionTask(_task_name, true){}
     };
 
-    class SubMissionTask : public MissionTask
+    class HUI_EXPORT SubMissionTask : public MissionTask
     {
     public:
         SubMissionTask(

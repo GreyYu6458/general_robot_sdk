@@ -14,9 +14,9 @@
 
 const char* opt_key[static_cast<uint32_t>(rsdk::LinkMethodType::COUNT)] = 
 {
-    [static_cast<uint32_t>(rsdk::LinkMethodType::SERIAL)]  = "acm",
-    [static_cast<uint32_t>(rsdk::LinkMethodType::TCP)]     = "tcp",
-    [static_cast<uint32_t>(rsdk::LinkMethodType::UDP)]     = "udp"
+    "acm",
+    "tcp",
+    "udp"
 };
 
 #define REGIST_PLUGIN(plugin_name, base_plugin_name) \

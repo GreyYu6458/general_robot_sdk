@@ -5,7 +5,7 @@
 
 namespace rsdk::gimbal
 {
-    class GimbalControlPlugin  : public BasePlugin
+    class HUI_EXPORT GimbalControlPlugin  : public BasePlugin
     {
     public:
         explicit GimbalControlPlugin(const std::shared_ptr<RobotSystem>& sys);

@@ -3,7 +3,7 @@
 
 namespace rsdk
 {
-    class MissionDelegateMemory : public DelegateMemory
+    class HUI_EXPORT MissionDelegateMemory : public DelegateMemory
     {
     public:
         MissionDelegateMemory();

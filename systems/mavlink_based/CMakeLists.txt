@@ -29,8 +29,7 @@ target_link_libraries(
     PUBLIC
     robot_sdk
     MAVSDK::mavsdk
-    boost_thread
-    pthread
+    Threads::Threads
 )
 
 install(

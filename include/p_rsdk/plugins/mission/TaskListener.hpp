@@ -20,7 +20,7 @@ namespace rsdk::mission
 
     class MissionTask;
 
-    struct TaskListener
+    struct HUI_EXPORT TaskListener
     {
         virtual void OnStartStageFinished(MissionTask*, StageRst rst) = 0;
 

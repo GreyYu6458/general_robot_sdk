@@ -10,7 +10,7 @@ namespace rsdk
 {
     class RobotSystem;
 
-    class BasePlugin : public RObject, public Startable
+    class HUI_EXPORT BasePlugin : public RObject, public Startable
     {
     public:
         /**

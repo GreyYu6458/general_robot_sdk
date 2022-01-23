@@ -17,7 +17,7 @@ namespace rsdk::mission
      *          设计点:在Instance中产生的sub task，不会影响状态的判断
      *          
      */
-    class InstancePlugin : 
+    class HUI_EXPORT InstancePlugin : 
         public rsdk::BasePlugin
     {
     public:

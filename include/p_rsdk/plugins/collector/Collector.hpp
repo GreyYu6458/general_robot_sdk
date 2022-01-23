@@ -14,7 +14,7 @@ namespace rsdk
 
 namespace rsdk::collector
 {
-    class CollectorCommon
+    class HUI_EXPORT CollectorCommon
     {
     public:
         void setUpdateRate(float rate)

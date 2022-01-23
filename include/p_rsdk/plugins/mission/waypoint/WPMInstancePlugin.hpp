@@ -6,7 +6,7 @@
 
 namespace rsdk::mission::waypoint
 {    
-    class PhotoDownloadTask : public rsdk::mission::SubMissionTask
+    class HUI_EXPORT PhotoDownloadTask : public rsdk::mission::SubMissionTask
     {
     public:
         static const char* task_name();
@@ -42,7 +42,7 @@ namespace rsdk::mission::waypoint
         Impl* _impl;
     };
 
-    class WPMInstancePlugin :   public rsdk::mission::InstancePlugin,
+    class HUI_EXPORT WPMInstancePlugin :   public rsdk::mission::InstancePlugin,
                                 public rsdk::mission::Controllable
     {
     public:

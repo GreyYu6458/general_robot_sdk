@@ -33,7 +33,7 @@ namespace rsdk::mission
     /**
      * @brief 任务实体,这是被Controller控制的对象
      */
-    class MissionBlock : public BasePlugin
+    class HUI_EXPORT MissionBlock : public BasePlugin
     {
     public:
         MissionBlock(const std::shared_ptr<RobotSystem>&);
