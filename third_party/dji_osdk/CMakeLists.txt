@@ -26,6 +26,11 @@ foreach(CMAKE_ARG ${CMAKE_ARGS})
     message(STATUS "-- ${CMAKE_ARG}")
 endforeach()
 
+message(STATUS "Preparing external project \"${SUPER_BUILD_PROJECT_NAME}\" with customer args:")
+foreach(CMAKE_ARG ${SUPER_BUILD_CUSTOMER_COMMAND})
+    message(STATUS "-- ${CMAKE_ARG}")
+endforeach()
+
 ExternalProject_Add(
         ${SUPER_BUILD_PROJECT_NAME}
     GIT_REPOSITORY 
@@ -36,4 +41,5 @@ ExternalProject_Add(
         superbuild
     CMAKE_ARGS 
         "${CMAKE_ARGS}"
+        "${SUPER_BUILD_CUSTOMER_COMMAND}"
 )
