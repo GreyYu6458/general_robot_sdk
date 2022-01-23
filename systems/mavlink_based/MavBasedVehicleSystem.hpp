@@ -8,7 +8,7 @@ namespace mavsdk
     class Telemetry;
 }
 
-class MavBasedVehicleSystem : public rsdk::RobotSystem
+class HUI_EXPORT MavBasedVehicleSystem : public rsdk::RobotSystem
 {
 public:
     /**

@@ -25,7 +25,7 @@ using DJIVehiclePtr = std::shared_ptr<DJIVehicle>;
 
 class DJIPluginBase;
 
-class DJIVehicleSystem : public rsdk::RobotSystem
+class HUI_EXPORT DJIVehicleSystem : public rsdk::RobotSystem
 {
 public:
     /**
@@ -91,13 +91,11 @@ public:
 
     /**
      * @brief 
-     * 
      */
     const sensor_msg::Coordinate& lastUpdatePosition();
 
     /**
      * @brief 
-     * 
      */
     void uploadPosition(const sensor_msg::Coordinate&);
 
