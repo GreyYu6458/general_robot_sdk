@@ -20,10 +20,8 @@ function(SET_SUPERBUILD TARGET_NAME CMAKE_CONFIG_PATH)
 
     if(${ARGV2} STREQUAL "CMAKE_ARGS")
         set(CUSTOM_CONFIG_COMMAND)
-        message("find customer cmake args for ${TARGET_NAME}:")
         foreach(ARG_NUM RANGE 3 ${ARGC})
             list(APPEND CUSTOM_CONFIG_COMMAND ${ARGV${ARG_NUM}})
-            message("-- ${ARGV${ARG_NUM}}")
         endforeach()
     endif()
         

@@ -1,40 +1,68 @@
-cmake_minimum_required(VERSION 3.1)
+include(ProcessorCount)
 
-set(SUPER_BUILD_PROJECT_NAME external-mavsdk)
+set(DEPS_ROOT_PATH          ${CMAKE_BINARY_DIR})
+set(SUPERBUILD_INSTALL_DIR  ${CMAKE_INSTALL_PREFIX})
+include_directories(${SUPERBUILD_INSTALL_DIR}/include)
+set(CMAKE_PREFIX_PATH       ${SUPERBUILD_INSTALL_DIR}) # for find_package
+set(SUPERBUILD_PACKAGE_DIR) # package list
 
-project(${SUPER_BUILD_PROJECT_NAME})
-include(ExternalProject)
+function(SET_SUPERBUILD TARGET_NAME CMAKE_CONFIG_PATH)
 
-list(APPEND CMAKE_ARGS
-    "-DBUILD_TESTS=OFF"
-    "-DINSTALL_GTEST=OFF"
-    "-DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}"
-    "-DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}"
-    "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
-    "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
-)
+    set(TARGET_SOURCE_DIR  "${CMAKE_CONFIG_PATH}")
+    set(TARGET_BINARY_DIR  "${DEPS_ROOT_PATH}/${TARGET_NAME}")
+    set(TARGET_INSTALL_DIR "${SUPERBUILD_INSTALL_DIR}")
 
-if(IOS)
-    list(APPEND CMAKE_ARGS
-        "-DPLATFORM=${PLATFORM}"
-        "-DDEPLOYMENT_TARGET=${DEPLOYMENT_TARGET}"
-        "-DENABLE_STRICT_TRY_COMPILE=${ENABLE_STRICT_TRY_COMPILE}"
+    file(MAKE_DIRECTORY ${TARGET_BINARY_DIR})
+
+    if(DEFINED CMAKE_GENERATOR_PLATFORM AND NOT "${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
+        set(PLATFORM_ARGUMENT "-A${CMAKE_GENERATOR_PLATFORM}")
+    endif()
+
+    if(${ARGV2} STREQUAL "CMAKE_ARGS")
+        set(CUSTOM_CONFIG_COMMAND)
+        foreach(ARG_NUM RANGE 3 ${ARGC})
+            list(APPEND CUSTOM_CONFIG_COMMAND ${ARGV${ARG_NUM}})
+        endforeach()
+    endif()
+        
+    execute_process(
+        COMMAND ${CMAKE_COMMAND}
+            "-G${CMAKE_GENERATOR}"
+            "${PLATFORM_ARGUMENT}"
+            "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+            "-DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}"
+            "-DCMAKE_INSTALL_PREFIX:PATH=${TARGET_INSTALL_DIR}"
+            "-DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}"
+            "-DSUPER_BUILD_CUSTOMER_COMMAND=${CUSTOM_CONFIG_COMMAND}" # CUSTOMER CONFIG COMMAND
+            "-DPLATFORM=${PLATFORM}" # for iOS toolchain
+            "-DDEPLOYMENT_TARGET=${DEPLOYMENT_TARGET}" # for iOS toolchain
+            "-DENABLE_STRICT_TRY_COMPILE=${ENABLE_STRICT_TRY_COMPILE}" # for iOS toolchain
+            "${TARGET_SOURCE_DIR}"
+        WORKING_DIRECTORY 
+            "${TARGET_BINARY_DIR}"
+        RESULT_VARIABLE CONFIGURE_FAILED
     )
-endif()
 
-message(STATUS "Preparing external project \"${SUPER_BUILD_PROJECT_NAME}\" with args:")
-foreach(CMAKE_ARG ${CMAKE_ARGS})
-    message(STATUS "-- ${CMAKE_ARG}")
-endforeach()
+    if(${CONFIGURE_FAILED})
+        message(FATAL_ERROR "${TARGET_SOURCE_DIR} failed to configure!")
+    endif()
 
-ExternalProject_Add(
-        ${SUPER_BUILD_PROJECT_NAME}
-    GIT_REPOSITORY 
-        https://github.com/mavlink/MAVSDK.git
-    GIT_TAG 
-        v1.0.8
-    PREFIX 
-        superbuild
-    CMAKE_ARGS 
-        "${CMAKE_ARGS}"
-)
+    ProcessorCount(NUM_PROCS)
+    set(ENV{MAKEFLAGS} -j${NUM_PROCS})
+
+    if(MSVC)
+        execute_process(COMMAND ${CMAKE_COMMAND} --build . --config ${CMAKE_BUILD_TYPE}
+            WORKING_DIRECTORY   ${TARGET_BINARY_DIR}
+            RESULT_VARIABLE     BUILD_FAILED
+        )
+    else()
+        execute_process(COMMAND ${CMAKE_COMMAND} --build .
+            WORKING_DIRECTORY ${TARGET_BINARY_DIR}
+            RESULT_VARIABLE BUILD_FAILED
+        )
+    endif()
+
+    if(${BUILD_FAILED})
+        message(FATAL_ERROR "${TARGET_BINARY_DIR} failed to build!")
+    endif()
+endfunction()
