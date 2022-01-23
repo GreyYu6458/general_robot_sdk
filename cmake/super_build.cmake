@@ -6,7 +6,8 @@ include_directories(${SUPERBUILD_INSTALL_DIR}/include)
 set(CMAKE_PREFIX_PATH       ${SUPERBUILD_INSTALL_DIR}) # for find_package
 set(SUPERBUILD_PACKAGE_DIR) # package list
 
-function(SET_SUPERBUILD CMAKE_CONFIG_PATH TARGET_NAME)
+function(SET_SUPERBUILD TARGET_NAME CMAKE_CONFIG_PATH)
+
     set(TARGET_SOURCE_DIR  "${CMAKE_CONFIG_PATH}")
     set(TARGET_BINARY_DIR  "${DEPS_ROOT_PATH}/${TARGET_NAME}")
     set(TARGET_INSTALL_DIR "${SUPERBUILD_INSTALL_DIR}")
@@ -17,6 +18,15 @@ function(SET_SUPERBUILD CMAKE_CONFIG_PATH TARGET_NAME)
         set(PLATFORM_ARGUMENT "-A${CMAKE_GENERATOR_PLATFORM}")
     endif()
 
+    if(${ARGV2} STREQUAL "CMAKE_ARGS")
+        set(CUSTOM_CONFIG_COMMAND)
+        message("find customer cmake args for ${TARGET_NAME}:")
+        foreach(ARG_NUM RANGE 3 ${ARGC})
+            list(APPEND CUSTOM_CONFIG_COMMAND ${ARGV${ARG_NUM}})
+            message("-- ${ARGV${ARG_NUM}}")
+        endforeach()
+    endif()
+        
     execute_process(
         COMMAND ${CMAKE_COMMAND}
             "-G${CMAKE_GENERATOR}"
@@ -25,6 +35,7 @@ function(SET_SUPERBUILD CMAKE_CONFIG_PATH TARGET_NAME)
             "-DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}"
             "-DCMAKE_INSTALL_PREFIX:PATH=${TARGET_INSTALL_DIR}"
             "-DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}"
+            "${CUSTOM_CONFIG_COMMAND}" # CUSTOMER CONFIG COMMAND
             "-DPLATFORM=${PLATFORM}" # for iOS toolchain
             "-DDEPLOYMENT_TARGET=${DEPLOYMENT_TARGET}" # for iOS toolchain
             "-DENABLE_STRICT_TRY_COMPILE=${ENABLE_STRICT_TRY_COMPILE}" # for iOS toolchain
