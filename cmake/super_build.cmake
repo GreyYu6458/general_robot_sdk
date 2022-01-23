@@ -8,8 +8,10 @@ endif()
 # Pass down
 if(NOT SUPERBUILD_INSTALL_DIR)
     set(SUPERBUILD_INSTALL_DIR  ${CMAKE_INSTALL_PREFIX})
-    list(APPEND CMAKE_PREFIX_PATH ${SUPERBUILD_INSTALL_DIR}) # for find_package
 endif()
+
+list(APPEND CMAKE_PREFIX_PATH ${SUPERBUILD_INSTALL_DIR}) # for find_package
+message("SUPER BUILD CMAKE PREFIX PATH:${CMAKE_PREFIX_PATH}")
 
 include_directories(${SUPERBUILD_INSTALL_DIR}/include)
 
