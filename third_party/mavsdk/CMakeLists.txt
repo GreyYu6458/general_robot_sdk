@@ -6,6 +6,8 @@ project(${SUPER_BUILD_PROJECT_NAME})
 include(ExternalProject)
 
 list(APPEND CMAKE_ARGS
+    "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+    "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
     "-DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}"
     "-DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}"
     "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
@@ -23,6 +25,11 @@ endif()
 
 message(STATUS "Preparing external project \"${SUPER_BUILD_PROJECT_NAME}\" with args:")
 foreach(CMAKE_ARG ${CMAKE_ARGS})
+    message(STATUS "-- ${CMAKE_ARG}")
+endforeach()
+
+message(STATUS "Preparing external project \"${SUPER_BUILD_PROJECT_NAME}\" with customer args:")
+foreach(CMAKE_ARG ${SUPER_BUILD_CUSTOMER_COMMAND})
     message(STATUS "-- ${CMAKE_ARG}")
 endforeach()
 
