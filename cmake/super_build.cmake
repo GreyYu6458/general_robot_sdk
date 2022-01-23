@@ -18,11 +18,13 @@ function(SET_SUPERBUILD TARGET_NAME CMAKE_CONFIG_PATH)
         set(PLATFORM_ARGUMENT "-A${CMAKE_GENERATOR_PLATFORM}")
     endif()
 
-    if(${ARGV2} STREQUAL "CMAKE_ARGS")
-        set(CUSTOM_CONFIG_COMMAND)
-        foreach(ARG_NUM RANGE 3 ${ARGC})
-            list(APPEND CUSTOM_CONFIG_COMMAND ${ARGV${ARG_NUM}})
-        endforeach()
+    if(NOT ARGVC LESS 3)
+        if(${ARGV2} STREQUAL "CMAKE_ARGS")
+            set(CUSTOM_CONFIG_COMMAND)
+            foreach(ARG_NUM RANGE 3 ${ARGC})
+                list(APPEND CUSTOM_CONFIG_COMMAND ${ARGV${ARG_NUM}})
+            endforeach()
+        endif()
     endif()
         
     execute_process(
