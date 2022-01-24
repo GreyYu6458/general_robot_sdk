@@ -1,13 +1,17 @@
 include(ProcessorCount)
 
-# Pass down
+# Pass down parameters
 if(NOT SUPERBUILD_ROOT_PATH)
     set(SUPERBUILD_ROOT_PATH    ${CMAKE_BINARY_DIR})
+else()
+    message("Find Super build root directory from parent project:${SUPERBUILD_ROOT_PATH}")
 endif()
 
-# Pass down
+# Pass down parameters
 if(NOT SUPERBUILD_INSTALL_DIR)
     set(SUPERBUILD_INSTALL_DIR  ${CMAKE_INSTALL_PREFIX})
+else()
+    message("Find Super build install directory from parent project:${SUPERBUILD_INSTALL_DIR}")
 endif()
 
 list(APPEND CMAKE_PREFIX_PATH ${SUPERBUILD_INSTALL_DIR}) # for find_package
