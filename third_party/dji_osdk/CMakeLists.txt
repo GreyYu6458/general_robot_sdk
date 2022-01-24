@@ -7,8 +7,8 @@ include(ExternalProject)
 
 list(APPEND CMAKE_ARGS
     "-DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}"
-    "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
     "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+    "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
     "-DADVANCED_SENSING=ON"
 )
 
@@ -36,8 +36,6 @@ ExternalProject_Add(
         git@gitee.com:insky-cache/insky-dji-osdk.git
     GIT_TAG 
         "insky_log_callback"
-    PREFIX 
-        superbuild
     CMAKE_ARGS 
         "${CMAKE_ARGS}"
         "${SUPER_BUILD_CUSTOMER_COMMAND}"

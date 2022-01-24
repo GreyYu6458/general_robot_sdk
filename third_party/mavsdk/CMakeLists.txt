@@ -34,8 +34,6 @@ ExternalProject_Add(
         https://github.com/mavlink/MAVSDK.git
     GIT_TAG 
         main
-    PREFIX 
-        superbuild
     CMAKE_ARGS 
         "${CMAKE_ARGS}"
         "${SUPER_BUILD_CUSTOMER_COMMAND}"
