@@ -8,6 +8,8 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "RELEASE" CACHE  STRING "SET CMAKE BUILD TYPE" FORCE)
 endif()
 
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install CACHE  STRING "SET CMAKE INSTALL PREFIX" FORCE)
+
 include(cmake/super_build.cmake)
 include_directories(include)
 
