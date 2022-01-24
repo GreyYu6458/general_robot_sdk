@@ -41,4 +41,6 @@ ExternalProject_Add(
     CMAKE_ARGS 
         "${CMAKE_ARGS}"
         "${SUPER_BUILD_CUSTOMER_COMMAND}"
+    GIT_PROGRESS 
+        TRUE
 )
