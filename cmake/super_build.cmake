@@ -4,29 +4,40 @@
 ]]
 include(ProcessorCount)
 
+# Default CMAKE_BUILD_TYPE
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "RELEASE" CACHE  STRING "SET CMAKE BUILD TYPE" FORCE)
+    set(CMAKE_BUILD_TYPE "RELEASE" CACHE STRING "SET CMAKE BUILD TYPE" FORCE)
+else()
+    message("SUPER BUILD CUSTOMER BUILD TYPE:${CMAKE_BUILD_TYPE}")
 endif()
-
+# Default install prefix set to binary directory
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install CACHE  STRING "SET CMAKE INSTALL PREFIX" FORCE)
+else()
+    message("SUPER BUILD CUSTOMER INSTALL DIRECTORY:${CMAKE_INSTALL_PREFIX}")
 endif()
 
 # Pass down parameters
 if(NOT SUPERBUILD_ROOT_PATH)
     set(SUPERBUILD_ROOT_PATH    ${CMAKE_BINARY_DIR}/dep/${CMAKE_BUILD_TYPE})
 else()
-    message("Find Super build root directory from parent project:${SUPERBUILD_ROOT_PATH}")
+    message("SUPER BUILD CUSTOMER ROOT DIRECTORY:${SUPERBUILD_ROOT_PATH}")
 endif()
 
 # Pass down parameters
 if(NOT SUPERBUILD_INSTALL_DIR)
     set(SUPERBUILD_INSTALL_DIR  ${CMAKE_INSTALL_PREFIX}/${CMAKE_BUILD_TYPE})
 else()
-    message("Find Super build install directory from parent project:${SUPERBUILD_INSTALL_DIR}")
+    message("SUPER BUILD CUSTOMER INSTALL DIRECTORY:${SUPERBUILD_INSTALL_DIR}")
 endif()
 
-list(APPEND CMAKE_PREFIX_PATH ${SUPERBUILD_INSTALL_DIR}) # for find_package
+if(NOT ${CMAKE_PREFIX_PATH} STREQUAL "") # CMAKE_PREFIX_PATH has been set
+    if(NOT ${SUPERBUILD_INSTALL_DIR} MATCH "^(${CMAKE_PREFIX_PATH})?")
+        list(APPEND CMAKE_PREFIX_PATH ${SUPERBUILD_INSTALL_DIR}) # for find_package
+    endif()
+else()
+    list(APPEND CMAKE_PREFIX_PATH ${SUPERBUILD_INSTALL_DIR}) # for find_package
+endif()
 message("SUPER BUILD CMAKE PREFIX PATH:${CMAKE_PREFIX_PATH}")
 
 include_directories(${SUPERBUILD_INSTALL_DIR}/include)
@@ -87,12 +98,14 @@ function(SET_SUPERBUILD TARGET_NAME CMAKE_CONFIG_PATH)
     ProcessorCount(NUM_PROCS)
 
     if(MSVC)
-        execute_process(COMMAND ${CMAKE_COMMAND} --build . --parallel ${NUM_PROCS} --config ${CMAKE_BUILD_TYPE}
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} --build . --parallel ${NUM_PROCS}  --config ${CMAKE_BUILD_TYPE}
             WORKING_DIRECTORY ${TARGET_BINARY_DIR}
             RESULT_VARIABLE BUILD_FAILED
         )
     else()
-        execute_process(COMMAND ${CMAKE_COMMAND} --build . --parallel ${NUM_PROCS}
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} --build . --parallel ${NUM_PROCS}
             WORKING_DIRECTORY ${TARGET_BINARY_DIR}
             RESULT_VARIABLE BUILD_FAILED
         )
