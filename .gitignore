@@ -1,6 +1,8 @@
 build
 build_win
+CMakeSettings.json
 backup
+.vs
 .vscode
 cmake-build-debug
 .idea

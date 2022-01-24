@@ -21,8 +21,6 @@ if(BUILD_MAVBASED_SYSTEM)
     SET_SUPERBUILD(
         mavsdk
         ${CMAKE_SOURCE_DIR}/third_party/mavsdk
-    CMAKE_ARGS
-        "-DBUILD_TESTS=OFF"
     )
 
     add_subdirectory(mavlink_based)
