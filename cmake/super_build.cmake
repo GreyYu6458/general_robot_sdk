@@ -1,3 +1,7 @@
+#[[
+    SUPER BUILD TOOL
+    CREATE BY CHENHUI.YU 1.1.2020
+]]
 include(ProcessorCount)
 
 # Pass down parameters
@@ -21,11 +25,28 @@ include_directories(${SUPERBUILD_INSTALL_DIR}/include)
 
 function(SET_SUPERBUILD TARGET_NAME CMAKE_CONFIG_PATH)
 
+    set(BUILD_DONE_NAME ${TARGET_NAME}_BUILD_DONE)
+
+    if(DEFINED ${BUILD_DONE_NAME})
+        if(${BUILD_DONE_NAME})
+            message("SUPER BUILD HAD ALREADY BUILT: ${TARGET_NAME}")
+            return()
+        endif()
+    endif()
+    message("SUPER BUILD START: ${TARGET_NAME}")
+
     set(TARGET_SOURCE_DIR  "${CMAKE_CONFIG_PATH}")
     set(TARGET_BINARY_DIR  "${SUPERBUILD_ROOT_PATH}/${TARGET_NAME}")
     set(TARGET_INSTALL_DIR "${SUPERBUILD_INSTALL_DIR}")
 
     file(MAKE_DIRECTORY ${TARGET_BINARY_DIR})
+
+    if(NOT EXISTS ${TARGET_INSTALL_DIR})
+        file(MAKE_DIRECTORY ${TARGET_INSTALL_DIR})
+    endif()
+    if(NOT EXISTS ${TARGET_INSTALL_DIR})
+        file(MAKE_DIRECTORY ${TARGET_INSTALL_DIR})
+    endif()
 
     if(NOT ${ARGC} LESS 3)
         if(${ARGV2} STREQUAL "CMAKE_ARGS")
@@ -56,7 +77,6 @@ function(SET_SUPERBUILD TARGET_NAME CMAKE_CONFIG_PATH)
     endif()
 
     ProcessorCount(NUM_PROCS)
-    set(ENV{MAKEFLAGS} -j${NUM_PROCS})
 
     if(MSVC)
         execute_process(COMMAND ${CMAKE_COMMAND} --build . --config ${CMAKE_BUILD_TYPE}
@@ -72,5 +92,8 @@ function(SET_SUPERBUILD TARGET_NAME CMAKE_CONFIG_PATH)
 
     if(${BUILD_FAILED})
         message(FATAL_ERROR "${TARGET_BINARY_DIR} failed to build!")
+    else()
+        message("SUPER BUILD SUCCESS: ${TARGET_NAME}, ${BUILD_DONE_NAME} will be set to true")
+        set(${BUILD_DONE_NAME} TRUE CACHE BOOL "Did ${TARGET_NAME} has built" FORCE)
     endif()
 endfunction()
