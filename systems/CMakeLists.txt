@@ -22,6 +22,8 @@ if(BUILD_MAVBASED_SYSTEM)
         mavsdk
         ${CMAKE_SOURCE_DIR}/third_party/mavsdk
     CMAKE_ARGS
+        "-DCMAKE_PREFIX_PATH=${CMAKE_INSTALL_PREFIX}"
+        "-DSUPERBUILD=OFF"
         "-DBUILD_TESTS=OFF"
     )
 
