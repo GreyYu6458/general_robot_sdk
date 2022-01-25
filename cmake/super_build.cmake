@@ -97,14 +97,12 @@ function(SET_SUPERBUILD TARGET_NAME CMAKE_CONFIG_PATH)
             COMMAND ${CMAKE_COMMAND} --build . --parallel ${NUM_PROCS}  --config ${CMAKE_BUILD_TYPE}
             WORKING_DIRECTORY ${TARGET_BINARY_DIR}
             RESULT_VARIABLE BUILD_FAILED
-            COMMAND_ECHO    STDOUT
         )
     else()
         execute_process(
             COMMAND ${CMAKE_COMMAND} --build . --parallel ${NUM_PROCS}
             WORKING_DIRECTORY ${TARGET_BINARY_DIR}
             RESULT_VARIABLE BUILD_FAILED
-            COMMAND_ECHO    STDOUT
         )
     endif()
 
