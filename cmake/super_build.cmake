@@ -13,6 +13,7 @@ else()
 endif()
 
 # Pass down parameters
+# SUPERBUILD_ROOT_PATH must pass down
 if(NOT SUPERBUILD_ROOT_PATH)
     set(SUPERBUILD_ROOT_PATH    ${CMAKE_BINARY_DIR}/superbuild/${CMAKE_BUILD_TYPE})
     message("SUPER BUILD DEFAULT  ROOT DIRECTORY:${SUPERBUILD_ROOT_PATH}")
@@ -21,6 +22,7 @@ else()
 endif()
 
 # Default install prefix set to binary directory
+# CMAKE_INSTALL_PREFIX must pass down
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(
         CMAKE_INSTALL_PREFIX 
@@ -59,7 +61,7 @@ function(SET_SUPERBUILD TARGET_NAME CMAKE_CONFIG_PATH)
     message("SUPER BUILD START: ${TARGET_NAME}")
 
     set(TARGET_SOURCE_DIR  "${CMAKE_CONFIG_PATH}")
-    set(TARGET_BINARY_DIR  "${SUPERBUILD_ROOT_PATH}/${TARGET_NAME}")
+    set(TARGET_BINARY_DIR  "${SUPERBUILD_ROOT_PATH}/ws/${TARGET_NAME}")
 
     file(MAKE_DIRECTORY ${TARGET_BINARY_DIR})
 
