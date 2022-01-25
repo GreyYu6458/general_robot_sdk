@@ -37,10 +37,10 @@ endif()
 
 if(CMAKE_PREFIX_PATH) # CMAKE_PREFIX_PATH has been set
     if(NOT ${CMAKE_INSTALL_PREFIX} IN_LIST CMAKE_PREFIX_PATH)
-        list(APPEND CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX}) # for find_package
+        list(INSERT CMAKE_PREFIX_PATH 0 ${CMAKE_INSTALL_PREFIX}) # for find_package, fist search path
     endif()
 else()
-    list(APPEND CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX}) # for find_package
+    list(INSERT CMAKE_PREFIX_PATH 0 ${CMAKE_INSTALL_PREFIX}) # for find_package, fist search path
 endif()
 
 message("SUPER BUILD CMAKE PREFIX PATH:${CMAKE_PREFIX_PATH}")
