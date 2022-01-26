@@ -28,8 +28,8 @@ inline DJIWaypointV2TurnMode calTurnMode(double next_raw, double current_convert
     
     if(diff_angle < 0) diff_angle + 360;
 
-    return diff_angle > 180 ? DJIWaypointV2TurnMode::DJIWaypointV2TurnModeClockwise :
-                              DJIWaypointV2TurnMode::DJIWaypointV2TurnModeCounterClockwise;
+    return diff_angle > 180 ? DJIWaypointV2TurnMode::DJIWaypointV2TurnModeCounterClockwise :
+                              DJIWaypointV2TurnMode::DJIWaypointV2TurnModeClockwise;
 }
 
 void wp_common_set(DJI::OSDK::WaypointV2 &dji_wp_item)
