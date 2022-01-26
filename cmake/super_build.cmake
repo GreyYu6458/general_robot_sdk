@@ -15,20 +15,20 @@ endif()
 # Pass down parameters
 # SUPERBUILD_ROOT_PATH must pass down
 if(NOT SUPERBUILD_ROOT_PATH)
-    set(SUPERBUILD_ROOT_PATH ${CMAKE_BINARY_DIR}/superbuild)
+    set(SUPERBUILD_ROOT_PATH ${CMAKE_BINARY_DIR}/superbuild/)
     message("SUPER BUILD DEFAULT  ROOT DIRECTORY:${SUPERBUILD_ROOT_PATH}")
 else()
     message("SUPER BUILD CUSTOMER ROOT DIRECTORY:${SUPERBUILD_ROOT_PATH}")
 endif()
 
-set(SUPERBUILD_BUILD_TYPE_PATH  SUPERBUILD_ROOT_PATH/${CMAKE_BUILD_TYPE})
+set(SUPERBUILD_BUILD_TYPE_PATH  ${SUPERBUILD_ROOT_PATH}/${CMAKE_BUILD_TYPE})
 set(SUPERBUILD_WORK_PATH        ${SUPERBUILD_BUILD_TYPE_PATH}/ws)
 
 # Default install prefix set to binary directory
 # CMAKE_INSTALL_PREFIX must pass down
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(
-        CMAKE_INSTALL_PREFIX 
+        CMAKE_INSTALL_PREFIX ${SUPERBUILD_BUILD_TYPE_PATH}/install
         CACHE  STRING 
         "SET CMAKE INSTALL PREFIX" FORCE
     )
@@ -57,7 +57,7 @@ function(SET_SUPERBUILD TARGET_NAME CMAKE_CONFIG_PATH)
     set(multi_value_args    "CMAKE_ARGS")
     set(BUILD_DONE_NAME     ${TARGET_NAME}_${CMAKE_BUILD_TYPE}_BUILD_DONE)
     set(TARGET_SOURCE_DIR  "${CMAKE_CONFIG_PATH}")
-    set(TARGET_BINARY_DIR  "${SUPERBUILD_WOKD_PATH}/${TARGET_NAME}")
+    set(TARGET_BINARY_DIR  "${SUPERBUILD_WORK_PATH}/${TARGET_NAME}")
 
     if(DEFINED ${BUILD_DONE_NAME})
         if(${BUILD_DONE_NAME})
@@ -70,13 +70,14 @@ function(SET_SUPERBUILD TARGET_NAME CMAKE_CONFIG_PATH)
 
     file(MAKE_DIRECTORY ${TARGET_BINARY_DIR})
 
-    list(SUBLIST ARGN 2 -1 LIST_ARGN)
+    list(SUBLIST ARGN 1 -1 LIST_ARGN)
+
     cmake_parse_arguments(
         PARSE_RESULT
-        ${options} 
-        ${one_value_args} 
-        ${multi_value_args}
-        ${LIST_ARGN}
+        "${options}" 
+        "${one_value_args}"
+        "${multi_value_args}"
+        ${ARGN}
     )
 
     execute_process(
@@ -89,7 +90,7 @@ function(SET_SUPERBUILD TARGET_NAME CMAKE_CONFIG_PATH)
             "-DSUPERBUILD_ROOT_PATH=${SUPERBUILD_ROOT_PATH}"
             "${TARGET_SOURCE_DIR}"
         WORKING_DIRECTORY 
-            "${SUPERBUILD_WORK_PATH}"
+            "${TARGET_BINARY_DIR}"
         RESULT_VARIABLE CONFIGURE_FAILED
     )
 
@@ -102,13 +103,13 @@ function(SET_SUPERBUILD TARGET_NAME CMAKE_CONFIG_PATH)
     if(MSVC)
         execute_process(
             COMMAND ${CMAKE_COMMAND} --build . --parallel ${NUM_PROCS}  --config ${CMAKE_BUILD_TYPE}
-            WORKING_DIRECTORY ${SUPERBUILD_WORK_PATH}
+            WORKING_DIRECTORY ${TARGET_BINARY_DIR}
             RESULT_VARIABLE BUILD_FAILED
         )
     else()
         execute_process(
             COMMAND ${CMAKE_COMMAND} --build . --parallel ${NUM_PROCS}
-            WORKING_DIRECTORY ${SUPERBUILD_WORK_PATH}
+            WORKING_DIRECTORY ${TARGET_BINARY_DIR}
             RESULT_VARIABLE BUILD_FAILED
         )
     endif()
