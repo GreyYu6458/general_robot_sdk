@@ -37,6 +37,10 @@ ExternalProject_Add(
     CMAKE_ARGS 
         "${CMAKE_ARGS}"
         "${SUPER_BUILD_CUSTOMER_COMMAND}"
+    PREFIX
+        ${SUPERBUILD_ROOT_PATH}/${CMAKE_BUILD_TYPE}
+    SOURCE_DIR
+        ${SUPERBUILD_ROOT_PATH}
     GIT_PROGRESS 
         TRUE
 )
