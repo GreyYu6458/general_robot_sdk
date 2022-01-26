@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 
-set(SUPER_BUILD_PROJECT_NAME external-dji_osdk)
+set(SUPER_BUILD_PROJECT_NAME ex-dji_osdk)
 
 project(${SUPER_BUILD_PROJECT_NAME})
 include(ExternalProject)
@@ -42,7 +42,7 @@ ExternalProject_Add(
     PREFIX
         ${SUPERBUILD_ROOT_PATH}/${CMAKE_BUILD_TYPE}
     SOURCE_DIR
-        ${SUPERBUILD_ROOT_PATH}/src
+        ${SUPERBUILD_ROOT_PATH}/src/${SUPER_BUILD_PROJECT_NAME}
     GIT_PROGRESS 
         TRUE
 )
