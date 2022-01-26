@@ -42,7 +42,7 @@ ExternalProject_Add(
     PREFIX
         ${SUPERBUILD_ROOT_PATH}/${CMAKE_BUILD_TYPE}
     SOURCE_DIR
-        ${SUPERBUILD_ROOT_PATH}
+        ${SUPERBUILD_ROOT_PATH}/src
     GIT_PROGRESS 
         TRUE
 )
