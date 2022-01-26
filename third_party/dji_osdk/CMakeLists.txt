@@ -30,6 +30,17 @@ foreach(CMAKE_ARG ${SUPER_BUILD_CUSTOMER_COMMAND})
     message(STATUS "-- ${CMAKE_ARG}")
 endforeach()
 
+if(EXISTS ${GIT_CLONE_DIRECTORY})
+    execute_process(
+        COMMAND git ls-remote ${GIT_CLONE_DIRECTORY} -q
+        RESULT_VARIABLE CHECK_FAILED
+    )
+
+    if(NOT CHECK_FAILED)
+        set(SHOULD_CLONE_REPO "DOWNLOAD_COMMAND \"\"")
+    endif()
+endif()
+
 ExternalProject_Add(
         ${SUPER_BUILD_PROJECT_NAME}
     GIT_REPOSITORY 
