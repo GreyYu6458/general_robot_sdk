@@ -56,11 +56,11 @@ rsdk::camera::VideoInfo DJIVideoStream::videoInfo()
 {
     static rsdk::camera::VideoInfo info
     {
-        rsdk::camera::EncodeType::ID_H264, 
-        rsdk::camera::PixFmt::YUV420P,  
+        rsdk::camera::EncodeType::ID_H264,
+        rsdk::camera::PixFmt::YUV420P,
         1280,   // width
         960,    // height
-        768240, // bit rate
+        768240, // kbit/s
         30      // frame rate
     };
     return info;

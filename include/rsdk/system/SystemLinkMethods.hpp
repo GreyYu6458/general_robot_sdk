@@ -10,6 +10,7 @@ namespace rsdk
         SERIAL,
         TCP,
         UDP,
+        ANY,
         COUNT
     };
 
@@ -36,10 +37,16 @@ namespace rsdk
         uint16_t    port;
     };
 
+    struct AnyMethod : public Method<LinkMethodType::ANY>
+    {
+        std::string expression;
+    };
+
     template<LinkMethodType E> struct MethodConfigType;
     template<> struct MethodConfigType<LinkMethodType::SERIAL>  {using type = SerialMethod;};
     template<> struct MethodConfigType<LinkMethodType::TCP>     {using type = TCPMethod;};
     template<> struct MethodConfigType<LinkMethodType::UDP>     {using type = UDPMethod;};
+    template<> struct MethodConfigType<LinkMethodType::ANY>     {using type = AnyMethod;};
 }
 
 #endif

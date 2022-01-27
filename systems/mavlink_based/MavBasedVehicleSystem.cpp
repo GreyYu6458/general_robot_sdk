@@ -181,6 +181,13 @@ template<> bool MavBasedVehicleSystem::Impl::_mavsdk_add_connect
     return true;
 }
 
+template<> bool MavBasedVehicleSystem::Impl::_mavsdk_add_connect
+<rsdk::LinkMethodType::ANY>(const rsdk::AnyMethod& config)
+{
+    _mavsdk->add_any_connection(config.expression);
+    return true;
+}
+
 template<rsdk::LinkMethodType E> bool add_connection(const rsdk::SystemConfig& config)
 {
     auto _opt = config.getPameter<typename rsdk::MethodConfigType<E>::type>(
