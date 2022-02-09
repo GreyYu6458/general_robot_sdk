@@ -35,7 +35,7 @@ ExternalProject_Add(
     GIT_REPOSITORY 
         git@gitee.com:insky-cache/insky-dji-osdk.git
     GIT_TAG 
-        "insky_log_callback"
+        "insky"
     CMAKE_ARGS 
         "${CMAKE_ARGS}"
         "${SUPER_BUILD_CUSTOMER_COMMAND}"
