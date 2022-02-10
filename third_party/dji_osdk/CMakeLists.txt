@@ -30,17 +30,36 @@ foreach(CMAKE_ARG ${SUPER_BUILD_CUSTOMER_COMMAND})
     message(STATUS "-- ${CMAKE_ARG}")
 endforeach()
 
+set(GIT_REMOTE_PATH git@gitee.com:insky-cache/insky-dji-osdk.git)
+set(GIT_CLONE_PATH  ${SUPERBUILD_ROOT_PATH}/src/${SUPER_BUILD_PROJECT_NAME})
+
+execute_process(
+    COMMAND git ls-remote ${GIT_CLONE_PATH} -q
+    RESULT_VARIABLE CHECK_FAILED
+    OUTPUT_QUIET
+)
+
+if(NOT ${CHECK_FAILED})
+    set(CUSTOM_CLONE_COMMAND "")
+endif()
+
 ExternalProject_Add(
         ${SUPER_BUILD_PROJECT_NAME}
     GIT_REPOSITORY 
-        git@gitee.com:insky-cache/insky-dji-osdk.git
+        ${GIT_REMOTE_PATH}
     GIT_TAG 
         "insky"
-    CMAKE_ARGS 
+        CMAKE_ARGS 
         "${CMAKE_ARGS}"
         "${SUPER_BUILD_CUSTOMER_COMMAND}"
+    SOURCE_DIR
+        ${GIT_CLONE_PATH}
     PREFIX
         ${SUPERBUILD_ROOT_PATH}/${CMAKE_BUILD_TYPE}
+    GIT_SHALLOW
+        TRUE
     GIT_PROGRESS 
         TRUE
+    DOWNLOAD_COMMAND
+        ${CUSTOM_CLONE_COMMAND}
 )

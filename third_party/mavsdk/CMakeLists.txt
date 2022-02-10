@@ -34,6 +34,7 @@ set(GIT_CLONE_PATH  ${SUPERBUILD_ROOT_PATH}/src/${SUPER_BUILD_PROJECT_NAME})
 execute_process(
     COMMAND git ls-remote ${GIT_CLONE_PATH} -q
     RESULT_VARIABLE CHECK_FAILED
+    OUTPUT_QUIET
 )
 
 if(NOT ${CHECK_FAILED})
@@ -43,7 +44,7 @@ endif()
 ExternalProject_Add(
         ${SUPER_BUILD_PROJECT_NAME}
     GIT_REPOSITORY 
-        https://github.com/mavlink/MAVSDK.git
+        ${GIT_REMOTE_PATH}
     GIT_TAG
         "main"
     CMAKE_ARGS 
