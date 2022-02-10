@@ -17,7 +17,8 @@ const char* opt_key[static_cast<uint32_t>(rsdk::LinkMethodType::COUNT)] =
 {
     "acm",
     "tcp",
-    "udp"
+    "udp",
+    "any"
 };
 
 #define REGIST_PLUGIN(plugin_name, base_plugin_name) \
@@ -224,7 +225,7 @@ MavBasedVehicleSystem::MavBasedVehicleSystem()
             return true;
         }
     );
-    
+
     _impl = new Impl(this);
 }
 
