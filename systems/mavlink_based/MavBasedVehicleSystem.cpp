@@ -3,6 +3,7 @@
 #include <iostream>
 #include <mavsdk/mavsdk.h>
 #include <mavsdk/plugins/info/info.h>
+#include <mavsdk/log_callback.h>
 #include <future>
 
 #include "plugins/collectror/MavAttitude.hpp"
@@ -200,6 +201,30 @@ template<rsdk::LinkMethodType E> bool add_connection(const rsdk::SystemConfig& c
 /*****************************************************************************************************/
 MavBasedVehicleSystem::MavBasedVehicleSystem()
 {
+    mavsdk::log::subscribe(
+        [this](mavsdk::log::Level level, const std::string& message, const std::string& file, int line)->bool
+        {
+            switch (level)
+            {
+            case mavsdk::log::Level::Debug :
+                publishInfo<rsdk::SystemInfoLevel::TRACE>(message);
+                break;
+            case mavsdk::log::Level::Err :
+                publishInfo<rsdk::SystemInfoLevel::ERROR>(message);
+                break;
+            case mavsdk::log::Level::Info :
+                publishInfo<rsdk::SystemInfoLevel::INFO>(message);
+                break;
+            case mavsdk::log::Level::Warn :
+                publishInfo<rsdk::SystemInfoLevel::WARNING>(message);
+                break;
+            default:
+                break;
+            }
+            return true;
+        }
+    );
+    
     _impl = new Impl(this);
 }
 
