@@ -24,6 +24,7 @@ if(BUILD_MAVBASED_SYSTEM)
     CMAKE_ARGS
         "-DSUPERBUILD=OFF"
         "-DBUILD_TESTS=OFF"
+        "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
     )
 
     add_subdirectory(mavlink_based)
