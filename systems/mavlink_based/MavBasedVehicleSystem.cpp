@@ -1,6 +1,5 @@
 #include "MavBasedVehicleSystem.hpp"
 #include <rsdk/system/SystemLinkMethods.hpp>
-#include <iostream>
 #include <mavsdk/mavsdk.h>
 #include <mavsdk/plugins/info/info.h>
 #include <mavsdk/log_callback.h>
@@ -83,10 +82,14 @@ public:
         }
 
         _mavsdk_system = fut.get();
-        if(_mavsdk_system->is_connected())
+
+        if(!_mavsdk_system->is_connected())
         {
-            std::cout << "system is connected" << std::endl;
+            _owner->error("system not connected!");
+            return false;
         }
+
+        _owner->error("system is connected");
 
         _unique_code = getUniqueID();
         _config      = config;
