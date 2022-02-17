@@ -23,7 +23,6 @@ namespace rsdk
         ~PluginMap();
 
         /**
-         * 
          * @brief Get the Plugin object
          * 
          * @tparam T 
@@ -32,13 +31,13 @@ namespace rsdk
         template<class T> 
         std::shared_ptr<T> BasePluginImpl()
         {
-            auto ptr = _getPlugin( typeid(T).hash_code() );
+            auto ptr = _get_plugin( typeid(T).hash_code() );
             return ptr ? std::dynamic_pointer_cast<T>(ptr) : nullptr;
         }
 
     protected:
         /**
-         * @brief 
+         * @brief regist plugin
          * 
          * @tparam T the base type of G
          * @tparam G regist type
@@ -61,7 +60,7 @@ namespace rsdk
          * @param plugin_hash 
          * @return std::shared_ptr<BasePlugin> 
          */
-        std::shared_ptr<BasePlugin> _getPlugin(size_t plugin_hash);
+        std::shared_ptr<BasePlugin> _get_plugin(size_t plugin_hash);
 
         /**
          * @brief 

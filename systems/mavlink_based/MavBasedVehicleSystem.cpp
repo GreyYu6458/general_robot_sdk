@@ -131,7 +131,7 @@ private:
         while(rst.first != mavsdk::Info::Result::Success && max_retry_time--)
         {
             rst = system_info.get_identification();
-            _owner->error("waitting for mavlink version response");
+            _owner->info("waitting for mavlink version response");
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
         /* fuck! last charecror of hardware_uid is /000 maybe i can push a issue */

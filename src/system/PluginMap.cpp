@@ -53,7 +53,7 @@ namespace rsdk
         delete _impl;
     }
 
-    std::shared_ptr<BasePlugin> PluginMap::_getPlugin(size_t plugin_hash)
+    std::shared_ptr<BasePlugin> PluginMap::_get_plugin(size_t plugin_hash)
     {
         std::lock_guard<std::mutex> l(_impl->plugin_regist_mutex);
         return (_impl->plugin_hash_map.count(plugin_hash)) ? 

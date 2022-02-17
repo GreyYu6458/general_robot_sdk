@@ -13,10 +13,11 @@ namespace rsdk
 
     // 飞机访问者接口类,具体的飞机实现时需要继承该接口
     // 注意:飞机尽量具体到某一个机型
+    // fixme : When using HUI_EXPORT, enable_shared_from_this should be avoided
     class HUI_EXPORT RobotSystem : public RObject, 
                         public SystemInfoPublisher, 
                         public PluginMap,
-                        public std::enable_shared_from_this<RobotSystem>
+                        public std::enable_shared_from_this<RobotSystem> 
     {
     public:
         RobotSystem();
