@@ -25,7 +25,13 @@ bool MavGNSSUncertain::start()
 {
     _impl->_is_start = true;
 
-    mavTelemetry()->set_rate_gps_info( updateRate() );
+    auto update_rate = updateRate();
+
+    while(mavTelemetry()->set_rate_gps_info( update_rate ) != mavsdk::Telemetry::Result::Success)
+    {
+        mavSystem()->info("setting battery message rate to " + std::to_string(update_rate));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 
     mavTelemetry()->subscribe_raw_gps(
         [this](auto info)

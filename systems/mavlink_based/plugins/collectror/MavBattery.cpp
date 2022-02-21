@@ -24,8 +24,14 @@ MavBattery::~MavBattery()
 bool MavBattery::start()
 {
     _impl->_is_start = true;
+    
+    auto update_rate = updateRate();
 
-    mavTelemetry()->set_rate_battery( updateRate() );
+    while(mavTelemetry()->set_rate_battery( update_rate ) != mavsdk::Telemetry::Result::Success)
+    {
+        mavSystem()->info("setting battery message rate to " + std::to_string(update_rate));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 
     mavTelemetry()->subscribe_battery(
         [this](mavsdk::Telemetry::Battery battery)

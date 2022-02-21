@@ -26,7 +26,13 @@ bool MavFlightStatus::start()
 {
     _impl->_is_start = true;
 
-    mavTelemetry()->set_rate_landed_state( updateRate() );
+    auto update_rate = updateRate();
+
+    while(mavTelemetry()->set_rate_landed_state( update_rate ) != mavsdk::Telemetry::Result::Success)
+    {
+        mavSystem()->info("setting battery message rate to " + std::to_string(update_rate));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 
     mavTelemetry()->subscribe_landed_state(
         [this](mavsdk::Telemetry::LandedState state)
