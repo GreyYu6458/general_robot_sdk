@@ -37,6 +37,7 @@ execute_process(
     COMMAND git ls-remote ${GIT_CLONE_PATH} -q
     RESULT_VARIABLE CHECK_FAILED
     OUTPUT_QUIET
+    ERROR_QUIET
 )
 
 if(NOT ${CHECK_FAILED})
