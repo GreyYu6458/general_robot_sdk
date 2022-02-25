@@ -30,7 +30,7 @@ foreach(CMAKE_ARG ${SUPER_BUILD_CUSTOMER_COMMAND})
     message(STATUS "-- ${CMAKE_ARG}")
 endforeach()
 
-set(GIT_REMOTE_PATH git@gitee.com:insky-cache/insky-dji-osdk.git)
+set(GIT_REMOTE_PATH git@192.168.11.143:robotdev/dji_insky_osdk.git)
 set(GIT_CLONE_PATH  ${SUPERBUILD_ROOT_PATH}/src/${SUPER_BUILD_PROJECT_NAME})
 
 execute_process(
